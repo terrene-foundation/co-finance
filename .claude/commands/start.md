@@ -7,7 +7,7 @@ Present this orientation to the user in a warm, clear, jargon-free way. Adapt to
 
 ## What is COC?
 
-COC is a structured workflow where YOU direct an AI to build software. You don't need to write code. Your job is to:
+COC is a structured workflow for building financial education and analysis tools. YOU direct an AI to build the software — you don't need to write code. Your job is to:
 
 1. **Describe what you want** (in your own words, as detailed as you like)
 2. **Make decisions** when choices come up (we'll always explain the options clearly)
@@ -18,13 +18,13 @@ The AI handles all the technical work — writing code, testing, security checks
 
 ## The 5 Phases
 
-| Step | Command | What Happens | Your Role |
-|------|---------|-------------|-----------|
-| 1. Research | `/analyze` | Study your idea — market fit, user needs, competition | Confirm we understood your vision |
-| 2. Planning | `/todos` | Create a complete project roadmap | Approve the plan before building starts |
-| 3. Building | `/implement` | Build the project one task at a time | Answer questions when choices come up |
-| 4. Testing | `/redteam` | Test everything from a real user's perspective | Review results |
-| 5. Knowledge | `/codify` | Capture what we learned for future sessions | Confirm the knowledge is accurate |
+| Step         | Command      | What Happens                                          | Your Role                               |
+| ------------ | ------------ | ----------------------------------------------------- | --------------------------------------- |
+| 1. Research  | `/analyze`   | Study your idea — market fit, user needs, competition | Confirm we understood your vision       |
+| 2. Planning  | `/todos`     | Create a complete project roadmap                     | Approve the plan before building starts |
+| 3. Building  | `/implement` | Build the project one task at a time                  | Answer questions when choices come up   |
+| 4. Testing   | `/redteam`   | Test everything from a real user's perspective        | Review results                          |
+| 5. Knowledge | `/codify`    | Capture what we learned for future sessions           | Confirm the knowledge is accurate       |
 
 Plus **`/deploy`** when you're ready to launch, and **`/ws`** anytime to check progress.
 
@@ -33,7 +33,7 @@ Plus **`/deploy`** when you're ready to launch, and **`/ws`** anytime to check p
 Walk the user through these steps:
 
 1. **Create a workspace**: Ask the AI to set up a workspace for your project (e.g., "create a workspace called my-project"), or manually create a folder `workspaces/my-project/briefs/`
-2. **Write a brief**: Create a file in the briefs folder describing what you want to build — in your own words, as detailed as you like. Include who it's for, what problem it solves, and what success looks like. You can also just tell the AI what you want and ask it to write the brief for you.
+2. **Write a brief**: Create a file in the briefs folder describing what financial tool or learning experience you want to build — in your own words, as detailed as you like. Include who it's for (beginners learning investing? advisors analyzing portfolios?), what problem it solves, and what success looks like. You can also just tell the AI what you want and ask it to write the brief for you.
 3. **Run `/analyze`**: This kicks off the research phase
 
 If the user already has a workspace, show them their current status with `/ws` instead.

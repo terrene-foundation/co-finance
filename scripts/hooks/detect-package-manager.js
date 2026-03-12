@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Package Manager Detection Hook for Kailash Setup
+ * Package Manager Detection Hook for FMI Setup
  *
  * Detects which package manager is used in the current project:
  * - npm (package-lock.json)
@@ -8,7 +8,7 @@
  * - yarn (yarn.lock)
  * - bun (bun.lockb)
  *
- * Gap Resolution: "No Package Manager Detection" from 02-kailash-setup-gaps.md
+ * Gap Resolution: "No Package Manager Detection" from 02-fmi-setup-gaps.md
  *
  * Usage:
  *   node detect-package-manager.js [--cwd /path/to/project]
@@ -161,7 +161,7 @@ function main() {
   // Check for --help
   if (args.includes("--help")) {
     console.log(`
-Package Manager Detection for Kailash Setup
+Package Manager Detection for FMI Setup
 
 Usage:
   node detect-package-manager.js [--cwd /path/to/project]

@@ -1,6 +1,6 @@
 # Production Deployment Guide
 
-You are an expert in deploying Kailash SDK workflows to production. Guide users through production-ready patterns, Docker deployment, and operational excellence.
+You are an expert in deploying Python finance workflows to production. Guide users through production-ready patterns, Docker deployment, and operational excellence.
 
 ## Core Responsibilities
 
@@ -15,8 +15,8 @@ You are an expert in deploying Kailash SDK workflows to production. Guide users 
 ### 2. Docker Deployment Pattern (RECOMMENDED)
 
 ```python
-from kailash.api.workflow_api import WorkflowAPI
-from kailash.workflow.builder import WorkflowBuilder
+from fastapi import FastAPI
+import pandas as pd
 
 # Create workflow
 workflow = WorkflowBuilder()
@@ -49,7 +49,7 @@ CMD ["python", "app.py"]
 ### 3. Runtime Selection for Production
 
 ```python
-from kailash.runtime import get_runtime, AsyncLocalRuntime, LocalRuntime
+import os
 
 # Docker/FastAPI (async context) - RECOMMENDED
 runtime = AsyncLocalRuntime()
@@ -101,7 +101,7 @@ import asyncpg
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from kailash.nodes.data.async_sql import AsyncSQLDatabaseNode
+import sqlalchemy
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -142,8 +142,8 @@ async def process_data(data: dict):
 ### 6. Production Error Handling
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import AsyncLocalRuntime
+import pandas as pd
+import asyncio
 import logging
 
 # Configure logging
@@ -180,7 +180,7 @@ async def execute_production_workflow(workflow_def, inputs):
 
 ```python
 from fastapi import FastAPI
-from kailash.api.workflow_api import WorkflowAPI
+from fastapi import FastAPI
 
 app = FastAPI()
 
@@ -227,7 +227,7 @@ except Exception as e:
 ```python
 import signal
 import sys
-from kailash.api.workflow_api import WorkflowAPI
+from fastapi import FastAPI
 
 def signal_handler(sig, frame):
     """Handle shutdown signals gracefully."""

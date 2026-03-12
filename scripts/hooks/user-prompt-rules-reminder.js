@@ -6,7 +6,7 @@
  *          This is the PRIMARY mechanism that survives context compression,
  *          because it runs fresh on every turn (independent of memory).
  *
- * Framework-agnostic — works with any Kailash project.
+ * Framework-agnostic — works with any FMI project.
  *
  * Exit Codes:
  *   0 = success (continue)

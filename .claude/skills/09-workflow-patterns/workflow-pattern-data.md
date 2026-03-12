@@ -16,27 +16,27 @@ Patterns for data cleaning, transformation, and aggregation workflows.
 ## Pattern: Data Quality Pipeline
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
+import pandas as pd
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Load data
-workflow.add_node("CSVReaderNode", "load", {"file_path": "data.csv"})
+pipeline.add_step("CSVReaderNode", "load", {"file_path": "data.csv"})
 
 # 2. Remove duplicates
-workflow.add_node("DeduplicateNode", "dedupe", {
+pipeline.add_step("DeduplicateNode", "dedupe", {
     "input": "{{load.data}}",
     "key_fields": ["email"]
 })
 
 # 3. Validate schema
-workflow.add_node("DataValidationNode", "validate", {
+pipeline.add_step("DataValidationNode", "validate", {
     "input": "{{dedupe.data}}",
     "schema": {"email": "email", "age": "integer"}
 })
 
 # 4. Clean fields
-workflow.add_node("TransformNode", "clean", {
+pipeline.add_step("TransformNode", "clean", {
     "input": "{{validate.valid_data}}",
     "transformations": [
         {"field": "email", "operation": "lowercase"},
@@ -45,16 +45,16 @@ workflow.add_node("TransformNode", "clean", {
 })
 
 # 5. Aggregate metrics
-workflow.add_node("AggregateNode", "aggregate", {
+pipeline.add_step("AggregateNode", "aggregate", {
     "input": "{{clean.data}}",
     "group_by": ["country"],
     "aggregations": {"count": "COUNT(*)", "avg_age": "AVG(age)"}
 })
 
-workflow.add_connection("load", "data", "dedupe", "input")
-workflow.add_connection("dedupe", "data", "validate", "input")
-workflow.add_connection("validate", "valid_data", "clean", "input")
-workflow.add_connection("clean", "data", "aggregate", "input")
+pipeline.connect("load", "data", "dedupe", "input")
+pipeline.connect("dedupe", "data", "validate", "input")
+pipeline.connect("validate", "valid_data", "clean", "input")
+pipeline.connect("clean", "data", "aggregate", "input")
 ```
 
 ## Documentation

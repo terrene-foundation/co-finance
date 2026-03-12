@@ -149,5 +149,5 @@ Use this skill when:
 
 For enterprise AI UX questions, invoke:
 - `uiux-designer` - Design decisions
-- `flutter-specialist` - Implementation
-- `kaizen-specialist` - AI patterns
+- `frontend-developer` - Implementation
+- `ai-specialist` - AI patterns

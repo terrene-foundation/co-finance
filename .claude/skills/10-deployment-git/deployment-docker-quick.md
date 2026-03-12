@@ -1,6 +1,6 @@
 ---
 name: deployment-docker-quick
-description: "Docker deployment quick start. Use when asking 'docker deployment', 'containerize kailash', or 'docker setup'."
+description: "Docker deployment quick start. Use when asking 'docker deployment', 'containerize finance-app', or 'docker setup'."
 ---
 
 # Docker Deployment Quick Start
@@ -47,8 +47,8 @@ CMD ["python", "app.py"]
 ```python
 # app.py
 import os
-from kailash.api.workflow_api import WorkflowAPI
-from kailash.workflow.builder import WorkflowBuilder
+from finance-app.api.workflow_api import WorkflowAPI
+from finance-app.workflow.builder import WorkflowBuilder
 
 workflow = WorkflowBuilder()
 workflow.add_node("LLMNode", "chat", {
@@ -66,12 +66,12 @@ api.run(host="0.0.0.0", port=8000)
 
 ```bash
 # Build image
-docker build -t my-kailash-app .
+docker build -t my-finance-app .
 
 # Run container
 docker run -p 8000:8000 \
   -e OPENAI_API_KEY=${OPENAI_API_KEY} \
-  my-kailash-app
+  my-finance-app
 
 # Access API
 curl http://localhost:8000/health
@@ -123,4 +123,4 @@ docker-compose logs -f app
 5. **Non-root user** - Security best practice
 6. **Volume mounts** - For persistent data
 
-<!-- Trigger Keywords: docker deployment, containerize kailash, docker setup, kailash docker -->
+<!-- Trigger Keywords: docker deployment, containerize finance-app, docker setup, finance-app docker -->

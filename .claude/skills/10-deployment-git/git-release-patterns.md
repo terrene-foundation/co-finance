@@ -114,14 +114,14 @@ vim setup.py                    # version="x.y.z"
 vim pyproject.toml              # [project] version = "x.y.z"
 
 # Bundled packages
-vim dataflow/setup.py
-vim dataflow/pyproject.toml
+vim database/setup.py
+vim database/pyproject.toml
 
-vim nexus/setup.py
-vim nexus/pyproject.toml
+vim app/setup.py
+vim app/pyproject.toml
 
-vim kaizen/setup.py
-vim kaizen/pyproject.toml
+vim ai/setup.py
+vim ai/pyproject.toml
 ```
 
 ## Release Branch Workflow
@@ -144,8 +144,8 @@ python -m build
 # Test installation
 python -m venv test-release
 source test-release/bin/activate
-pip install dist/kailash-*.whl
-python -c "import kailash; print(kailash.__version__)"
+pip install dist/finance-app-*.whl
+python -c "import finance-app; print(finance-app.__version__)"
 deactivate && rm -rf test-release
 
 # 4. Push Release Branch
@@ -162,7 +162,7 @@ git tag v[version]
 git push origin v[version]
 
 # 2. Create GitHub Release
-# Go to: https://github.com/[org]/kailash_python_sdk/releases
+# Go to: https://github.com/[org]/finance-app_python_sdk/releases
 # - Tag: v[version]
 # - Target: main
 # - Title: v[version] - [Brief Description]

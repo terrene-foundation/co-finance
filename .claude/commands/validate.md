@@ -6,11 +6,12 @@ Run compliance checks against the project's applicable standards. Automatically 
 
 ## Step 1: Detect Project Type
 
-Before validating, determine what frameworks the project uses:
+Before validating, determine what the project involves:
 
-1. **Check for Kailash SDK (Python)**: Look for `kailash` in `requirements.txt`, `pyproject.toml`, `setup.py`, `setup.cfg`, or `from kailash` / `import kailash` in Python files
-2. **Check for Kailash SDK (Rust with Python bindings)**: Look for `kailash` in `Cargo.toml` dependencies alongside Python project markers
-3. **Generic project**: If neither detected, apply universal standards only
+1. **Check for financial calculations**: Look for currency handling, portfolio math, returns calculations, pricing models in Python files
+2. **Check for data pipelines**: Look for market data ingestion, time series processing, data transformations
+3. **Check for educational content**: Look for learning modules, quizzes, curriculum content, explanatory text
+4. **Generic project**: If none detected, apply universal standards only
 
 Report what you detected before proceeding.
 
@@ -37,21 +38,29 @@ These always apply regardless of project type:
 - [ ] Error handling present (no silent `except: pass`)
 - [ ] No secrets in git history
 
-## Step 3: Kailash SDK Checks (ONLY when detected)
+## Step 3: Finance-Specific Checks (ONLY when financial code detected)
 
-If Step 1 detected Kailash SDK usage, ALSO run these checks by loading the Kailash-specific skills:
+If Step 1 detected financial calculations or data handling, ALSO run these checks:
 
-- Load `.claude/skills/17-gold-standards/SKILL.md` for pattern standards
-- Load `.claude/skills/16-validation-patterns/SKILL.md` for validation tools
+| Check                   | What It Validates                                                                        |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| Decimal for Currency    | All currency values use `Decimal` (never `float`) to avoid rounding errors               |
+| Named Constants         | Magic numbers replaced with named constants (e.g., `TRADING_DAYS_PER_YEAR = 252`)        |
+| Disclaimer Presence     | Financial disclaimers present on pages showing calculations, returns, or recommendations |
+| Data Source Citations   | Market data, benchmarks, and statistics cite their source and date                       |
+| Percentage Precision    | Percentages displayed with consistent decimal places and clear formatting                |
+| Negative Value Handling | Losses and negative returns are clearly indicated (color, sign, parentheses)             |
+| Date/Time Handling      | Financial dates use proper business day calendars and timezone awareness                 |
 
-| Check            | What It Validates                                                                   |
-| ---------------- | ----------------------------------------------------------------------------------- |
-| Absolute Imports | `from kailash.x.y import Z` — no relative imports                                   |
-| Runtime Pattern  | `runtime.execute(workflow.build())` — never skip `.build()`                         |
-| Connections      | 4-parameter format: `(source_id, source_param, target_id, target_param)`            |
-| Result Access    | `results["node_id"]["result"]` — not `.result` attribute                            |
-| Custom Nodes     | `@register_node()`, `run()` not `execute()`, attributes before `super().__init__()` |
-| DataFlow         | String ID preservation, one instance per database, deferred schema                  |
+### Finance Validation Checklist
+
+- [ ] Currency calculations use `Decimal`, not `float`
+- [ ] No magic numbers — named constants for financial parameters
+- [ ] Disclaimers present where required (educational content, backtested results, hypothetical performance)
+- [ ] Data sources cited with date of retrieval
+- [ ] Percentages formatted consistently
+- [ ] Negative values clearly distinguished from positive
+- [ ] Business day logic uses proper calendars (not naive weekday checks)
 
 ## Quick Subcommands
 
@@ -61,9 +70,9 @@ If Step 1 detected Kailash SDK usage, ALSO run these checks by loading the Kaila
 /validate testing        → Mocking policy, test organization (universal)
 /validate stubs          → TODOs, placeholders, fake data (universal)
 /validate env            → Hardcoded API keys, model names (universal)
-/validate imports        → Absolute import compliance (Kailash only)
-/validate patterns       → Runtime execution patterns (Kailash only)
-/validate dataflow       → DataFlow result access patterns (Kailash only)
+/validate finance        → Decimal usage, constants, disclaimers, citations (finance only)
+/validate disclaimers    → Financial disclaimer presence and completeness (finance only)
+/validate precision      → Currency and percentage precision checks (finance only)
 ```
 
 ## Agent Teams
@@ -73,17 +82,19 @@ Deploy these agents for validation:
 - **security-reviewer** — Security audit (MANDATORY)
 - **gold-standards-validator** — Compliance check against project standards
 - **testing-specialist** — Verify NO MOCKING policy, test organization
+- **regulatory-compliance** — Financial disclaimer and regulatory requirement validation
+- **financial-engineer** — Numerical precision and calculation correctness
 
 ## Related Commands
 
 - `/test` - Testing strategies
-- `/sdk` - Core SDK patterns (Kailash projects)
-- `/db` - DataFlow patterns (Kailash projects)
-- `/api` - Nexus patterns (Kailash projects)
-- `/ai` - Kaizen patterns (Kailash projects)
+- `/finance` - Financial calculation patterns
+- `/data` - Market data API patterns
+- `/portfolio` - Portfolio construction and risk
+- `/backtest` - Backtesting strategies
 - `/i-audit` - Frontend design quality audit
 
 ## Skill References
 
 - Always: Project rules (`rules/security.md`, `rules/testing.md`, `rules/no-stubs.md`, `rules/env-models.md`)
-- When Kailash detected: `.claude/skills/17-gold-standards/SKILL.md`, `.claude/skills/16-validation-patterns/SKILL.md`
+- When finance detected: `.claude/skills/07-regulatory-framework/SKILL.md`, `.claude/skills/01-financial-instruments/SKILL.md`

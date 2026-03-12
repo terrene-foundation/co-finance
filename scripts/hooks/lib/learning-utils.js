@@ -13,21 +13,21 @@ const os = require("os");
  * Resolve the learning directory for a given project.
  *
  * Priority:
- *   1. KAILASH_LEARNING_DIR env var (for testing)
+ *   1. FMI_LEARNING_DIR env var (for testing)
  *   2. <cwd>/.claude/learning/ (per-project)
- *   3. ~/.claude/kailash-learning/ (legacy fallback)
+ *   3. ~/.claude/fmi-learning/ (legacy fallback)
  *
  * @param {string} [cwd] - Project working directory
  * @returns {string} Absolute path to the learning directory
  */
 function resolveLearningDir(cwd) {
-  if (process.env.KAILASH_LEARNING_DIR) {
-    return process.env.KAILASH_LEARNING_DIR;
+  if (process.env.FMI_LEARNING_DIR) {
+    return process.env.FMI_LEARNING_DIR;
   }
   if (cwd) {
     return path.join(cwd, ".claude", "learning");
   }
-  return path.join(os.homedir(), ".claude", "kailash-learning");
+  return path.join(os.homedir(), ".claude", "fmi-learning");
 }
 
 /**
@@ -61,7 +61,7 @@ function ensureLearningDir(cwd) {
   if (!fs.existsSync(identityFile)) {
     try {
       const identity = {
-        system: "kailash-coc-claude-py",
+        system: "fmi-coc-claude-py",
         version: "2.0.0",
         created_at: new Date().toISOString(),
         learning_enabled: true,
@@ -69,7 +69,7 @@ function ensureLearningDir(cwd) {
         focus_areas: [
           "workflow-patterns",
           "error-fixes",
-          "dataflow-patterns",
+          "market-data-patterns",
           "testing-patterns",
           "framework-selection",
         ],

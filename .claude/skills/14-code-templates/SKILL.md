@@ -1,93 +1,96 @@
 ---
-name: code-templates
-description: "Production-ready code templates for Kailash SDK including basic workflows, cyclic workflows, custom nodes, MCP servers, and all three test tiers (unit, integration, end-to-end). Use when asking about 'template', 'example code', 'starter code', 'boilerplate', 'scaffold', 'workflow template', 'custom node template', 'MCP server template', 'test template', 'unit test template', 'integration test template', or 'E2E test template'."
+name: finance-code-templates
+description: "Production-ready code templates for financial Python projects including financial calculators, backtesting strategies, data pipelines, and financial calculation tests. Use when asking about 'template', 'example code', 'starter code', 'boilerplate', 'scaffold', 'calculator template', 'strategy template', 'pipeline template', 'test template', 'financial test template', or 'backtest template'."
 ---
 
-# Kailash Code Templates
+# Finance Code Templates
 
-Production-ready code templates and boilerplate for common Kailash development tasks.
+Production-ready code templates and boilerplate for common financial Python development tasks.
 
 ## Overview
 
 Complete templates for:
-- Basic workflows
-- Cyclic workflows
-- Custom node development
-- MCP server creation
-- Unit tests (Tier 1)
-- Integration tests (Tier 2)
-- End-to-end tests (Tier 3)
+
+- Financial calculator classes (with Decimal, validation)
+- Backtesting strategy (backtrader with analyzers)
+- Market data pipeline (fetch, validate, cache, serve)
+- Financial calculation tests (benchmark values)
+- Integration tests (data pipeline testing)
+- Unit tests (formula validation)
+- Basic analysis script
 
 ## Reference Documentation
 
-### Workflow Templates
+### Calculator Templates
 
-#### Basic Workflow
-- **[template-workflow-basic](template-workflow-basic.md)** - Standard workflow template
-  - WorkflowBuilder setup
-  - Node addition pattern
-  - Connection pattern
-  - Runtime execution
-  - Result access
-  - Error handling
+#### Financial Calculator
 
-#### Cyclic Workflow
-- **[template-cyclic-workflow](template-cyclic-workflow.md)** - Cyclic workflow template
-  - CycleNode setup
-  - Convergence checking
-  - State persistence
-  - Iteration limits
-  - Result aggregation
-
-### Custom Development Templates
-
-#### Custom Node
-- **[template-custom-node](template-custom-node.md)** - Custom node template
-  - Node class structure
-  - Parameter definition
-  - Execute method implementation
+- **[template-financial-calculator](template-financial-calculator.md)** - Reusable calculator class
+  - Decimal-based monetary calculations
   - Input validation
-  - Output formatting
-  - Error handling
-  - Registration pattern
+  - TVM functions
+  - Risk metrics
+  - Type hints and docstrings
 
-#### MCP Server
-- **[template-mcp-server](template-mcp-server.md)** - MCP server template
-  - MCPServer initialization
-  - Tool registration
-  - Resource definition
-  - Transport configuration
-  - Authentication setup
-  - Progress reporting
+### Strategy Templates
+
+#### Backtesting Strategy
+
+- **[template-backtesting-strategy](template-backtesting-strategy.md)** - Backtrader strategy template
+  - Strategy class with parameters
+  - Indicator setup
+  - Order management
+  - Analyzers (Sharpe, drawdown, trade stats)
+  - Complete Cerebro setup
+
+### Data Pipeline Templates
+
+#### Market Data Pipeline
+
+- **[template-data-pipeline](template-data-pipeline.md)** - Data pipeline template
+  - Fetch from API
+  - Validate and clean
+  - Cache to local storage
+  - Serve to consumers
+  - Error handling and retry
 
 ### Test Templates
 
-#### Unit Tests (Tier 1)
+#### Financial Tests
+
+- **[template-test-financial](template-test-financial.md)** - Financial test template
+  - Benchmark value comparison
+  - Tolerance handling with pytest.approx
+  - Decimal precision tests
+  - Edge case coverage
+  - Multi-scenario parametrized tests
+
+#### Integration Tests
+
+- **[template-test-integration](template-test-integration.md)** - Integration test template
+  - Data pipeline testing
+  - Database roundtrip tests
+  - Real file I/O tests
+  - Multi-step calculation verification
+
+#### Unit Tests
+
 - **[template-test-unit](template-test-unit.md)** - Unit test template
-  - Test class structure
-  - Fixture setup
-  - Mock setup (allowed in Tier 1)
-  - Assertion patterns
-  - Teardown cleanup
+  - Pure function tests
+  - CFA benchmark comparisons
+  - Edge case validation
   - Fast execution pattern
 
-#### Integration Tests (Tier 2)
-- **[template-test-integration](template-test-integration.md)** - Integration test template
-  - Real database setup
-  - Workflow execution testing
-  - NO MOCKING policy
-  - Real infrastructure fixtures
-  - Resource cleanup
-  - Result validation
+### Analysis Script Template
 
-#### End-to-End Tests (Tier 3)
-- **[template-test-e2e](template-test-e2e.md)** - E2E test template
-  - Full system setup
-  - API testing pattern
-  - Real HTTP requests
-  - Complete user flows
-  - Multi-component testing
-  - Production-like environment
+#### Basic Analysis
+
+- **[template-workflow-basic](template-workflow-basic.md)** - Analysis script template
+  - Data loading and cleaning
+  - Returns calculation
+  - Risk metrics
+  - Visualization
+  - Report output
 
 ## Template Usage
 
@@ -96,182 +99,42 @@ Complete templates for:
 1. **Select Template**: Choose relevant template for your task
 2. **Copy Code**: Copy template as starting point
 3. **Customize**: Adapt to your specific needs
-4. **Test**: Verify with real data
+4. **Test**: Verify with real or synthetic data
 5. **Refine**: Iterate based on results
 
-### Template Categories
+### Template Selection Guide
 
-**Workflow Development**:
-- `template-workflow-basic` → Standard workflows
-- `template-cyclic-workflow` → Iterative workflows
-
-**Custom Development**:
-- `template-custom-node` → New node types
-- `template-mcp-server` → MCP integration
-
-**Testing**:
-- `template-test-unit` → Fast unit tests
-- `template-test-integration` → Real infrastructure tests
-- `template-test-e2e` → Complete system tests
-
-## Template Examples
-
-All templates follow the **canonical 4-parameter pattern** from `/01-core-sdk`.
-
-### Basic Workflow Template
-
-```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime.local import LocalRuntime
-
-def create_workflow():
-    """Create a basic workflow using canonical 4-param pattern (see /01-core-sdk)."""
-    workflow = WorkflowBuilder()
-
-    # Add nodes (4-param: NodeType, ID, config, connections)
-    workflow.add_node("PythonCodeNode", "node1", {
-        "code": "result = input_data * 2"
-    })
-    workflow.add_node("PythonCodeNode", "node2", {
-        "code": "result = input_data + 10"
-    })
-
-    # Add connections (4-param: src_id, src_param, tgt_id, tgt_param)
-    workflow.add_connection("node1", "result", "node2", "input_data")
-
-    return workflow
-
-# Execute with context manager (always .build() before execute)
-with LocalRuntime() as runtime:
-    results, run_id = runtime.execute(create_workflow().build())
-    print(results["node2"]["result"])
-```
-
-### Custom Node Template
-
-```python
-from kailash.nodes.base import BaseNode
-
-class MyCustomNode(BaseNode):
-    """Custom node implementation."""
-
-    def __init__(self, node_id: str, **params):
-        super().__init__(node_id)
-        self.my_param = params.get("my_param")
-
-    def execute(self, inputs: dict) -> dict:
-        """Execute node logic."""
-        # Validate inputs
-        if "input_data" not in inputs:
-            raise ValueError("Missing input_data")
-
-        # Process
-        result = self.process(inputs["input_data"])
-
-        # Return output
-        return {"result": result}
-
-    def process(self, data):
-        """Custom processing logic."""
-        return data * 2
-```
-
-### Integration Test Template
-
-```python
-import pytest
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime.local import LocalRuntime
-from dataflow import DataFlow
-
-@pytest.fixture
-def db():
-    """Real database for testing."""
-    db = DataFlow("postgresql://test:test@localhost:5433/test_db")
-    db.create_tables()
-    yield db
-    db.drop_tables()
-
-@pytest.fixture
-def runtime():
-    """Real runtime."""
-    return LocalRuntime()
-
-def test_workflow_execution(runtime):
-    """Tier 2: Integration test with real execution."""
-    # Arrange
-    workflow = WorkflowBuilder()
-    workflow.add_node("PythonCodeNode", "calc", {
-        "code": "result = 2 + 2"
-    })
-
-    # Act
-    results, run_id = runtime.execute(workflow.build())
-
-    # Assert
-    assert results["calc"]["result"] == 4
-    assert run_id is not None
-```
+| Task                       | Template                        | Why                          |
+| -------------------------- | ------------------------------- | ---------------------------- |
+| **Financial calculations** | `template-financial-calculator` | Decimal precision, validated |
+| **Trading strategy**       | `template-backtesting-strategy` | Backtrader best practices    |
+| **Data ingestion**         | `template-data-pipeline`        | Fetch, validate, cache       |
+| **Testing calculations**   | `template-test-financial`       | Benchmark values, tolerance  |
+| **Testing pipelines**      | `template-test-integration`     | Real data, real I/O          |
+| **Fast formula tests**     | `template-test-unit`            | Pure functions, <1s          |
+| **Analysis script**        | `template-workflow-basic`       | Load, analyze, visualize     |
 
 ## Best Practices
 
 ### Using Templates
-- ✅ Start with template, then customize
-- ✅ Keep template structure
-- ✅ Follow naming conventions
-- ✅ Add comments for customization points
-- ✅ Test template modifications
-- ❌ NEVER skip error handling
-- ❌ NEVER remove validation
-- ❌ NEVER ignore resource cleanup
 
-### Template Customization
-- Keep core structure intact
-- Add custom logic in designated areas
-- Maintain error handling patterns
-- Preserve type hints
-- Update docstrings
+- Start with template, then customize
+- Keep the validation and error handling
+- Follow naming conventions
+- Add comments for customization points
+- Test modifications with known benchmark values
 
-### Testing Templates
-- Test with real data
-- Verify all code paths
-- Check error handling
-- Validate cleanup
-- Performance test if needed
+### Financial-Specific Practices
 
-## When to Use This Skill
-
-Use this skill when you need:
-- Starting point for new code
-- Boilerplate for common tasks
-- Reference implementation
-- Best practice examples
-- Quick scaffolding
-- Test structure guidance
-
-## Template Selection Guide
-
-| Task | Template | Why |
-|------|----------|-----|
-| **New workflow** | `template-workflow-basic` | Standard structure |
-| **Iterative logic** | `template-cyclic-workflow` | Cycle pattern |
-| **Custom node** | `template-custom-node` | Node structure |
-| **MCP integration** | `template-mcp-server` | MCP setup |
-| **Fast tests** | `template-test-unit` | Unit testing |
-| **Real infra tests** | `template-test-integration` | Integration |
-| **Full system** | `template-test-e2e` | End-to-end |
+- Use Decimal for monetary amounts, float64 for returns
+- Always validate inputs (no negative prices, no NaN)
+- Compare against published benchmark values
+- Include disclaimers in any output
+- Cite formulas and note assumptions
 
 ## Related Skills
 
-- **[01-core-sdk](../../01-core-sdk/SKILL.md)** - Core patterns
-- **[06-cheatsheets](../../06-cheatsheets/SKILL.md)** - Pattern examples
-- **[07-development-guides](../../07-development-guides/SKILL.md)** - Development guides
+- **[06-python-finance](../../06-python-finance/SKILL.md)** - Python finance libraries
+- **[13-architecture-decisions](../../13-architecture-decisions/SKILL.md)** - Architecture decisions
 - **[12-testing-strategies](../../12-testing-strategies/SKILL.md)** - Testing strategies
-- **[17-gold-standards](../../17-gold-standards/SKILL.md)** - Best practices
-
-## Support
-
-For template help, invoke:
-- `pattern-expert` - Pattern selection
-- `tdd-implementer` - Test-first development
-- `sdk-navigator` - Find examples
+- **[17-gold-standards](../../17-gold-standards/SKILL.md)** - Development standards

@@ -5,7 +5,7 @@
  * Purpose: Discover env config, validate model-key pairings, create .env if
  *          missing, output model configuration prominently.
  *
- * Framework-agnostic — works with any Kailash project.
+ * Framework-agnostic — works with any FMI project.
  *
  * Exit Codes:
  *   0 = success (continue)
@@ -174,15 +174,18 @@ function detectFramework(cwd) {
     for (const file of files.filter((f) => f.endsWith(".py")).slice(0, 10)) {
       try {
         const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/@db\.model/.test(content) || /from dataflow/.test(content))
-          return "dataflow";
-        if (/from nexus/.test(content) || /Nexus\(/.test(content))
-          return "nexus";
-        if (/from kaizen/.test(content) || /BaseAgent/.test(content))
-          return "kaizen";
+        if (/import pandas/.test(content) || /import yfinance/.test(content))
+          return "market-data";
+        if (/import numpy/.test(content) || /import scipy/.test(content))
+          return "quantitative";
+        if (
+          /import backtrader/.test(content) ||
+          /import QuantLib/.test(content)
+        )
+          return "backtesting";
       } catch {}
     }
-    return "core-sdk";
+    return "financial";
   } catch {
     return "unknown";
   }

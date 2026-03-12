@@ -5,35 +5,35 @@ description: "API integration workflow patterns (REST, GraphQL, webhooks). Use w
 
 # Workflow Pattern: API Integration
 
-Common patterns for integrating external APIs into Kailash workflows.
+Common patterns for integrating external APIs into Python workflows.
 
 ## Pattern 1: REST API Orchestration
 
 Chain multiple REST API calls into a workflow.
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+# runtime setup
 import os
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # Fetch user data
-workflow.add_node("HTTPRequestNode", "get_user", {
+pipeline.add_step("HTTPRequestNode", "get_user", {
     "url": "https://api.example.com/users/123",
     "method": "GET",
     "headers": {"Authorization": f"Bearer {os.environ['API_TOKEN']}"},
 })
 
 # Fetch user's orders
-workflow.add_node("HTTPRequestNode", "get_orders", {
+pipeline.add_step("HTTPRequestNode", "get_orders", {
     "url": "https://api.example.com/users/123/orders",
     "method": "GET",
     "headers": {"Authorization": f"Bearer {os.environ['API_TOKEN']}"},
 })
 
 # Transform results
-workflow.add_node("JSONTransformNode", "combine", {
+pipeline.add_step("JSONTransformNode", "combine", {
     "expression": "@",
 })
 
@@ -51,29 +51,29 @@ print(results["combine"])
 Call multiple independent APIs concurrently.
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+# runtime setup
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # These run in parallel (no dependencies between them)
-workflow.add_node("HTTPRequestNode", "weather", {
+pipeline.add_step("HTTPRequestNode", "weather", {
     "url": "https://api.weather.com/current",
     "method": "GET",
 })
 
-workflow.add_node("HTTPRequestNode", "news", {
+pipeline.add_step("HTTPRequestNode", "news", {
     "url": "https://api.news.com/headlines",
     "method": "GET",
 })
 
-workflow.add_node("HTTPRequestNode", "stocks", {
+pipeline.add_step("HTTPRequestNode", "stocks", {
     "url": "https://api.stocks.com/market",
     "method": "GET",
 })
 
 # Merge results (depends on all three)
-workflow.add_node("JSONTransformNode", "dashboard", {
+pipeline.add_step("JSONTransformNode", "dashboard", {
     "expression": "@",
 })
 workflow.connect("weather", "body", "dashboard", "weather")
@@ -89,18 +89,18 @@ results, run_id = runtime.execute(workflow.build())
 Handle transient API failures.
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+# runtime setup
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
-workflow.add_node("RetryNode", "resilient_call", {
+pipeline.add_step("RetryNode", "resilient_call", {
     "max_retries": 3,
     "backoff_ms": 1000,
     "backoff_multiplier": 2.0,
 })
 
-workflow.add_node("HTTPRequestNode", "api_call", {
+pipeline.add_step("HTTPRequestNode", "api_call", {
     "url": "https://api.example.com/data",
     "method": "POST",
     "timeout": 10,
@@ -118,12 +118,12 @@ results, run_id = runtime.execute(workflow.build())
 Execute GraphQL queries as workflow nodes.
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+# runtime setup
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
-workflow.add_node("GraphQLNode", "query_users", {
+pipeline.add_step("GraphQLNode", "query_users", {
     "url": "https://api.example.com/graphql",
     "query": """
         query GetUsers($limit: Int!) {
@@ -148,21 +148,21 @@ users = results["query_users"]["data"]["users"]
 Build a workflow that processes incoming webhooks.
 
 ```python
-from kailash_nexus import Nexus
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+from python_api_gateway import API gateway
+import pandas as pd
+# runtime setup
 
-app = Nexus()
+app = API gateway()
 
 @app.route("/webhooks/github", methods=["POST"])
 def handle_github_webhook(payload: dict):
     event_type = payload.get("action", "unknown")
 
-    workflow = WorkflowBuilder()
-    workflow.add_node("JSONTransformNode", "extract", {
+    workflow = Pipeline()
+    pipeline.add_step("JSONTransformNode", "extract", {
         "expression": "@.repository.full_name",
     })
-    workflow.add_node("LogNode", "log_event", {
+    pipeline.add_step("LogNode", "log_event", {
         "message": f"GitHub event: {event_type}",
     })
 

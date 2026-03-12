@@ -1,148 +1,99 @@
 ---
 name: cheatsheets
-description: "Quick reference cheatsheets for Kailash SDK patterns, nodes, workflows, and best practices. Use when asking about 'quick tips', 'cheat sheet', 'quick reference', 'common mistakes', 'node selection', 'workflow patterns library', 'cycle patterns', 'production patterns', 'performance optimization', 'monitoring', 'security config', 'multi-tenancy', 'distributed transactions', 'saga pattern', 'custom nodes', 'PythonCode data science', 'ollama integration', 'directoryreader patterns', or 'environment variables'."
+description: "Quick reference cheatsheets for financial Python development including common formulas, Python finance libraries, data API patterns, and calculation patterns. Use when asking about 'quick tips', 'cheat sheet', 'quick reference', 'common mistakes', 'financial formulas', 'finance library', 'data API reference', 'calculation patterns', 'pandas cheatsheet', 'numpy financial', 'returns calculation', 'risk metrics', 'portfolio math', or 'environment variables'."
 ---
 
-# Kailash Patterns - Quick Reference Cheatsheets
+# Finance Python - Quick Reference Cheatsheets
 
-Comprehensive collection of quick reference guides, common patterns, and best practices for Kailash SDK development.
+Comprehensive collection of quick reference guides for financial Python development.
 
 ## Overview
 
 This skill provides quick access to:
-- Common workflow patterns and anti-patterns
-- Node selection and usage guides
-- Production-ready patterns
-- Performance and optimization tips
-- Security and enterprise patterns
-- Integration cheatsheets
+
+- Common financial formulas and their Python implementations
+- Python finance library quick reference (pandas, numpy-financial, scipy, etc.)
+- Data API quick reference (yfinance, FRED, Alpha Vantage, etc.)
+- Common calculation patterns for financial analysis
 
 ## Quick Reference Guides
 
 ### Essential Guides
-- **[kailash-quick-tips](kailash-quick-tips.md)** - Essential tips for Kailash development
-- **[common-mistakes-catalog](common-mistakes-catalog.md)** - Common pitfalls and solutions
-- **[node-selection-guide](node-selection-guide.md)** - Choosing the right nodes
-- **[workflow-patterns-library](workflow-patterns-library.md)** - Comprehensive pattern library
+
+- **[financial-formulas](financial-formulas.md)** - Common financial formulas cheatsheet
+- **[python-finance-libraries](python-finance-libraries.md)** - Python finance library quick reference
+- **[data-api-reference](data-api-reference.md)** - Data API quick reference
+- **[calculation-patterns](calculation-patterns.md)** - Common calculation patterns
 - **[README](README.md)** - Cheatsheets overview
-
-### Node References
-- **[admin-nodes-reference](admin-nodes-reference.md)** - Admin and management nodes
-- **[asyncsql-advanced](asyncsql-advanced.md)** - AsyncSQL node patterns
-- **[pythoncode-data-science](pythoncode-data-science.md)** - Data science with PythonCode
-- **[directoryreader-patterns](directoryreader-patterns.md)** - File system patterns
-- **[ollama-integration](ollama-integration.md)** - Local LLM integration
-- **[query-builder](query-builder.md)** - Query construction patterns
-- **[query-routing](query-routing.md)** - Intelligent query routing
-
-### Cyclic Workflow Patterns
-- **[cyclic-patterns-advanced](cyclic-patterns-advanced.md)** - Advanced cyclic patterns
-- **[cycle-aware-nodes](cycle-aware-nodes.md)** - Cycle-aware node development
-- **[cycle-debugging](cycle-debugging.md)** - Debugging cyclic workflows
-- **[cycle-testing](cycle-testing.md)** - Testing cyclic workflows
-- **[cycle-state-persistence](cycle-state-persistence.md)** - State management in cycles
-- **[cycle-scenarios](cycle-scenarios.md)** - Real-world cycle scenarios
-- **[multi-path-cycles](multi-path-cycles.md)** - Multi-path cyclic patterns
-
-### Production & Enterprise
-- **[production-patterns](production-patterns.md)** - Production-ready patterns
-- **[production-readiness](production-readiness.md)** - Production checklist
-- **[performance-optimization](performance-optimization.md)** - Performance tuning
-- **[monitoring-alerting](monitoring-alerting.md)** - Monitoring and alerting
-- **[resilience-patterns](resilience-patterns.md)** - Resilience and fault tolerance
-- **[security-config](security-config.md)** - Security configuration
-- **[multi-tenancy-patterns](multi-tenancy-patterns.md)** - Multi-tenant architectures
-
-### Enterprise Patterns
-- **[distributed-transactions](distributed-transactions.md)** - Distributed transaction patterns
-- **[saga-pattern](saga-pattern.md)** - Saga pattern for long transactions
-- **[enterprise-mcp](enterprise-mcp.md)** - Enterprise MCP patterns
-- **[a2a-coordination](a2a-coordination.md)** - Agent-to-agent coordination
-- **[mcp-resource-subscriptions](mcp-resource-subscriptions.md)** - MCP resource patterns
-
-### Development Tools
-- **[custom-node-guide](custom-node-guide.md)** - Creating custom nodes
-- **[developer-tools](developer-tools.md)** - Developer tooling
-- **[node-initialization](node-initialization.md)** - Node initialization patterns
-- **[env-variables](env-variables.md)** - Environment variable management
-- **[validation-testing](validation-testing.md)** - Validation and testing patterns
-- **[visualization](visualization.md)** - Workflow visualization
-
-### Workflow Management
-- **[workflow-composition](workflow-composition.md)** - Composing complex workflows
-- **[workflow-design-process](workflow-design-process.md)** - Design process guide
-- **[workflow-api-deployment](workflow-api-deployment.md)** - Deploying workflows as APIs
-- **[workflow-export](workflow-export.md)** - Export and import patterns
-
-### Integration Patterns
-- **[data-integration](data-integration.md)** - Data integration patterns
-- **[integration-mastery](integration-mastery.md)** - Advanced integration techniques
 
 ## Quick Patterns
 
-### Basic Workflow
-```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+### Returns Calculation
 
-workflow = WorkflowBuilder()
-workflow.add_node("NodeType", "node_id", {"param": "value"})
-runtime = LocalRuntime()
-results, run_id = runtime.execute(workflow.build())
+```python
+import pandas as pd
+
+# Simple returns
+df['returns'] = df['close'].pct_change()
+
+# Log returns
+import numpy as np
+df['log_returns'] = np.log(df['close'] / df['close'].shift(1))
+
+# Cumulative returns
+df['cumulative'] = (1 + df['returns']).cumprod() - 1
 ```
 
-### Common Node Selection
+### Risk Metrics
+
 ```python
-# Data processing
-workflow.add_node("PythonCode", "transform", {"code": "..."})
+# Annualized volatility
+vol = df['returns'].std() * np.sqrt(252)
 
-# API calls
-workflow.add_node("HTTPRequest", "api", {"url": "...", "method": "GET"})
+# Sharpe ratio
+risk_free_rate = 0.05
+sharpe = (df['returns'].mean() * 252 - risk_free_rate) / vol
 
-# AI/LLM
-workflow.add_node("LLMNode", "chat", {"model": "gpt-4", "prompt": "..."})
+# Maximum drawdown
+cumulative = (1 + df['returns']).cumprod()
+max_drawdown = (cumulative / cumulative.cummax() - 1).min()
 ```
 
-### Cyclic Pattern
+### Data API Call
+
 ```python
-workflow.add_node("LoopNode", "loop", {"max_iterations": 5})
-workflow.add_node("ProcessNode", "process", {})
-workflow.add_connection("loop", "item", "process", "input")
-workflow.add_connection("process", "output", "loop", "feedback")
+import yfinance as yf
+
+# Download price history
+ticker = yf.Ticker("AAPL")
+hist = ticker.history(period="1y")
+
+# Get fundamentals
+info = ticker.info
+pe_ratio = info.get('trailingPE')
 ```
 
 ## CRITICAL Gotchas
 
-| Rule | Why |
-|------|-----|
-| ❌ NEVER use raw SQL | Use DataFlow instead |
-| ✅ ALWAYS call `.build()` | Before `runtime.execute()` |
-| ❌ NEVER use relative imports | Use absolute imports |
-| ❌ NEVER mock in Tier 2-3 | Use real infrastructure |
+| Rule                                    | Why                                  |
+| --------------------------------------- | ------------------------------------ |
+| Always use `.pct_change()` for returns  | Avoids off-by-one errors             |
+| Annualize with sqrt(252) for daily data | 252 trading days per year            |
+| Never hardcode API keys                 | Use environment variables via `.env` |
+| Validate data before calculations       | Missing data causes silent errors    |
 
 ## When to Use This Skill
 
 Use this skill when you need:
-- Quick reference for common patterns
-- Solution to a specific problem
-- Best practices for production
-- Node selection guidance
-- Performance optimization tips
-- Security configuration help
-- Multi-tenancy patterns
-- Cyclic workflow help
+
+- Quick reference for common financial formulas
+- Python library syntax for finance operations
+- Data API usage patterns
+- Calculation pattern templates
+- Risk metric computations
 
 ## Related Skills
 
-- **[01-core-sdk](../../01-core-sdk/SKILL.md)** - Core SDK fundamentals
-- **[07-development-guides](../development-guides/SKILL.md)** - Detailed development guides
-- **[08-nodes-reference](../nodes/SKILL.md)** - Node reference documentation
-- **[09-workflow-patterns](../workflows/SKILL.md)** - Industry workflow patterns
-- **[17-gold-standards](../../17-gold-standards/SKILL.md)** - Mandatory best practices
-
-## Support
-
-For cheatsheet-related questions, invoke:
-- `pattern-expert` - Pattern selection and usage
-- `sdk-navigator` - Find specific patterns in documentation
-- `framework-advisor` - Choose appropriate patterns for your use case
+- **[06-python-finance](../06-python-finance/SKILL.md)** - Detailed Python finance library guide
+- **[07-development-guides](../07-development-guides/SKILL.md)** - Development guides
+- **[09-workflow-patterns](../09-workflow-patterns/SKILL.md)** - Application patterns

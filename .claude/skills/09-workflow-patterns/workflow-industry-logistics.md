@@ -13,52 +13,52 @@ description: "Logistics/supply chain workflows (tracking, routing, delivery). Us
 ## Pattern: Shipment Tracking and Delivery
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
+import pandas as pd
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Create shipment
-workflow.add_node("DatabaseExecuteNode", "create_shipment", {
+pipeline.add_step("DatabaseExecuteNode", "create_shipment", {
     "query": "INSERT INTO shipments (origin, destination, status) VALUES (?, ?, 'pending')",
     "parameters": ["{{input.origin}}", "{{input.destination}}"]
 })
 
 # 2. Calculate optimal route
-workflow.add_node("APICallNode", "route_optimization", {
+pipeline.add_step("APICallNode", "route_optimization", {
     "url": "https://api.routingengine.com/optimize",
     "method": "POST",
     "body": {"origin": "{{input.origin}}", "destination": "{{input.destination}}"}
 })
 
 # 3. Assign to driver
-workflow.add_node("DatabaseQueryNode", "find_driver", {
+pipeline.add_step("DatabaseQueryNode", "find_driver", {
     "query": "SELECT id FROM drivers WHERE status = 'available' AND location_near(?, 50) LIMIT 1",
     "parameters": ["{{input.origin}}"]
 })
 
 # 4. Update shipment with route
-workflow.add_node("DatabaseExecuteNode", "update_shipment", {
+pipeline.add_step("DatabaseExecuteNode", "update_shipment", {
     "query": "UPDATE shipments SET driver_id = ?, route = ?, status = 'in_transit' WHERE id = ?",
     "parameters": ["{{find_driver.id}}", "{{route_optimization.route}}", "{{create_shipment.id}}"]
 })
 
 # 5. Real-time tracking
-workflow.add_node("LoopNode", "track_location", {
+pipeline.add_step("LoopNode", "track_location", {
     "condition": "{{current_status}} != 'delivered'",
     "interval": 300  # Check every 5 minutes
 })
 
 # 6. Update delivery status
-workflow.add_node("DatabaseExecuteNode", "mark_delivered", {
+pipeline.add_step("DatabaseExecuteNode", "mark_delivered", {
     "query": "UPDATE shipments SET status = 'delivered', delivered_at = NOW() WHERE id = ?",
     "parameters": ["{{create_shipment.id}}"]
 })
 
-workflow.add_connection("create_shipment", "id", "route_optimization", "shipment_id")
-workflow.add_connection("route_optimization", "route", "find_driver", "location")
-workflow.add_connection("find_driver", "id", "update_shipment", "driver_id")
-workflow.add_connection("update_shipment", "status", "track_location", "current_status")
-workflow.add_connection("track_location", "result", "mark_delivered", "trigger")
+pipeline.connect("create_shipment", "id", "route_optimization", "shipment_id")
+pipeline.connect("route_optimization", "route", "find_driver", "location")
+pipeline.connect("find_driver", "id", "update_shipment", "driver_id")
+pipeline.connect("update_shipment", "status", "track_location", "current_status")
+pipeline.connect("track_location", "result", "mark_delivered", "trigger")
 ```
 
 <!-- Trigger Keywords: logistics workflow, supply chain, shipment tracking, route optimization, delivery -->

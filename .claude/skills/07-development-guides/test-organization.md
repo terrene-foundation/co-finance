@@ -1,6 +1,6 @@
 # Test Organization (NO MOCKING)
 
-Test organization and the NO MOCKING policy for Kailash SDK testing.
+Test organization and the NO MOCKING policy for Python finance applications testing.
 
 ## NO MOCKING Policy (CRITICAL)
 
@@ -65,8 +65,8 @@ def test_api_call(mock_get):
 ### Correct: Real Infrastructure
 ```python
 # ✅ DO THIS - Use real Docker services
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+import pandas as pd
 
 def test_api_call():
     """Use real mock API Docker service."""
@@ -87,8 +87,8 @@ def test_api_call():
 
 ### Using Docker PostgreSQL
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+import pandas as pd
 from tests.utils.docker_config import get_postgres_connection_string
 import pytest
 
@@ -121,7 +121,7 @@ def test_database_workflow(postgres_db):
 ```python
 import pytest
 import asyncio
-from kailash.runtime import LocalRuntime, AsyncLocalRuntime
+import asyncio
 
 @pytest.mark.parametrize("runtime_class", [LocalRuntime, AsyncLocalRuntime])
 def test_database_with_both_runtimes(runtime_class, postgres_db):
@@ -168,19 +168,19 @@ def redis_connection():
 @pytest.fixture
 def clean_workflow():
     """Fresh workflow builder for each test."""
-    from kailash.workflow.builder import WorkflowBuilder
+    import pandas as pd
     return WorkflowBuilder()
 
 @pytest.fixture
 def sync_runtime():
     """LocalRuntime instance."""
-    from kailash.runtime import LocalRuntime
+    import pandas as pd
     return LocalRuntime()
 
 @pytest.fixture
 def async_runtime():
     """AsyncLocalRuntime instance."""
-    from kailash.runtime import AsyncLocalRuntime
+    import asyncio
     return AsyncLocalRuntime()
 ```
 

@@ -25,39 +25,39 @@ File processing patterns:
 ## Pattern 1: Batch CSV Processing
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+# runtime setup
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. List CSV files
-workflow.add_node("FileListNode", "list_files", {
+pipeline.add_step("FileListNode", "list_files", {
     "directory": "data/input",
     "pattern": "*.csv"
 })
 
 # 2. Process each file
-workflow.add_node("MapNode", "process_files", {
+pipeline.add_step("MapNode", "process_files", {
     "input": "{{list_files.files}}",
     "workflow": "process_single_csv"
 })
 
 # 3. Merge results
-workflow.add_node("MergeNode", "merge_results", {
+pipeline.add_step("MergeNode", "merge_results", {
     "inputs": "{{process_files.results}}",
     "strategy": "combine"
 })
 
 # 4. Write consolidated output
-workflow.add_node("CSVWriterNode", "write_output", {
+pipeline.add_step("CSVWriterNode", "write_output", {
     "file_path": "data/output/consolidated.csv",
     "data": "{{merge_results.combined}}",
     "headers": ["id", "name", "value"]
 })
 
-workflow.add_connection("list_files", "files", "process_files", "input")
-workflow.add_connection("process_files", "results", "merge_results", "inputs")
-workflow.add_connection("merge_results", "combined", "write_output", "data")
+pipeline.connect("list_files", "files", "process_files", "input")
+pipeline.connect("process_files", "results", "merge_results", "inputs")
+pipeline.connect("merge_results", "combined", "write_output", "data")
 
 with LocalRuntime() as runtime:
     results, run_id = runtime.execute(workflow.build())
@@ -66,10 +66,10 @@ with LocalRuntime() as runtime:
 ## Pattern 2: PDF Document Extraction
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Read PDF document
-workflow.add_node("DocumentProcessorNode", "extract_pdf", {
+pipeline.add_step("DocumentProcessorNode", "extract_pdf", {
     "file_path": "{{input.pdf_path}}",
     "extract_metadata": True,
     "preserve_structure": True,
@@ -77,26 +77,26 @@ workflow.add_node("DocumentProcessorNode", "extract_pdf", {
 })
 
 # 2. Extract tables
-workflow.add_node("TransformNode", "extract_tables", {
+pipeline.add_step("TransformNode", "extract_tables", {
     "input": "{{extract_pdf.content}}",
     "transformation": "extract_tables()"
 })
 
 # 3. Extract text
-workflow.add_node("TransformNode", "extract_text", {
+pipeline.add_step("TransformNode", "extract_text", {
     "input": "{{extract_pdf.content}}",
     "transformation": "extract_text()"
 })
 
 # 4. Analyze with AI
-workflow.add_node("LLMNode", "analyze_document", {
+pipeline.add_step("LLMNode", "analyze_document", {
     "provider": "openai",
     "model": "gpt-4",
     "prompt": "Summarize this document: {{extract_text.text}}"
 })
 
 # 5. Save results
-workflow.add_node("JSONWriterNode", "save_results", {
+pipeline.add_step("JSONWriterNode", "save_results", {
     "file_path": "output/{{input.pdf_name}}_analysis.json",
     "data": {
         "metadata": "{{extract_pdf.metadata}}",
@@ -106,19 +106,19 @@ workflow.add_node("JSONWriterNode", "save_results", {
     "indent": 2
 })
 
-workflow.add_connection("extract_pdf", "content", "extract_tables", "input")
-workflow.add_connection("extract_pdf", "content", "extract_text", "input")
-workflow.add_connection("extract_text", "text", "analyze_document", "prompt")
-workflow.add_connection("analyze_document", "response", "save_results", "data")
+pipeline.connect("extract_pdf", "content", "extract_tables", "input")
+pipeline.connect("extract_pdf", "content", "extract_text", "input")
+pipeline.connect("extract_text", "text", "analyze_document", "prompt")
+pipeline.connect("analyze_document", "response", "save_results", "data")
 ```
 
 ## Pattern 3: File Format Conversion
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Read source file
-workflow.add_node("ConditionalNode", "detect_format", {
+pipeline.add_step("ConditionalNode", "detect_format", {
     "condition": "{{input.file_ext}}",
     "branches": {
         ".csv": "read_csv",
@@ -128,26 +128,26 @@ workflow.add_node("ConditionalNode", "detect_format", {
 })
 
 # 2. Read different formats
-workflow.add_node("CSVReaderNode", "read_csv", {
+pipeline.add_step("CSVReaderNode", "read_csv", {
     "file_path": "{{input.file_path}}"
 })
 
-workflow.add_node("JSONReaderNode", "read_json", {
+pipeline.add_step("JSONReaderNode", "read_json", {
     "file_path": "{{input.file_path}}"
 })
 
-workflow.add_node("ExcelReaderNode", "read_excel", {
+pipeline.add_step("ExcelReaderNode", "read_excel", {
     "file_path": "{{input.file_path}}"
 })
 
 # 3. Normalize to common format
-workflow.add_node("TransformNode", "normalize", {
+pipeline.add_step("TransformNode", "normalize", {
     "input": "{{read_csv.data || read_json.data || read_excel.data}}",
     "transformation": "normalize_to_dict_list()"
 })
 
 # 4. Write in target format
-workflow.add_node("ConditionalNode", "write_format", {
+pipeline.add_step("ConditionalNode", "write_format", {
     "condition": "{{input.target_format}}",
     "branches": {
         "csv": "write_csv",
@@ -156,24 +156,24 @@ workflow.add_node("ConditionalNode", "write_format", {
     }
 })
 
-workflow.add_connection("detect_format", "result", "normalize", "input")
-workflow.add_connection("normalize", "data", "write_format", "input")
+pipeline.connect("detect_format", "result", "normalize", "input")
+pipeline.connect("normalize", "data", "write_format", "input")
 ```
 
 ## Pattern 4: Watch Folder Automation
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Watch directory for new files
-workflow.add_node("FileWatchNode", "watch_folder", {
+pipeline.add_step("FileWatchNode", "watch_folder", {
     "directory": "data/inbox",
     "pattern": "*.pdf",
     "event": "created"
 })
 
 # 2. Validate file
-workflow.add_node("FileValidateNode", "validate", {
+pipeline.add_step("FileValidateNode", "validate", {
     "file_path": "{{watch_folder.file_path}}",
     "min_size": 1024,  # 1KB minimum
     "max_size": 10485760,  # 10MB maximum
@@ -181,25 +181,25 @@ workflow.add_node("FileValidateNode", "validate", {
 })
 
 # 3. Process document
-workflow.add_node("DocumentProcessorNode", "process", {
+pipeline.add_step("DocumentProcessorNode", "process", {
     "file_path": "{{validate.file_path}}"
 })
 
 # 4. Move to processed folder
-workflow.add_node("FileMoveNode", "move_file", {
+pipeline.add_step("FileMoveNode", "move_file", {
     "source": "{{validate.file_path}}",
     "destination": "data/processed/{{watch_folder.filename}}"
 })
 
 # 5. On error, move to failed folder
-workflow.add_node("FileMoveNode", "move_failed", {
+pipeline.add_step("FileMoveNode", "move_failed", {
     "source": "{{validate.file_path}}",
     "destination": "data/failed/{{watch_folder.filename}}"
 })
 
-workflow.add_connection("watch_folder", "file_path", "validate", "file_path")
-workflow.add_connection("validate", "file_path", "process", "file_path")
-workflow.add_connection("process", "result", "move_file", "source")
+pipeline.connect("watch_folder", "file_path", "validate", "file_path")
+pipeline.connect("validate", "file_path", "process", "file_path")
+pipeline.connect("process", "result", "move_file", "source")
 # Error handling connection
 workflow.add_error_handler("process", "move_failed")
 ```

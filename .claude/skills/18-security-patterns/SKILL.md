@@ -1,11 +1,11 @@
 ---
 name: security-patterns
-description: "Security patterns and best practices for Kailash SDK including input validation, secret management, injection prevention, authentication, authorization, and OWASP compliance. Use when asking about 'security', 'secrets', 'authentication', 'authorization', 'injection prevention', 'input validation', 'OWASP', 'credentials', 'API keys', 'secure coding', or 'security review'."
+description: "Security patterns and best practices for Python finance applications including input validation, secret management, injection prevention, authentication, authorization, and OWASP compliance. Use when asking about 'security', 'secrets', 'authentication', 'authorization', 'injection prevention', 'input validation', 'OWASP', 'credentials', 'API keys', 'secure coding', or 'security review'."
 ---
 
-# Security Patterns - Kailash SDK
+# Security Patterns - Python finance applications
 
-Mandatory security patterns for all Kailash SDK development. These patterns prevent common vulnerabilities and ensure secure application development.
+Mandatory security patterns for all Python finance applications development. These patterns prevent common vulnerabilities and ensure secure application development.
 
 ## Overview
 
@@ -39,9 +39,9 @@ db_password = os.environ["DATABASE_PASSWORD"]
 def process_user_input(user_data):
     return db.execute(f"SELECT * FROM users WHERE id = {user_data}")
 
-# ✅ CORRECT - Parameterized queries (via DataFlow)
+# ✅ CORRECT - Parameterized queries (via database)
 workflow.add_node("User_Read", "read_user", {
-    "id": validated_user_id  # DataFlow handles parameterization
+    "id": validated_user_id  # database handles parameterization
 })
 ```
 
@@ -97,8 +97,8 @@ workflow.add_node("APICallNode", "api", {
 
 | Vulnerability | Prevention Pattern |
 |--------------|-------------------|
-| SQL Injection | Use DataFlow parameterized nodes |
-| Code Injection | Avoid `eval()`, use PythonCodeNode safely |
+| SQL Injection | Use parameterized queries (SQLAlchemy) |
+| Code Injection | Avoid `eval()`, use exec() safely |
 | Credential Exposure | Environment variables, secret managers |
 | XSS | Output encoding, CSP headers |
 | CSRF | Token validation, SameSite cookies |
@@ -125,7 +125,7 @@ Use this skill when:
 
 - **[17-gold-standards](../17-gold-standards/SKILL.md)** - Mandatory best practices
 - **[16-validation-patterns](../16-validation-patterns/SKILL.md)** - Validation patterns
-- **[01-core-sdk](../01-core-sdk/SKILL.md)** - Core workflow patterns
+- **[06-cheatsheets](../06-cheatsheets/SKILL.md)** - Core workflow patterns
 
 ## Support
 

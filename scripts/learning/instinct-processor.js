@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Instinct Processor for Kailash Continuous Learning System
+ * Instinct Processor for FMI Continuous Learning System
  *
  * Processes observations to detect patterns and create instincts.
  * Part of Phase 4: Continuous Learning implementation.
@@ -358,7 +358,7 @@ function main() {
     case "--help":
     default:
       console.log(`
-Instinct Processor for Kailash Continuous Learning
+Instinct Processor for FMI Continuous Learning
 
 Usage:
   node instinct-processor.js --analyze   Analyze observations for patterns

@@ -16,18 +16,18 @@ AI-powered document analysis, extraction, and classification workflows.
 ## Pattern: Invoice Processing with AI
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+# runtime setup
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Read document
-workflow.add_node("DocumentProcessorNode", "read_invoice", {
+pipeline.add_step("DocumentProcessorNode", "read_invoice", {
     "file_path": "{{input.invoice_path}}"
 })
 
 # 2. OCR extraction
-workflow.add_node("LLMNode", "extract_fields", {
+pipeline.add_step("LLMNode", "extract_fields", {
     "provider": "openai",
     "model": "gpt-4-vision",
     "prompt": "Extract: invoice_number, date, amount, vendor from this invoice",
@@ -35,7 +35,7 @@ workflow.add_node("LLMNode", "extract_fields", {
 })
 
 # 3. Validate extracted data
-workflow.add_node("DataValidationNode", "validate", {
+pipeline.add_step("DataValidationNode", "validate", {
     "input": "{{extract_fields.data}}",
     "schema": {
         "invoice_number": "string",
@@ -46,14 +46,14 @@ workflow.add_node("DataValidationNode", "validate", {
 })
 
 # 4. Store in database
-workflow.add_node("DatabaseExecuteNode", "store", {
+pipeline.add_step("DatabaseExecuteNode", "store", {
     "query": "INSERT INTO invoices (number, date, amount, vendor) VALUES (?, ?, ?, ?)",
     "parameters": "{{validate.valid_data}}"
 })
 
-workflow.add_connection("read_invoice", "content", "extract_fields", "image")
-workflow.add_connection("extract_fields", "data", "validate", "input")
-workflow.add_connection("validate", "valid_data", "store", "parameters")
+pipeline.connect("read_invoice", "content", "extract_fields", "image")
+pipeline.connect("extract_fields", "data", "validate", "input")
+pipeline.connect("validate", "valid_data", "store", "parameters")
 
 with LocalRuntime() as runtime:
     results, run_id = runtime.execute(workflow.build())

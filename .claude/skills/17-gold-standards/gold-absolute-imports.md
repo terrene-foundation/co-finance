@@ -1,72 +1,105 @@
 ---
 name: gold-absolute-imports
-description: "Absolute imports standard requiring full module paths, never relative imports. Use when asking 'absolute imports', 'import standards', 'import validation', 'no relative imports', 'import rules', or 'import gold standard'."
+description: "Absolute imports standard requiring full module paths, never relative imports, with proper import ordering for finance projects. Use when asking 'absolute imports', 'import standards', 'import validation', 'no relative imports', or 'import rules'."
 ---
 
 # Gold Standard: Absolute Imports
 
-Gold Standard: Absolute Imports guide with patterns, examples, and best practices.
-
 > **Skill Metadata**
 > Category: `gold-standards`
 > Priority: `HIGH`
-> SDK Version: `0.9.25+`
 
-## Quick Reference
+## Core Rule
 
-- **Primary Use**: Gold Standard: Absolute Imports
-- **Category**: gold-standards
-- **Priority**: HIGH
-- **Trigger Keywords**: absolute imports, import standards, import validation, no relative imports
+ALWAYS use absolute imports. NEVER use relative imports.
 
-## Core Pattern
+## Correct Pattern
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime.local import LocalRuntime
+# CORRECT: Absolute imports
+from myproject.calculations.returns import calculate_returns
+from myproject.risk.metrics import sharpe_ratio, max_drawdown
+from myproject.data.loaders import load_csv_prices
+from myproject.utils.constants import TRADING_DAYS_PER_YEAR
 
-# Gold Absolute Imports implementation
-workflow = WorkflowBuilder()
-
-# See source documentation for specific node types and parameters
-
-runtime = LocalRuntime()
-results, run_id = runtime.execute(workflow.build())
+import pandas as pd
+import numpy as np
+import numpy_financial as npf
 ```
 
+## Wrong Pattern
 
-## Common Use Cases
+```python
+# WRONG: Relative imports
+from ..calculations.returns import calculate_returns
+from .risk import metrics
+from ...data import loaders
+```
 
-- **Gold-Absolute-Imports Core Functionality**: Primary operations and common patterns
-- **Integration Patterns**: Connect with other nodes, workflows, external systems
-- **Error Handling**: Robust error handling with retries, fallbacks, and logging
-- **Performance**: Optimization techniques, caching, batch operations, async execution
-- **Production Use**: Enterprise-grade patterns with monitoring, security, and reliability
+## Why Absolute Imports?
 
-## Related Patterns
+1. **Prevents import errors during refactoring** - Moving files does not break sibling imports
+2. **Enables clear dependency tracking** - You can see exactly where each import comes from
+3. **Works consistently** - No confusion about which package level `..` refers to
+4. **Better IDE support** - Auto-completion and go-to-definition work reliably
 
-- **For fundamentals**: See [`workflow-quickstart`](#)
-- **For connections**: See [`connection-patterns`](#)
-- **For parameters**: See [`param-passing-quick`](#)
+## Import Ordering for Finance Projects
 
-## When to Escalate to Subagent
+```python
+# 1. Standard library
+import os
+import logging
+from datetime import date, datetime
+from decimal import Decimal, ROUND_HALF_UP
+from pathlib import Path
 
-Use specialized subagents when:
-- Complex implementation needed
-- Production deployment required
-- Deep analysis necessary
-- Enterprise patterns needed
+# 2. Third-party libraries (alphabetical)
+import numpy as np
+import numpy_financial as npf
+import pandas as pd
+import yfinance as yf
+from scipy.optimize import minimize
 
-## Documentation References
+# 3. Project imports (absolute)
+from myproject.calculations.returns import simple_return, log_return
+from myproject.calculations.risk import sharpe_ratio, value_at_risk
+from myproject.data.loaders import load_csv_prices
+from myproject.data.validators import validate_ohlcv
+from myproject.utils.constants import TRADING_DAYS_PER_YEAR
+```
 
-### Primary Sources
+## Common Finance Project Layout
 
-## Quick Tips
+```python
+# Given this structure:
+# myproject/
+#   calculations/
+#     returns.py
+#     risk.py
+#     portfolio.py
+#   data/
+#     loaders.py
+#     validators.py
+#   utils/
+#     constants.py
 
-- 💡 **Tip 1**: Always follow Gold Standard: Absolute Imports best practices
-- 💡 **Tip 2**: Test patterns incrementally
-- 💡 **Tip 3**: Reference documentation for details
+# CORRECT imports from anywhere in the project:
+from myproject.calculations.returns import simple_return, log_return
+from myproject.calculations.risk import sharpe_ratio, value_at_risk
+from myproject.data.loaders import load_csv_prices
+from myproject.data.validators import validate_ohlcv
+from myproject.utils.constants import TRADING_DAYS_PER_YEAR
+```
 
-## Keywords for Auto-Trigger
+## Enforcement
 
-<!-- Trigger Keywords: absolute imports, import standards, import validation, no relative imports -->
+```bash
+# Use isort to enforce import ordering
+pip install isort
+isort --check-only --diff src/
+
+# Use ruff for import linting
+ruff check --select I src/
+```
+
+<!-- Trigger Keywords: absolute imports, import standards, import validation, no relative imports, import rules, import ordering -->

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Checkpoint Manager for Kailash Continuous Learning System
+ * Checkpoint Manager for FMI Continuous Learning System
  *
  * Saves and restores learning state checkpoints.
  * Part of Phase 4: Continuous Learning implementation.
@@ -426,7 +426,7 @@ function main() {
     case "--help":
     default:
       console.log(`
-Checkpoint Manager for Kailash Continuous Learning
+Checkpoint Manager for FMI Continuous Learning
 
 Usage:
   node checkpoint-manager.js --save [--name <name>]   Save checkpoint

@@ -83,7 +83,7 @@ git merge release/v0.9.26
 ```bash
 # Format: type(scope): description
 
-feat(dataflow): Add PostgreSQL support
+feat(database): Add PostgreSQL support
 fix(runtime): Resolve threading bug
 docs(readme): Update installation guide
 test(workflows): Add integration tests

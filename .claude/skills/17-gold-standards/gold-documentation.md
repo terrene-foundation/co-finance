@@ -8,66 +8,67 @@ description: "Gold standard for documentation. Use when asking 'documentation st
 > **Skill Metadata**
 > Category: `gold-standards`
 > Priority: `MEDIUM`
-> SDK Version: `0.9.25+`
 
 ## Documentation Principles
 
 ### 1. Code-Level Documentation
+
 ```python
-def process_payment(amount: float, customer_id: str) -> dict:
-    """Process a payment for a customer.
+def calculate_sharpe_ratio(
+    returns: pd.Series,
+    risk_free_rate: float = 0.04,
+    periods_per_year: int = 252,
+) -> float:
+    """Calculate the annualized Sharpe ratio.
+
+    Uses the standard formula: (mean_excess_return / std_excess_return) * sqrt(N)
+    where N is the number of periods per year.
 
     Args:
-        amount: Payment amount in USD (must be positive)
-        customer_id: Unique customer identifier
+        returns: Daily return series (simple returns, not log returns)
+        risk_free_rate: Annual risk-free rate as decimal (e.g., 0.04 for 4%)
+        periods_per_year: Trading days per year (252 for daily data)
 
     Returns:
-        dict: Payment result with keys 'status', 'transaction_id'
+        Annualized Sharpe ratio as float
 
     Raises:
-        ValueError: If amount <= 0
-        APIError: If payment gateway fails
+        ValueError: If returns has fewer than 2 observations
+        ValueError: If risk_free_rate is negative
 
     Example:
-        >>> result = process_payment(99.99, "cust_123")
-        >>> print(result['status'])
-        'success'
+        >>> returns = pd.Series([0.01, -0.005, 0.02, -0.01, 0.015])
+        >>> sharpe = calculate_sharpe_ratio(returns)
+        >>> print(f"Sharpe: {sharpe:.2f}")
     """
-    if amount <= 0:
-        raise ValueError("Amount must be positive")
+    if len(returns) < 2:
+        raise ValueError("Need at least 2 return observations")
 
-    # Implementation...
-    return {"status": "success", "transaction_id": "txn_456"}
+    rf_daily = risk_free_rate / periods_per_year
+    excess = returns - rf_daily
+    return float(np.mean(excess) / np.std(excess, ddof=1) * np.sqrt(periods_per_year))
 ```
 
-### 2. Workflow Documentation
+### 2. Analysis Pipeline Documentation
+
 ```python
-from kailash.workflow.builder import WorkflowBuilder
+# Analysis pipeline: Load -> Validate -> Calculate -> Report
+#
+# Step 1: Load and validate OHLCV data from CSV
+df = load_and_validate("data/AAPL.csv")
 
-# ✅ GOOD: Document workflow purpose and flow
-workflow = WorkflowBuilder()
+# Step 2: Calculate daily returns
+returns = df["close"].pct_change().dropna()
 
-# Step 1: Validate payment details
-workflow.add_node("DataValidationNode", "validate_payment", {
-    "schema": {"amount": "decimal > 0", "card": "credit_card"}
-})
+# Step 3: Compute risk metrics (Sharpe, VaR, max drawdown)
+metrics = calculate_risk_metrics(returns, risk_free_rate=0.04)
 
-# Step 2: Process with payment gateway
-workflow.add_node("APICallNode", "charge_card", {
-    "url": "https://api.stripe.com/charges"
-    # Creates charge with validated payment details
-})
-
-# Step 3: Record transaction in database
-workflow.add_node("DatabaseExecuteNode", "record_transaction", {
-    "query": "INSERT INTO transactions ..."
-})
-
-workflow.add_connection("validate_payment", "result", "charge_card", "payment_data")
-workflow.add_connection("charge_card", "result", "record_transaction", "transaction_data")
+# Step 4: Generate report with required disclaimer
+print_report(metrics, symbol="AAPL")
 ```
 
 ### 3. README Structure
+
 ```markdown
 # Project Name
 
@@ -75,19 +76,13 @@ Brief description of what this project does.
 
 ## Installation
 
-```bash
-pip install package-name
-```
+pip install -r requirements.txt
 
 ## Quick Start
 
-```python
-from package import Class
-
-# Minimal working example
-app = Class()
-app.run()
-```
+from myproject import analyze
+result = analyze("AAPL", period="1y")
+print(f"Sharpe: {result['sharpe_ratio']:.2f}")
 
 ## Features
 
@@ -98,24 +93,17 @@ app.run()
 
 - [User Guide](docs/user-guide.md)
 - [API Reference](docs/api.md)
-
-## Examples
-
-See [examples/](examples/) directory.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).
 ```
 
 ### 4. Inline Comments
+
 ```python
-# ✅ GOOD: Explain WHY, not WHAT
+# GOOD: Explain WHY, not WHAT
 # Use exponential backoff to avoid overwhelming the API
 # during temporary outages (max 5 retries over 31 seconds)
 delay = 2 ** retry_count
 
-# ❌ BAD: Stating the obvious
+# BAD: Stating the obvious
 # Increment the counter by 1
 counter += 1
 ```
@@ -131,5 +119,6 @@ counter += 1
 - [ ] Inline comments for complex logic
 - [ ] Code examples are tested
 - [ ] Documentation stays up-to-date
+- [ ] Financial disclaimers included in output documentation
 
 <!-- Trigger Keywords: documentation standard, how to document, docs best practices, documentation gold standard -->

@@ -129,13 +129,13 @@ Use this skill when:
 
 ## Related Skills
 
-- **[04-kaizen](../04-kaizen/SKILL.md)** - AI agent framework
+- **[04-ai](../04-ai/SKILL.md)** - AI agent framework
 - **[19-flutter-patterns](../19-flutter-patterns/SKILL.md)** - Flutter components
 - **[22-conversation-ux](../22-conversation-ux/SKILL.md)** - Conversation UX
 
 ## Support
 
 For widget system questions, invoke:
-- `kaizen-specialist` - LLM integration patterns
+- `testing-specialist` - LLM integration patterns
 - `flutter-specialist` - Widget rendering
 - `pattern-expert` - Protocol design

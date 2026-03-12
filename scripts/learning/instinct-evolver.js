@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Instinct Evolver for Kailash Continuous Learning System
+ * Instinct Evolver for FMI Continuous Learning System
  *
  * Evolves learned instincts into skills, commands, and agents.
  * Part of Phase 4: Continuous Learning implementation.
@@ -226,15 +226,11 @@ function generateWorkflowSkill(instinct) {
 ## Pattern
 
 \`\`\`python
-# Workflow pattern learned from usage
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+# Analysis pattern learned from usage
+import pandas as pd
+import numpy as np
 
-workflow = WorkflowBuilder()
 ${JSON.stringify(pattern, null, 2)}
-
-runtime = LocalRuntime()
-results, run_id = runtime.execute(workflow.build())
 \`\`\`
 
 ## When to Use
@@ -455,7 +451,7 @@ function main() {
     case "--help":
     default:
       console.log(`
-Instinct Evolver for Kailash Continuous Learning
+Instinct Evolver for FMI Continuous Learning
 
 Usage:
   node instinct-evolver.js --candidates          List evolution candidates

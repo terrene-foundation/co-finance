@@ -1,259 +1,261 @@
 ---
 name: error-troubleshooting
-description: "Common error patterns and troubleshooting guides for Kailash SDK including Nexus blocking issues, connection parameter errors, runtime execution errors, cycle convergence problems, missing .build() calls, parameter validation errors, and DataFlow template syntax errors. Use when encountering errors, debugging issues, or asking about 'error', 'troubleshooting', 'debugging', 'not working', 'hangs', 'timeout', 'validation error', 'connection error', 'runtime error', 'cycle not converging', 'missing build', or 'template syntax'."
+description: "Common error patterns and troubleshooting guides for Python finance development including data API failures, calculation precision errors, date/timezone issues, missing data handling, rate limiting, DataFrame shape mismatches, and library version conflicts. Use when encountering errors, debugging issues, or asking about 'error', 'troubleshooting', 'debugging', 'not working', 'NaN values', 'precision error', 'API rate limit', 'timezone error', 'missing data', 'DataFrame error', or 'calculation error'."
 ---
 
-# Kailash Error Troubleshooting
+# Python Finance Error Troubleshooting
 
-Comprehensive troubleshooting guides for common Kailash SDK errors and issues.
+Comprehensive troubleshooting guides for common errors in Python financial development.
 
 ## Overview
 
 Common error patterns and solutions for:
 
-- Nexus blocking and timeout issues
-- Connection parameter errors
-- Runtime execution problems
-- Cycle convergence failures
-- Missing .build() calls
-- Parameter validation errors
-- DataFlow template syntax errors
+- Data API failures and rate limiting
+- Calculation precision errors (floating point, Decimal)
+- Date and timezone issues
+- Missing data and NaN handling
+- DataFrame shape mismatches
+- Library version conflicts
+- Connection and timeout errors
 
 ## Reference Documentation
 
 ### Critical Errors
 
-#### Nexus Blocking (MOST COMMON)
+#### Data API Failures (MOST COMMON)
 
-- **[error-nexus-blocking](error-nexus-blocking.md)** - Nexus hangs or blocks
-  - **Symptom**: Nexus API hangs forever, no response
-  - **Cause**: Using LocalRuntime in Docker/FastAPI
-  - **Solution**: Use AsyncLocalRuntime
-  - **Prevention**: Always use async runtime in containers
+- **[error-api-rate-limiting](error-api-rate-limiting.md)** - API rate limits and failures
+  - **Symptom**: HTTP 429, connection refused, empty responses
+  - **Cause**: Exceeding provider rate limits or missing API key
+  - **Solution**: Implement retry with backoff, use caching
+  - **Prevention**: Cache aggressively, batch requests
 
-#### Missing .build() Call
+#### Calculation Precision Errors
 
-- **[error-missing-build](error-missing-build.md)** - Forgot to call .build()
-  - **Symptom**: `TypeError: execute() expects Workflow, got WorkflowBuilder`
-  - **Cause**: `runtime.execute(workflow)` instead of `runtime.execute(workflow.build())`
-  - **Solution**: Always call `.build()` before execution
-  - **Pattern**: `runtime.execute(workflow.build())`
+- **[error-calculation-precision](error-calculation-precision.md)** - Floating point and Decimal errors
+  - **Symptom**: Penny differences, assertion failures on monetary values
+  - **Cause**: Using float for money, wrong rounding mode
+  - **Solution**: Use Decimal for monetary, float64 for returns
+  - **Pattern**: `Decimal("0.01")` quantize for money
 
-### Connection & Parameter Errors
+### Data Quality Errors
 
-#### Connection Pool Exhaustion
+#### Missing Data and NaN
 
-- **[error-connection-exhaustion](error-connection-exhaustion.md)** - Database connection exhaustion
-  - **Symptom**: "too many connections", database OOM
-  - **Cause**: Each worker creates its own pool in multi-worker deployments
-  - **Solution**: Use `external_pool` parameter to inject shared pool
-  - **Prevention**: Set max_pool_size = DB max / worker count
+- **[error-missing-data](error-missing-data.md)** - NaN propagation and missing values
+  - **Symptom**: NaN in calculations, silent wrong results
+  - **Cause**: Missing market data, holidays, gaps in time series
+  - **Solution**: Validate before calculation, use appropriate fill methods
+  - **Prevention**: Check for NaN early, log warnings
 
-#### Connection Parameter Errors
+#### Date and Timezone Issues
 
-- **[error-connection-params](error-connection-params.md)** - Invalid connections
-  - **Symptom**: Node doesn't receive expected data
-  - **Cause**: Wrong 4-parameter connection format
-  - **Solution**: Use `(source_id, source_param, target_id, target_param)`
-  - **Common mistake**: Wrong parameter names
+- **[error-date-timezone](error-date-timezone.md)** - Timezone mismatches and date errors
+  - **Symptom**: Off-by-one day errors, wrong trading hours
+  - **Cause**: Mixing naive and aware datetimes, wrong market timezone
+  - **Solution**: Always use timezone-aware datetimes, convert to market tz
+  - **Pattern**: `pd.Timestamp(..., tz='America/New_York')`
 
-#### Parameter Validation Errors
+### Pipeline Errors
 
-- **[error-parameter-validation](error-parameter-validation.md)** - Invalid node parameters
-  - **Symptom**: `ValidationError: Missing required parameter`
-  - **Cause**: Missing or incorrect node parameters
-  - **Solution**: Check node documentation for required params
-  - **Tool**: Use validate-parameters skill
+#### DataFrame Shape Mismatches
 
-### Runtime Errors
+- **[error-dataframe-shape](error-dataframe-shape.md)** - Wrong columns, index issues
+  - **Symptom**: KeyError, alignment errors, wrong join results
+  - **Cause**: Column name mismatches, wrong merge keys
+  - **Solution**: Validate columns before operations, use explicit index
+  - **Prevention**: Assert expected columns early
 
-#### Runtime Execution Errors
+#### Connection and Timeout Errors
 
-- **[error-runtime-execution](error-runtime-execution.md)** - Runtime failures
-  - **Symptom**: Workflow fails during execution
-  - **Cause**: Various runtime issues
-  - **Solutions**: Check logs, validate inputs, test nodes individually
-  - **Debug**: Use LoggerNode for visibility
+- **[error-connection-timeout](error-connection-timeout.md)** - Database and API timeouts
+  - **Symptom**: ConnectionError, TimeoutError, pool exhaustion
+  - **Cause**: Slow queries, too many concurrent connections
+  - **Solution**: Connection pooling, query timeout, retry logic
+  - **Pattern**: Use `requests.Session()` with timeout
 
-### Cyclic Workflow Errors
+### Library Errors
 
-#### Cycle Convergence Errors
+#### Library Version Conflicts
 
-- **[error-cycle-convergence](error-cycle-convergence.md)** - Cycles don't converge
-  - **Symptom**: Workflow runs forever, max iterations exceeded
-  - **Cause**: No convergence condition or bad logic
-  - **Solution**: Add proper convergence check
-  - **Pattern**: Use `cycle_complete` flag
+- **[error-library-versions](error-library-versions.md)** - Version incompatibilities
+  - **Symptom**: ImportError, AttributeError on library calls
+  - **Cause**: Breaking API changes between library versions
+  - **Solution**: Pin versions, check changelogs, use virtual environments
+  - **Prevention**: Use requirements.txt with pinned versions
 
-### DataFlow Errors
+#### Formula Validation Errors
 
-#### DataFlow Template Syntax
-
-- **[error-dataflow-template-syntax](error-dataflow-template-syntax.md)** - Template string errors
-  - **Symptom**: `SyntaxError` in template strings
-  - **Cause**: Invalid template syntax in queries
-  - **Solution**: Use proper template format
-  - **Pattern**: `{{variable}}` or `{param}`
+- **[error-formula-validation](error-formula-validation.md)** - Wrong calculation results
+  - **Symptom**: Results differ from benchmark values (CFA, textbook)
+  - **Cause**: Wrong formula, wrong convention (ACT/360 vs ACT/365)
+  - **Solution**: Validate against published benchmarks, cite formula source
+  - **Pattern**: Use `pytest.approx()` with appropriate tolerance
 
 ## Quick Error Reference
 
 ### Error by Symptom
 
-| Symptom                         | Error Type            | Quick Fix                     |
-| ------------------------------- | --------------------- | ----------------------------- |
-| **API hangs forever**           | Nexus blocking        | Use AsyncLocalRuntime         |
-| **TypeError: expects Workflow** | Missing .build()      | Add .build() call             |
-| **Node gets wrong data**        | Connection params     | Check 4-parameter format      |
-| **ValidationError**             | Parameter validation  | Check required params         |
-| **Infinite loop**               | Cycle convergence     | Add convergence condition     |
-| **Template SyntaxError**        | DataFlow template     | Fix template syntax           |
-| **Runtime fails**               | Runtime execution     | Check logs, validate inputs   |
-| **"too many connections"**      | Connection exhaustion | Use `external_pool` injection |
+| Symptom                     | Error Type            | Quick Fix                      |
+| --------------------------- | --------------------- | ------------------------------ |
+| **HTTP 429 / rate limited** | API rate limiting     | Add retry with backoff, cache  |
+| **Penny differences**       | Calculation precision | Use Decimal for money          |
+| **NaN in results**          | Missing data          | Check/fill NaN before calc     |
+| **Off-by-one day**          | Timezone issue        | Use tz-aware datetimes         |
+| **KeyError on DataFrame**   | Shape mismatch        | Validate columns early         |
+| **ConnectionError**         | Connection timeout    | Add timeout and retry          |
+| **ImportError**             | Library version       | Pin versions, check compat     |
+| **Wrong Sharpe ratio**      | Formula validation    | Check annualization, benchmark |
 
 ### Error Prevention Checklist
 
-**Before Running Workflow**:
+**Before Running Calculations**:
 
-- [ ] Called `.build()` on WorkflowBuilder?
-- [ ] Using AsyncLocalRuntime for Docker/FastAPI?
-- [ ] All connections use 4 parameters?
-- [ ] All required node parameters provided?
-- [ ] Cyclic workflows have convergence checks?
-- [ ] Template strings use correct syntax?
-- [ ] Using `external_pool` in multi-worker deployments?
+- [ ] Data validated (no NaN in critical columns)?
+- [ ] Using Decimal for monetary amounts?
+- [ ] Dates are timezone-aware?
+- [ ] API key set via environment variable?
+- [ ] Retry logic on API calls?
+- [ ] DataFrame columns match expected schema?
+- [ ] Results compared against benchmark values?
 
 ## Common Error Patterns
 
-### 1. Nexus Blocking/Hanging
+### 1. Floating Point Money Errors
 
 ```python
-# ❌ WRONG (causes hang in Docker)
-from kailash.runtime import LocalRuntime
-nexus = Nexus(workflows, runtime_factory=lambda: LocalRuntime())
+# BAD: float for money
+total = 0.1 + 0.2  # 0.30000000000000004
 
-# ✅ CORRECT (async-first, no threads)
-from kailash.runtime import AsyncLocalRuntime
-nexus = Nexus(workflows, runtime_factory=lambda: AsyncLocalRuntime())
+# GOOD: Decimal for money
+from decimal import Decimal, ROUND_HALF_UP
+total = Decimal("0.1") + Decimal("0.2")  # Decimal('0.3')
+total = total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 ```
 
-### 2. Missing .build() Call
+### 2. NaN Propagation
 
 ```python
-# ❌ WRONG
-workflow = WorkflowBuilder()
-workflow.add_node(...)
-results = runtime.execute(workflow)  # TypeError!
+import numpy as np
 
-# ✅ CORRECT
-workflow = WorkflowBuilder()
-workflow.add_node(...)
-results = runtime.execute(workflow.build())  # Always .build()
+# BAD: NaN silently corrupts results
+returns = prices.pct_change()  # First value is NaN
+sharpe = returns.mean() / returns.std()  # May include NaN
+
+# GOOD: Handle NaN explicitly
+returns = prices.pct_change().dropna()
+if returns.isna().any():
+    raise ValueError("NaN values in returns series")
+sharpe = returns.mean() / returns.std()
 ```
 
-### 3. Connection Parameter Errors
+### 3. Timezone Mismatches
 
 ```python
-# ❌ WRONG (only 2 parameters)
-workflow.add_connection("node1", "node2")
+import pandas as pd
 
-# ❌ WRONG (wrong parameter names)
-workflow.add_connection("node1", "output", "node2", "input_data")
-# but node2 expects "data" not "input_data"
+# BAD: naive datetimes
+start = pd.Timestamp("2024-01-02")  # No timezone!
 
-# ✅ CORRECT (4 parameters, correct names)
-workflow.add_connection("node1", "result", "node2", "data")
+# GOOD: timezone-aware
+start = pd.Timestamp("2024-01-02", tz="America/New_York")
 ```
 
-### 4. Cycle Convergence Issues
+### 4. API Rate Limiting
 
 ```python
-# ❌ WRONG (infinite loop)
-workflow.add_node("CycleNode", "cycle", {
-    "max_iterations": 1000  # Will run all 1000
-})
+import time
+import requests
 
-# ✅ CORRECT (with convergence)
-workflow.add_node("PythonCodeNode", "check", {
-    "code": """
-if abs(current - previous) < 0.01:
-    cycle_complete = True
-else:
-    cycle_complete = False
-"""
-})
+# BAD: no rate limit handling
+response = requests.get(url)  # Fails silently on 429
+
+# GOOD: retry with backoff
+for attempt in range(3):
+    response = requests.get(url, timeout=30)
+    if response.status_code == 429:
+        delay = 2 ** attempt
+        time.sleep(delay)
+        continue
+    response.raise_for_status()
+    break
 ```
 
-### 5. DataFlow Template Errors
+### 5. DataFrame Column Errors
 
 ```python
-# ❌ WRONG
-query = "SELECT * FROM users WHERE id = {user_id}"  # Invalid
+import pandas as pd
 
-# ✅ CORRECT
-query = "SELECT * FROM users WHERE id = {{user_id}}"  # DataFlow template
+# BAD: assume column exists
+close_prices = df["Close"]  # KeyError if column is "close"
+
+# GOOD: normalize column names
+df.columns = df.columns.str.lower().str.strip()
+assert "close" in df.columns, f"Missing 'close' column. Found: {df.columns.tolist()}"
+close_prices = df["close"]
 ```
 
 ## Debugging Strategies
 
-### Step 1: Check Error Message
+### Step 1: Check Data Quality
 
-- Read full error message and stack trace
-- Identify error type and location
-- Check if it matches known patterns
+- Print `df.info()` and `df.describe()`
+- Check for NaN: `df.isna().sum()`
+- Check dtypes: ensure dates are datetime, prices are float
+- Verify date range covers expected period
 
-### Step 2: Validate Configuration
+### Step 2: Validate Calculations
 
-- Runtime: AsyncLocalRuntime for Docker?
-- Build: Called .build()?
-- Connections: 4 parameters?
-- Parameters: All required params?
+- Compare against published benchmark (CFA, textbook)
+- Use `pytest.approx()` with tolerance for floating point
+- Check units (daily vs annualized, percent vs decimal)
+- Verify convention (ACT/360, ACT/365, 30/360)
 
 ### Step 3: Test Components
 
-- Test nodes individually
-- Test with minimal workflow
-- Add LoggerNode for visibility
-- Check intermediate results
+- Test each calculation step independently
+- Use known inputs with known outputs
+- Add logging at intermediate steps
+- Check edge cases (empty series, single value, all zeros)
 
-### Step 4: Check Documentation
+### Step 4: Check Environment
 
-- Node documentation for parameters
-- Framework-specific guides
-- Error troubleshooting guides
-- Gold standards for best practices
+- Verify library versions: `pip list | grep pandas`
+- Check API key is set: `echo $MARKET_DATA_API_KEY`
+- Confirm network access to data providers
+- Verify disk space for cache files
 
 ## When to Use This Skill
 
 Use this skill when you encounter:
 
-- API hanging or blocking
-- Runtime errors during execution
-- Validation errors
-- Connection issues
-- Cyclic workflow problems
-- DataFlow errors
-- Any error message or unexpected behavior
+- API errors or rate limiting
+- Calculation precision issues
+- NaN or missing data problems
+- Date/timezone errors
+- DataFrame shape or column errors
+- Library version conflicts
+- Any error message or unexpected behavior in financial code
 
 ## CRITICAL Debugging Tips
 
-1. **ALWAYS** check `.build()` was called on workflow
-2. **NEVER** ignore connection validation errors
-3. **ALWAYS** verify absolute imports when seeing import errors
-4. **NEVER** assume mock tests found real issues - use real infrastructure
+1. **ALWAYS** validate data before calculations (check for NaN, negative prices)
+2. **NEVER** use float for monetary amounts (use Decimal)
+3. **ALWAYS** use timezone-aware datetimes for market data
+4. **NEVER** ignore NaN values (they propagate silently)
 
 ## Related Skills
 
-- **[16-validation-patterns](../validation/SKILL.md)** - Validation patterns
+- **[16-validation-patterns](../16-validation-patterns/SKILL.md)** - Validation patterns
 - **[17-gold-standards](../../17-gold-standards/SKILL.md)** - Best practices to avoid errors
-- **[01-core-sdk](../../01-core-sdk/SKILL.md)** - Core patterns
-- **[02-dataflow](../../02-dataflow/SKILL.md)** - DataFlow specifics
-- **[03-nexus](../../03-nexus/SKILL.md)** - Nexus specifics
+- **[06-python-finance](../../06-python-finance/SKILL.md)** - Python finance libraries
 
 ## Support
 
 For error troubleshooting, invoke:
 
-- `sdk-navigator` - Find relevant documentation
-- `pattern-expert` - Pattern validation
+- `finance-navigator` - Find relevant documentation
+- `finance-pattern-expert` - Pattern validation
 - `gold-standards-validator` - Check compliance
 - `testing-specialist` - Test debugging

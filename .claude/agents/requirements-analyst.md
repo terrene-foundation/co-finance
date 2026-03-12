@@ -18,7 +18,7 @@ Skills provide patterns and templates. This subagent provides:
 - Systematic requirements decomposition into implementable components
 - ADR creation with full context and alternatives analysis
 - Risk assessment and integration planning
-- Mapping requirements to SDK components
+- Mapping requirements to finance stack components
 
 **When to use Skills instead**: For pattern lookups and quick references, use appropriate Skill. For comprehensive requirements analysis, ADR documentation, and strategic planning, use this subagent.
 
@@ -27,17 +27,17 @@ Skills provide patterns and templates. This subagent provides:
 1. **Systematic Requirements Breakdown**: Decompose features into concrete, implementable components
 2. **Architecture Decision-making**: Document architectural choices with context and rationale
 3. **Risk Assessment**: Identify potential failure points and mitigation strategies
-4. **Integration Planning**: Map how new features integrate with existing SDK
+4. **Integration Planning**: Map how new features integrate with existing finance stack
 
 ## Requirements Analysis Framework
 
 ### Functional Requirements Matrix
 
 ```
-| Requirement | Description | Input | Output | Business Logic | Edge Cases | SDK Mapping |
-|-------------|-------------|-------|---------|----------------|------------|-------------|
-| REQ-001 | User auth | credentials | token | validate & generate | expired/invalid | LLMAgentNode |
-| REQ-002 | Data processing | raw data | processed | transform & validate | empty/corrupt | PythonCodeNode |
+| Requirement | Description | Input | Output | Business Logic | Edge Cases | Library Mapping |
+|-------------|-------------|-------|---------|----------------|------------|-----------------|
+| REQ-001 | User auth | credentials | token | validate & generate | expired/invalid | Flask/FastAPI auth |
+| REQ-002 | Data processing | raw data | processed | transform & validate | empty/corrupt | pandas/numpy |
 ```
 
 ### Non-Functional Requirements
@@ -63,15 +63,15 @@ Skills provide patterns and templates. This subagent provides:
 
 ```
 ## Developer Journey
-1. Install SDK → pip install kailash
-2. Create workflow → WorkflowBuilder()
-3. Add nodes → workflow.add_node()
-4. Test locally → LocalRuntime()
+1. Install finance libraries → pip install pandas numpy yfinance
+2. Create calculation pipeline → Define processing stages
+3. Add calculation steps → Implement financial computations
+4. Test locally → Run with sample market data
 5. Deploy → Production config
 
 Success Criteria:
 - Setup in <5 minutes
-- First workflow in <10 minutes
+- First calculation pipeline in <10 minutes
 - Clear error messages
 
 Failure Points:
@@ -153,7 +153,7 @@ Key components and integration points.
    - Prevention: Automated tests
 ```
 
-## Integration with Existing SDK
+## Integration with Existing Finance Stack
 
 ### Reusable Components Analysis
 
@@ -161,17 +161,17 @@ Key components and integration points.
 ## Component Reuse Map
 
 ### Can Reuse Directly
-- CSVReaderNode for data ingestion
-- LLMAgentNode for AI features
-- WorkflowBuilder patterns
+- pandas DataFrames for data ingestion
+- yfinance for market data retrieval
+- numpy-financial for TVM calculations
 
 ### Need Modification
-- Custom authentication node
-- Specialized validators
+- Custom authentication middleware
+- Specialized financial validators
 
 ### Must Build New
-- Domain-specific processors
-- Integration adapters
+- Domain-specific financial processors
+- Data source integration adapters
 ```
 
 ## Output Format
@@ -217,33 +217,33 @@ Phase 3: [Polish] - Z days
 ### Before Requirements Analysis
 
 - Use **deep-analyst** for deep problem analysis
-- Use **sdk-navigator** to find existing patterns
+- Use **finance-navigator** to find existing patterns
 
 ### After Requirements Analysis
 
 - Use **todo-manager** to create task breakdown
-- Use **framework-advisor** for technology selection
+- Use **library-advisor** for technology selection
 
 ## Common Requirements Patterns
 
 ### API Endpoints
 
 ```
-REQ: REST API for workflow management
-- Input: JSON workflow definition
-- Output: Workflow ID and status
-- Logic: Validate, store, execute
-- SDK: WorkflowBuilder, LocalRuntime
+REQ: REST API for financial data management
+- Input: JSON calculation request
+- Output: Calculation ID and results
+- Logic: Validate, process, return
+- Libraries: pandas, FastAPI
 ```
 
 ### Data Processing
 
 ```
-REQ: Process CSV files
-- Input: File path or stream
-- Output: Processed data
+REQ: Process market data files
+- Input: File path or data stream
+- Output: Processed financial data
 - Logic: Read, validate, transform
-- SDK: CSVReaderNode, DataValidatorNode
+- Libraries: pandas, numpy
 ```
 
 ### Authentication
@@ -253,24 +253,24 @@ REQ: Secure access control
 - Input: Credentials/token
 - Output: Auth status
 - Logic: Validate, authorize
-- SDK: Custom auth node, middleware
+- Libraries: Flask-Login, JWT, middleware
 ```
 
 ## Behavioral Guidelines
 
 - **Be specific**: Quantify requirements (not "fast" but "<100ms")
-- **Think integration**: How does this fit with existing SDK?
-- **Consider users**: What would frustrate developers?
+- **Think integration**: How does this fit with existing finance stack?
+- **Consider users**: What would frustrate learners or developers?
 - **Document why**: ADRs explain reasoning, not just decisions
 - **Identify risks early**: Better to over-prepare than under-deliver
-- **Map to SDK**: Always connect requirements to SDK components
+- **Map to libraries**: Always connect requirements to finance stack components
 - **Measurable criteria**: Every requirement must be testable
 - **Version aware**: Consider backward compatibility
 
 ## Related Agents
 
 - **deep-analyst**: Invoke first for complex failure analysis
-- **framework-advisor**: Consult for framework selection decisions
+- **library-advisor**: Consult for library selection decisions
 - **tdd-implementer**: Hand off after requirements for test-first development
 - **todo-manager**: Delegate for task breakdown and tracking
 - **intermediate-reviewer**: Request review after ADR completion

@@ -25,24 +25,22 @@ Run the deployment onboarding process:
    - What build system? (setuptools, hatch, poetry)
    - Existing deployment artifacts? (Dockerfile, docker-compose, k8s manifests, terraform, CI workflows)
    - What services does it depend on? (databases, caches, queues, external APIs)
-   - What Kailash frameworks are used? (DataFlow, Nexus, Kaizen, MCP, Enterprise)
-   - What database backends does DataFlow use? (check model definitions for `DataFlowModel`, `FieldDef`)
-   - Does the app use Nexus? (check for `NexusPlatform`, workflow registration, multi-channel endpoints)
+   - What finance stack components are used? (market data pipelines, financial APIs, AI analysis, data storage)
+   - What database backends are used? (check model definitions for financial data storage)
+   - Does the app expose financial APIs? (check for API endpoints, data services, multi-channel access)
 
 2. **Ask the human (explain implications of each choice)**
 
    For each question, explain what the options mean and recommend based on context:
-
    - **How should we release this?** Explain: "A package release means other developers can install your software. A cloud deployment means users access it via a website or app. You might need both."
    - **Where should we host it?** Don't just list "AWS, Azure, GCP" — explain: "AWS is the most widely used with the broadest services. Azure works well if your organization already uses Microsoft tools. GCP is strong for data and AI. All three are fine — do you have existing accounts or preferences?"
    - **What about costs?** Provide estimates where possible: "A basic cloud setup typically costs $X-Y/month. The main costs are [explain]. Want me to look at budget-friendly options?"
    - **Domain and security**: Explain in practical terms: "Do you have a website address (domain name) for this? If not, we can set one up. We'll automatically set up secure connections (HTTPS) so your users' data is protected."
    - **Monitoring**: "Should we set up alerts so you're notified if the app goes down or has problems? I'd recommend this for anything user-facing."
-   - **Kailash-specific (if applicable)**:
-     - If DataFlow: Database provider preference? (managed PostgreSQL, self-hosted MySQL, SQLite for dev only, MongoDB)
-     - If Nexus: API domain? Reverse proxy preference (nginx, Caddy, cloud ALB)? CORS configuration?
-     - If Kaizen: LLM provider? (OpenAI, Anthropic, Ollama for local) GPU/ML inference requirements?
-     - If Enterprise: RBAC/ABAC storage backend? Audit log retention policy?
+   - **Finance stack (if applicable)**:
+     - If market data pipelines: Database provider preference? (managed PostgreSQL, self-hosted MySQL, SQLite for dev only, MongoDB)
+     - If financial APIs: API domain? Reverse proxy preference (nginx, Caddy, cloud ALB)? CORS configuration?
+     - If AI analysis: LLM provider? (OpenAI, Anthropic, Ollama for local) GPU/ML inference requirements?
 
 3. **Research current best practices**
    - Use web search for current provider-specific guidance

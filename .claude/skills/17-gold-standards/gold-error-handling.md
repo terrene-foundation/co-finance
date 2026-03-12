@@ -1,6 +1,6 @@
 ---
 name: gold-error-handling
-description: "Gold standard for error handling in Kailash applications. Use when asking 'error handling standard', 'handle errors', or 'error patterns'."
+description: "Gold standard for error handling in Python finance applications. Use when asking 'error handling standard', 'handle errors', or 'error patterns'."
 ---
 
 # Gold Standard: Error Handling
@@ -14,69 +14,65 @@ description: "Gold standard for error handling in Kailash applications. Use when
 ### 1. Use Try/Except with Specific Exceptions
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+import logging
 
-def run_payment_workflow():
-    workflow = WorkflowBuilder()
+logger = logging.getLogger(__name__)
 
-    # Critical operation
-    workflow.add_node("HTTPRequestNode", "payment_api", {
-        "url": "https://api.stripe.com/charge",
-        "method": "POST",
-        "timeout": 30,
-    })
-
-    runtime = LocalRuntime()
-
+def load_price_data(file_path: str) -> pd.DataFrame:
+    """Load and validate price data from CSV."""
     try:
-        results, run_id = runtime.execute(workflow.build())
-        return results["payment_api"]
-    except RuntimeError as e:
-        raise PaymentError(f"Payment workflow failed: {e}") from e
+        df = pd.read_csv(file_path, parse_dates=["date"])
+        if df.empty:
+            raise ValueError(f"Empty file: {file_path}")
+        return df
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Price file not found: {file_path}")
+    except pd.errors.ParserError as e:
+        raise ValueError(f"Invalid CSV format in {file_path}: {e}") from e
 ```
 
 ### 2. Define Domain Exceptions
 
 ```python
-class PaymentError(Exception):
-    """Base exception for payment operations."""
+class FinanceError(Exception):
+    """Base exception for financial calculations."""
     pass
 
-class InvalidAmountError(PaymentError):
-    def __init__(self, amount):
-        super().__init__(f"Invalid amount: {amount} (must be positive)")
-        self.amount = amount
+class InsufficientDataError(FinanceError):
+    def __init__(self, required: int, actual: int):
+        super().__init__(f"Need at least {required} observations, got {actual}")
+        self.required = required
+        self.actual = actual
 
-class GatewayTimeoutError(PaymentError):
-    def __init__(self, timeout_secs):
-        super().__init__(f"Payment gateway timeout after {timeout_secs}s")
-        self.timeout_secs = timeout_secs
+class InvalidPriceError(FinanceError):
+    def __init__(self, symbol: str, issue: str):
+        super().__init__(f"Invalid price data for {symbol}: {issue}")
+        self.symbol = symbol
 
-class PaymentDeclinedError(PaymentError):
-    def __init__(self, reason):
-        super().__init__(f"Payment declined: {reason}")
-        self.reason = reason
+class DataFetchError(FinanceError):
+    def __init__(self, source: str, reason: str):
+        super().__init__(f"Failed to fetch data from {source}: {reason}")
+        self.source = source
 ```
 
 ### 3. Validation Before Processing
 
 ```python
-def validate_payment_input(inputs: dict) -> None:
-    """Validate payment inputs, raising ValueError on invalid data."""
-    amount = inputs.get("amount")
-    if amount is None or not isinstance(amount, (int, float)):
-        raise ValueError("amount is required and must be a number")
+def validate_returns_input(returns: pd.Series) -> None:
+    """Validate return series before calculation."""
+    if returns is None:
+        raise ValueError("returns cannot be None")
 
-    if amount <= 0:
-        raise ValueError(f"amount must be positive, got {amount}")
+    if not isinstance(returns, pd.Series):
+        raise TypeError(f"Expected pd.Series, got {type(returns).__name__}")
 
-    email = inputs.get("email")
-    if not email or not isinstance(email, str):
-        raise ValueError("email is required")
+    if len(returns) < 2:
+        raise InsufficientDataError(required=2, actual=len(returns))
 
-    if "@" not in email:
-        raise ValueError(f"invalid email format: {email}")
+    if returns.isna().any():
+        nan_count = returns.isna().sum()
+        raise ValueError(f"Return series contains {nan_count} NaN values")
 ```
 
 ### 4. Graceful Degradation with Fallback
@@ -87,46 +83,46 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def fetch_with_fallback(primary_url: str, fallback_url: str) -> str:
-    """Fetch from primary URL, falling back to secondary on failure."""
+def fetch_with_fallback(symbol: str, primary_api: str, fallback_api: str) -> dict:
+    """Fetch market data from primary API, falling back to secondary on failure."""
     try:
-        response = requests.get(primary_url, timeout=10)
+        response = requests.get(f"{primary_api}/prices/{symbol}", timeout=10)
         response.raise_for_status()
-        return response.text
+        return response.json()
     except requests.RequestException as e:
         logger.warning(
-            "Primary API failed (url=%s, error=%s), trying fallback",
-            primary_url, e,
+            "Primary API failed (symbol=%s, error=%s), trying fallback",
+            symbol, e,
         )
-        response = requests.get(fallback_url, timeout=10)
+        response = requests.get(f"{fallback_api}/prices/{symbol}", timeout=10)
         response.raise_for_status()
-        return response.text
+        return response.json()
 ```
 
 ### 5. Structured Error Logging
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
 import logging
 
 logger = logging.getLogger(__name__)
 
-def execute_workflow_with_logging(runtime, workflow, inputs=None):
-    """Execute a workflow with structured logging."""
-    logger.info("Starting workflow execution")
+def run_analysis_pipeline(file_path: str, symbol: str) -> dict:
+    """Run analysis pipeline with structured logging."""
+    logger.info("Starting analysis for %s from %s", symbol, file_path)
 
     try:
-        results, run_id = runtime.execute(workflow, inputs or {})
+        df = load_price_data(file_path)
+        returns = df["close"].pct_change().dropna()
+        metrics = calculate_risk_metrics(returns)
         logger.info(
-            "Workflow completed successfully",
-            extra={"run_id": run_id, "node_count": len(results)},
+            "Analysis completed for %s: sharpe=%.2f, observations=%d",
+            symbol, metrics["sharpe_ratio"], metrics["observations"],
         )
-        return results, run_id
+        return metrics
     except Exception as e:
         logger.error(
-            "Workflow execution failed",
-            extra={"error": str(e)},
+            "Analysis failed for %s: %s",
+            symbol, e,
             exc_info=True,
         )
         raise
@@ -142,22 +138,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 def robust_api_call(url: str, max_retries: int = 3) -> dict:
-    """Call an API with retry and exponential backoff."""
+    """Call a data API with retry and exponential backoff."""
     last_error = None
 
     for attempt in range(max_retries):
         try:
             response = requests.get(url, timeout=10)
             if response.ok:
-                return {
-                    "result": response.text,
-                    "status": "success",
-                }
+                return response.json()
             last_error = f"HTTP {response.status_code}"
         except requests.RequestException as e:
             last_error = str(e)
 
-        # Exponential backoff
         delay = 0.1 * (2 ** attempt)
         logger.warning(
             "Attempt %d failed (error=%s), retrying in %.1fs",
@@ -165,7 +157,7 @@ def robust_api_call(url: str, max_retries: int = 3) -> dict:
         )
         time.sleep(delay)
 
-    raise RuntimeError(f"All {max_retries} retries exhausted: {last_error}")
+    raise DataFetchError(url, f"All {max_retries} retries exhausted: {last_error}")
 ```
 
 ## Anti-Patterns
@@ -173,33 +165,33 @@ def robust_api_call(url: str, max_retries: int = 3) -> dict:
 ```python
 # BAD: Bare except
 try:
-    results, run_id = runtime.execute(workflow.build())
+    df = pd.read_csv(file_path)
 except:  # Catches everything including SystemExit!
     pass
 
 # BAD: Silently swallowing errors
 try:
-    results, run_id = runtime.execute(workflow.build())
+    returns = df["close"].pct_change()
 except Exception:
     pass  # Error discarded!
 
 # BAD: Catch-all with no context
 try:
-    operation()
+    result = calculate_metrics(returns)
 except Exception:
     raise  # What went wrong? No context added.
 
 # GOOD: Specific exception with context
 try:
-    results, run_id = runtime.execute(workflow.build())
-except RuntimeError as e:
-    raise WorkflowError(f"Failed to execute payment workflow: {e}") from e
+    df = pd.read_csv(file_path, parse_dates=["date"])
+except FileNotFoundError:
+    raise FileNotFoundError(f"Price data not found: {file_path}")
 
 # GOOD: Logging before re-raise
 try:
-    results, run_id = runtime.execute(workflow.build())
-except RuntimeError as e:
-    logger.error("Workflow failed: %s", e, exc_info=True)
+    metrics = calculate_risk_metrics(returns)
+except ValueError as e:
+    logger.error("Risk calculation failed: %s", e, exc_info=True)
     raise
 ```
 

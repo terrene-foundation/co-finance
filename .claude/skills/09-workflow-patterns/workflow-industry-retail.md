@@ -13,54 +13,54 @@ description: "Retail/e-commerce workflows (orders, inventory, shipping). Use whe
 ## Pattern: Order Fulfillment Workflow
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
+import pandas as pd
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Receive order
-workflow.add_node("DatabaseExecuteNode", "create_order", {
+pipeline.add_step("DatabaseExecuteNode", "create_order", {
     "query": "INSERT INTO orders (customer_id, items, total) VALUES (?, ?, ?)",
     "parameters": ["{{input.customer_id}}", "{{input.items}}", "{{input.total}}"]
 })
 
 # 2. Check inventory
-workflow.add_node("DatabaseQueryNode", "check_inventory", {
+pipeline.add_step("DatabaseQueryNode", "check_inventory", {
     "query": "SELECT quantity FROM inventory WHERE product_id = ?",
     "parameters": ["{{input.product_id}}"]
 })
 
 # 3. Reserve stock
-workflow.add_node("DatabaseExecuteNode", "reserve_stock", {
+pipeline.add_step("DatabaseExecuteNode", "reserve_stock", {
     "query": "UPDATE inventory SET quantity = quantity - ? WHERE product_id = ?",
     "parameters": ["{{input.quantity}}", "{{input.product_id}}"]
 })
 
 # 4. Process payment
-workflow.add_node("APICallNode", "payment", {
+pipeline.add_step("APICallNode", "payment", {
     "url": "https://api.stripe.com/charges",
     "method": "POST",
     "body": {"amount": "{{input.total}}", "customer": "{{input.customer_id}}"}
 })
 
 # 5. Create shipping label
-workflow.add_node("APICallNode", "shipping", {
+pipeline.add_step("APICallNode", "shipping", {
     "url": "https://api.shippo.com/shipments",
     "method": "POST",
     "body": {"address": "{{input.address}}", "weight": "{{input.weight}}"}
 })
 
 # 6. Send confirmation
-workflow.add_node("APICallNode", "notify_customer", {
+pipeline.add_step("APICallNode", "notify_customer", {
     "url": "https://api.sendgrid.com/mail/send",
     "method": "POST",
     "body": {"to": "{{input.email}}", "subject": "Order Confirmed", "tracking": "{{shipping.tracking_number}}"}
 })
 
-workflow.add_connection("create_order", "order_id", "check_inventory", "order_id")
-workflow.add_connection("check_inventory", "quantity", "reserve_stock", "available")
-workflow.add_connection("reserve_stock", "result", "payment", "body")
-workflow.add_connection("payment", "transaction_id", "shipping", "payment_ref")
-workflow.add_connection("shipping", "tracking_number", "notify_customer", "tracking")
+pipeline.connect("create_order", "order_id", "check_inventory", "order_id")
+pipeline.connect("check_inventory", "quantity", "reserve_stock", "available")
+pipeline.connect("reserve_stock", "result", "payment", "body")
+pipeline.connect("payment", "transaction_id", "shipping", "payment_ref")
+pipeline.connect("shipping", "tracking_number", "notify_customer", "tracking")
 ```
 
 <!-- Trigger Keywords: retail workflow, e-commerce, order processing, inventory sync, order fulfillment -->

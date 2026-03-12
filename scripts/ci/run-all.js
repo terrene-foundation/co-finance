@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * CI Validation Runner for Kailash COC Claude (Python)
+ * CI Validation Runner for FMI COC Claude (Python)
  *
  * Runs all validation scripts and reports aggregate results.
  *
@@ -10,15 +10,23 @@
  *   node scripts/ci/run-all.js --strict  Fail on warnings
  */
 
-const { spawn } = require('child_process');
-const path = require('path');
+const { spawn } = require("child_process");
+const path = require("path");
 
 const SCRIPTS = [
-  { name: 'agents', script: 'validate-agents.js', description: 'Agent files' },
-  { name: 'skills', script: 'validate-skills.js', description: 'Skill directories' },
-  { name: 'hooks', script: 'validate-hooks.js', description: 'Hook scripts' },
-  { name: 'rules', script: 'validate-rules.js', description: 'Rule files' },
-  { name: 'commands', script: 'validate-commands.js', description: 'Command files' }
+  { name: "agents", script: "validate-agents.js", description: "Agent files" },
+  {
+    name: "skills",
+    script: "validate-skills.js",
+    description: "Skill directories",
+  },
+  { name: "hooks", script: "validate-hooks.js", description: "Hook scripts" },
+  { name: "rules", script: "validate-rules.js", description: "Rule files" },
+  {
+    name: "commands",
+    script: "validate-commands.js",
+    description: "Command files",
+  },
 ];
 
 /**
@@ -26,27 +34,27 @@ const SCRIPTS = [
  */
 function runValidation(scriptPath) {
   return new Promise((resolve) => {
-    const child = spawn('node', [scriptPath], {
-      stdio: ['inherit', 'pipe', 'pipe'],
-      cwd: process.cwd()
+    const child = spawn("node", [scriptPath], {
+      stdio: ["inherit", "pipe", "pipe"],
+      cwd: process.cwd(),
     });
 
-    let stdout = '';
-    let stderr = '';
+    let stdout = "";
+    let stderr = "";
 
-    child.stdout.on('data', (data) => {
+    child.stdout.on("data", (data) => {
       stdout += data.toString();
     });
 
-    child.stderr.on('data', (data) => {
+    child.stderr.on("data", (data) => {
       stderr += data.toString();
     });
 
-    child.on('close', (code) => {
+    child.on("close", (code) => {
       resolve({
         exitCode: code,
         stdout: stdout.trim(),
-        stderr: stderr.trim()
+        stderr: stderr.trim(),
       });
     });
   });
@@ -60,7 +68,7 @@ function parseSummary(output) {
   if (summaryMatch) {
     return {
       valid: parseInt(summaryMatch[1]),
-      total: parseInt(summaryMatch[2])
+      total: parseInt(summaryMatch[2]),
     };
   }
   return null;
@@ -85,13 +93,13 @@ function countErrors(output) {
  */
 async function main() {
   const args = process.argv.slice(2);
-  const jsonOutput = args.includes('--json');
-  const strictMode = args.includes('--strict');
+  const jsonOutput = args.includes("--json");
+  const strictMode = args.includes("--strict");
 
   if (!jsonOutput) {
-    console.log('╔══════════════════════════════════════════════╗');
-    console.log('║     Kailash COC Claude (Python) - CI Validation    ║');
-    console.log('╚══════════════════════════════════════════════╝\n');
+    console.log("╔══════════════════════════════════════════════╗");
+    console.log("║       FMI COC Claude (Python) - CI Validation       ║");
+    console.log("╚══════════════════════════════════════════════╝\n");
   }
 
   const results = {
@@ -101,19 +109,19 @@ async function main() {
       passed: 0,
       failed: 0,
       warnings: 0,
-      errors: 0
-    }
+      errors: 0,
+    },
   };
 
-  const scriptsDir = path.join(process.cwd(), 'scripts', 'ci');
+  const scriptsDir = path.join(process.cwd(), "scripts", "ci");
 
   for (const script of SCRIPTS) {
     const scriptPath = path.join(scriptsDir, script.script);
 
     if (!jsonOutput) {
-      console.log(`\n${'═'.repeat(50)}`);
+      console.log(`\n${"═".repeat(50)}`);
       console.log(`${script.description.toUpperCase()}`);
-      console.log('═'.repeat(50));
+      console.log("═".repeat(50));
     }
 
     const result = await runValidation(scriptPath);
@@ -125,7 +133,7 @@ async function main() {
       passed: result.exitCode === 0,
       summary: parseSummary(result.stdout),
       warnings: countWarnings(result.stdout),
-      errors: countErrors(result.stdout)
+      errors: countErrors(result.stdout),
     };
 
     if (!jsonOutput) {
@@ -155,33 +163,37 @@ async function main() {
   if (jsonOutput) {
     console.log(JSON.stringify(results, null, 2));
   } else {
-    console.log('\n' + '═'.repeat(50));
-    console.log('OVERALL SUMMARY');
-    console.log('═'.repeat(50));
+    console.log("\n" + "═".repeat(50));
+    console.log("OVERALL SUMMARY");
+    console.log("═".repeat(50));
 
-    results.validations.forEach(v => {
-      const status = v.passed ? '✓' : '✗';
-      const summaryStr = v.summary ? `${v.summary.valid}/${v.summary.total}` : 'N/A';
+    results.validations.forEach((v) => {
+      const status = v.passed ? "✓" : "✗";
+      const summaryStr = v.summary
+        ? `${v.summary.valid}/${v.summary.total}`
+        : "N/A";
       console.log(`${status} ${v.description}: ${summaryStr}`);
     });
 
-    console.log('\n' + '─'.repeat(50));
-    console.log(`Validations: ${results.summary.passed}/${SCRIPTS.length} passed`);
+    console.log("\n" + "─".repeat(50));
+    console.log(
+      `Validations: ${results.summary.passed}/${SCRIPTS.length} passed`,
+    );
     console.log(`Errors: ${results.summary.errors}`);
     console.log(`Warnings: ${results.summary.warnings}`);
-    console.log('─'.repeat(50));
+    console.log("─".repeat(50));
 
     if (overallPassed) {
-      console.log('\n✓ ALL VALIDATIONS PASSED\n');
+      console.log("\n✓ ALL VALIDATIONS PASSED\n");
     } else {
-      console.log('\n✗ VALIDATION FAILED\n');
+      console.log("\n✗ VALIDATION FAILED\n");
     }
   }
 
   process.exit(overallPassed ? 0 : 1);
 }
 
-main().catch(error => {
-  console.error('CI Runner Error:', error.message);
+main().catch((error) => {
+  console.error("CI Runner Error:", error.message);
   process.exit(1);
 });

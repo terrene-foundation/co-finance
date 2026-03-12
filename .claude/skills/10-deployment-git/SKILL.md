@@ -1,11 +1,11 @@
 ---
 name: deployment-git
-description: "Deployment and Git workflow guides for Kailash applications including Docker deployment, Kubernetes orchestration, and Git workflows. Use when asking about 'deployment', 'Docker deployment', 'Kubernetes deployment', 'containerization', 'K8s', 'Git workflow', 'Git branching', 'CI/CD', 'production deployment', 'Docker compose', or 'container orchestration'."
+description: "Deployment and Git workflow guides for Python finance applications including Docker deployment, Kubernetes orchestration, and Git workflows. Use when asking about 'deployment', 'Docker deployment', 'Kubernetes deployment', 'containerization', 'K8s', 'Git workflow', 'Git branching', 'CI/CD', 'production deployment', 'Docker compose', or 'container orchestration'."
 ---
 
 # Deployment & Git Workflows
 
-Comprehensive guides for deploying Kailash applications with Docker and Kubernetes, plus Git workflow best practices.
+Comprehensive guides for deploying Python finance applications with Docker and Kubernetes, plus Git workflow best practices.
 
 ## Overview
 
@@ -42,7 +42,7 @@ Production deployment patterns for:
 ### Docker Deployment
 
 - **[deployment-docker-quick](deployment-docker-quick.md)** - Docker deployment quick start
-  - Dockerfile setup for Kailash apps
+  - Dockerfile setup for Python apps
   - Docker Compose configurations
   - Multi-stage builds
   - Environment variables
@@ -122,7 +122,7 @@ ENV RUNTIME_TYPE=async
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
-# Run with Nexus
+# Run with FastAPI
 CMD ["python", "-m", "app.main"]
 ```
 
@@ -130,7 +130,7 @@ CMD ["python", "-m", "app.main"]
 
 ```yaml
 services:
-  nexus:
+  app:
     build: .
     ports:
       - "8000:8000"
@@ -161,20 +161,20 @@ volumes:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kailash-app
+  name: finance-app
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: kailash
+      app: finance-app
   template:
     metadata:
       labels:
-        app: kailash
+        app: finance-app
     spec:
       containers:
         - name: app
-          image: my-kailash-app:latest
+          image: my-finance-app:latest
           ports:
             - containerPort: 8000
           env:
@@ -207,7 +207,7 @@ release/* (release prep)
 ```
 feat: Add user authentication workflow
 fix: Resolve async runtime threading issue
-docs: Update DataFlow integration guide
+docs: Update database integration guide
 test: Add cycle workflow test cases
 chore: Bump version to 2.0.0
 ```
@@ -216,7 +216,7 @@ chore: Bump version to 2.0.0
 
 ### Docker
 
-- ✅ Use NexusApp for Docker deployment
+- ✅ Use FastAPI for Docker deployment
 - ✅ Implement health checks
 - ✅ Use multi-stage builds for smaller images
 - ✅ Set proper resource limits
@@ -250,8 +250,8 @@ chore: Bump version to 2.0.0
 
 | Environment | Deployment | Reason                                      |
 | ----------- | ---------- | ------------------------------------------- |
-| **Docker**  | NexusApp   | Container-optimized, built-in health checks |
-| **K8s**     | NexusApp   | Scalable, container-native                  |
+| **Docker**  | FastAPI   | Container-optimized, built-in health checks |
+| **K8s**     | FastAPI   | Scalable, container-native                  |
 | **CLI**     | Runtime    | Direct script execution                     |
 | **Scripts** | Runtime    | Simple workflow execution                   |
 
@@ -262,7 +262,7 @@ Use this skill when you need to:
 - Run deployment onboarding for a new project
 - Release packages to PyPI or GitHub
 - Deploy solutions to AWS, Azure, or GCP
-- Deploy Kailash apps with Docker
+- Deploy Python apps with Docker
 - Set up Kubernetes deployments
 - Configure CI/CD pipelines
 - Establish Git workflows
@@ -291,14 +291,14 @@ docker run -d -p 8000:8000 app:prod
 
 # Kubernetes production
 kubectl apply -f k8s/
-kubectl scale deployment kailash-app --replicas=5
+kubectl scale deployment finance-app --replicas=5
 ```
 
 ## Related Skills
 
-- **[03-nexus](../../03-nexus/SKILL.md)** - Application deployment
-- **[02-dataflow](../../02-dataflow/SKILL.md)** - Database in containers
-- **[01-core-sdk](../../01-core-sdk/SKILL.md)** - Runtime selection
+- **[03-app](../../03-app/SKILL.md)** - Application deployment
+- **[02-database](../../02-database/SKILL.md)** - Database in containers
+- **[01-core](../../01-core/SKILL.md)** - Runtime selection
 - **[17-gold-standards](../../17-gold-standards/SKILL.md)** - Deployment best practices
 
 ## Support
@@ -307,4 +307,4 @@ For deployment help, invoke:
 
 - `deployment-specialist` - Deployment onboarding, package/cloud releases, Docker/K8s
 - `git-release-specialist` - Git workflows, releases, version management
-- `nexus-specialist` - Application configuration
+- `app-specialist` - Application configuration

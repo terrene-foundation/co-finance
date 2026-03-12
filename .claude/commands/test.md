@@ -10,7 +10,6 @@ Before loading test patterns, check what the project uses:
 
 - Look at `requirements.txt`, `pyproject.toml`, `setup.py` for `pytest`, `unittest`
 - Look at `package.json` for `jest`, `vitest`, `mocha`, `playwright`
-- Look at `pubspec.yaml` for `flutter_test`, `integration_test`
 - Look for existing test directories (`tests/`, `test/`, `__tests__/`, `spec/`)
 
 Adapt examples to the project's testing framework. The 3-tier strategy and NO MOCKING policy apply universally regardless of framework.
@@ -42,33 +41,49 @@ Adapt examples to the project's testing framework. The 3-tier strategy and NO MO
 ## Quick Pattern
 
 ```python
-# Tier 2: Real database (example with pytest)
+# Tier 1: Unit test for a financial calculation
+def test_compound_interest():
+    """Test compound interest formula with known values."""
+    from decimal import Decimal
+    principal = Decimal("1000")
+    rate = Decimal("0.05")
+    years = 10
+    result = calculate_compound_interest(principal, rate, years)
+    expected = Decimal("1628.89")
+    assert result == expected
+
+# Tier 2: Integration test with real database
 @pytest.fixture
 def db():
     """Use real infrastructure, not mocks."""
     conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE TABLE portfolio_holdings (id INTEGER PRIMARY KEY, ticker TEXT, shares REAL, cost_basis REAL)")
     yield conn
     conn.close()
 
-def test_user_creation(db):
+def test_portfolio_valuation(db):
     # NO MOCKING - real database operations
-    db.execute("INSERT INTO users (name) VALUES (?)", ("test",))
-    result = db.execute("SELECT * FROM users WHERE name = ?", ("test",)).fetchone()
+    db.execute("INSERT INTO portfolio_holdings (ticker, shares, cost_basis) VALUES (?, ?, ?)", ("AAPL", 10, 150.00))
+    result = db.execute("SELECT * FROM portfolio_holdings WHERE ticker = ?", ("AAPL",)).fetchone()
     assert result is not None
+    assert result[2] == 10  # shares
 ```
 
-### If Project Uses Kailash DataFlow
+### Testing Financial Data Pipelines
 
 ```python
-@pytest.fixture
-def db():
-    db = DataFlow("sqlite:///:memory:")
-    yield db
-    db.close()
-
-def test_user_creation(db):
-    result = db.execute(CreateUser(name="test"))
-    assert result.id is not None
+# Tier 2: Integration test for a data pipeline
+def test_price_history_pipeline(tmp_path):
+    """Test that price data is ingested, cleaned, and stored correctly."""
+    raw_data = [
+        {"date": "2024-01-02", "close": 185.50, "volume": 1000000},
+        {"date": "2024-01-03", "close": None, "volume": 500000},  # missing close
+        {"date": "2024-01-04", "close": 187.25, "volume": 750000},
+    ]
+    result = process_price_history(raw_data)
+    # Verify missing data was handled (forward-filled or excluded)
+    assert all(r["close"] is not None for r in result)
+    assert len(result) >= 2
 ```
 
 ## Critical Rule - NO MOCKING in Tier 2-3
@@ -92,6 +107,7 @@ When writing tests, deploy these agents as a team:
 - **testing-specialist** — 3-tier strategy, test architecture, coverage requirements
 - **tdd-implementer** — Test-first methodology, red-green-refactor cycle
 - **intermediate-reviewer** — Review test quality after writing
+- **quantitative-analyst** — Numerical validation, precision checks, edge cases in financial calculations
 
 For E2E tests, additionally deploy:
 
@@ -101,9 +117,9 @@ For E2E tests, additionally deploy:
 ## Related Commands
 
 - `/validate` - Project compliance checks
-- `/sdk` - Core SDK patterns (Kailash projects)
-- `/db` - DataFlow database operations (Kailash projects)
-- `/api` - Nexus multi-channel deployment (Kailash projects)
+- `/finance` - Financial calculation patterns
+- `/data` - Market data API patterns
+- `/portfolio` - Portfolio construction and risk
 
 ## Skill Reference
 

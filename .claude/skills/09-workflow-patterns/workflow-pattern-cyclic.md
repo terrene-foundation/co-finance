@@ -25,55 +25,55 @@ Cyclic workflows enable:
 ## Pattern 1: Loop Until Condition
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+# runtime setup
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Initialize counter
-workflow.add_node("SetVariableNode", "init_counter", {
+pipeline.add_step("SetVariableNode", "init_counter", {
     "variable_name": "counter",
     "value": 0
 })
 
 # 2. Process iteration
-workflow.add_node("APICallNode", "check_status", {
+pipeline.add_step("APICallNode", "check_status", {
     "url": "https://api.example.com/status",
     "method": "GET"
 })
 
 # 3. Evaluate condition
-workflow.add_node("ConditionalNode", "check_complete", {
+pipeline.add_step("ConditionalNode", "check_complete", {
     "condition": "{{check_status.status}} == 'completed'",
     "true_branch": "complete",
     "false_branch": "increment"
 })
 
 # 4. Increment counter
-workflow.add_node("TransformNode", "increment", {
+pipeline.add_step("TransformNode", "increment", {
     "input": "{{init_counter.counter}}",
     "transformation": "value + 1"
 })
 
 # 5. Check max iterations
-workflow.add_node("ConditionalNode", "check_max", {
+pipeline.add_step("ConditionalNode", "check_max", {
     "condition": "{{increment.result}} < 10",
     "true_branch": "wait",
     "false_branch": "timeout"
 })
 
 # 6. Wait before retry
-workflow.add_node("DelayNode", "wait", {
+pipeline.add_step("DelayNode", "wait", {
     "duration_seconds": 5
 })
 
 # 7. Loop back (connect to check_status)
-workflow.add_connection("init_counter", "counter", "check_status", "input")
-workflow.add_connection("check_status", "status", "check_complete", "condition")
-workflow.add_connection("check_complete", "output_false", "increment", "input")
-workflow.add_connection("increment", "result", "check_max", "condition")
-workflow.add_connection("check_max", "output_true", "wait", "trigger")
-workflow.add_connection("wait", "done", "check_status", "input")  # Loop!
+pipeline.connect("init_counter", "counter", "check_status", "input")
+pipeline.connect("check_status", "status", "check_complete", "condition")
+pipeline.connect("check_complete", "output_false", "increment", "input")
+pipeline.connect("increment", "result", "check_max", "condition")
+pipeline.connect("check_max", "output_true", "wait", "trigger")
+pipeline.connect("wait", "done", "check_status", "input")  # Loop!
 
 with LocalRuntime() as runtime:
     results, run_id = runtime.execute(workflow.build())
@@ -82,164 +82,164 @@ with LocalRuntime() as runtime:
 ## Pattern 2: Batch Processing
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Load all items
-workflow.add_node("DatabaseQueryNode", "load_items", {
+pipeline.add_step("DatabaseQueryNode", "load_items", {
     "query": "SELECT id, data FROM items WHERE processed = FALSE",
     "batch_size": 100
 })
 
 # 2. Split into batches
-workflow.add_node("BatchSplitNode", "split_batches", {
+pipeline.add_step("BatchSplitNode", "split_batches", {
     "input": "{{load_items.results}}",
     "batch_size": 10
 })
 
 # 3. Process each batch
-workflow.add_node("MapNode", "process_batch", {
+pipeline.add_step("MapNode", "process_batch", {
     "input": "{{split_batches.batches}}",
     "operation": "process_item"
 })
 
 # 4. Update database
-workflow.add_node("DatabaseExecuteNode", "mark_processed", {
+pipeline.add_step("DatabaseExecuteNode", "mark_processed", {
     "query": "UPDATE items SET processed = TRUE WHERE id IN ({{process_batch.ids}})"
 })
 
 # 5. Check for more items
-workflow.add_node("ConditionalNode", "check_more", {
+pipeline.add_step("ConditionalNode", "check_more", {
     "condition": "{{load_items.has_more}} == true",
     "true_branch": "load_items",  # Loop back!
     "false_branch": "complete"
 })
 
-workflow.add_connection("load_items", "results", "split_batches", "input")
-workflow.add_connection("split_batches", "batches", "process_batch", "input")
-workflow.add_connection("process_batch", "ids", "mark_processed", "ids")
-workflow.add_connection("mark_processed", "result", "check_more", "condition")
-workflow.add_connection("check_more", "output_true", "load_items", "trigger")
+pipeline.connect("load_items", "results", "split_batches", "input")
+pipeline.connect("split_batches", "batches", "process_batch", "input")
+pipeline.connect("process_batch", "ids", "mark_processed", "ids")
+pipeline.connect("mark_processed", "result", "check_more", "condition")
+pipeline.connect("check_more", "output_true", "load_items", "trigger")
 ```
 
 ## Pattern 3: Exponential Backoff Retry
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Initialize retry state
-workflow.add_node("SetVariableNode", "init_retry", {
+pipeline.add_step("SetVariableNode", "init_retry", {
     "retry_count": 0,
     "backoff_seconds": 1
 })
 
 # 2. Execute operation
-workflow.add_node("APICallNode", "api_call", {
+pipeline.add_step("APICallNode", "api_call", {
     "url": "https://api.example.com/operation",
     "method": "POST",
     "timeout": 30
 })
 
 # 3. Check success
-workflow.add_node("ConditionalNode", "check_success", {
+pipeline.add_step("ConditionalNode", "check_success", {
     "condition": "{{api_call.status_code}} == 200",
     "true_branch": "success",
     "false_branch": "check_retry"
 })
 
 # 4. Check retry count
-workflow.add_node("ConditionalNode", "check_retry", {
+pipeline.add_step("ConditionalNode", "check_retry", {
     "condition": "{{init_retry.retry_count}} < 5",
     "true_branch": "calculate_backoff",
     "false_branch": "failed"
 })
 
 # 5. Calculate exponential backoff
-workflow.add_node("TransformNode", "calculate_backoff", {
+pipeline.add_step("TransformNode", "calculate_backoff", {
     "input": "{{init_retry.backoff_seconds}}",
     "transformation": "value * 2"  # Exponential: 1, 2, 4, 8, 16 seconds
 })
 
 # 6. Wait with backoff
-workflow.add_node("DelayNode", "backoff_wait", {
+pipeline.add_step("DelayNode", "backoff_wait", {
     "duration_seconds": "{{calculate_backoff.result}}"
 })
 
 # 7. Increment retry counter
-workflow.add_node("TransformNode", "increment_retry", {
+pipeline.add_step("TransformNode", "increment_retry", {
     "input": "{{init_retry.retry_count}}",
     "transformation": "value + 1"
 })
 
 # 8. Loop back to retry
-workflow.add_connection("init_retry", "retry_count", "api_call", "retry")
-workflow.add_connection("api_call", "status_code", "check_success", "condition")
-workflow.add_connection("check_success", "output_false", "check_retry", "condition")
-workflow.add_connection("check_retry", "output_true", "calculate_backoff", "input")
-workflow.add_connection("calculate_backoff", "result", "backoff_wait", "duration_seconds")
-workflow.add_connection("backoff_wait", "done", "increment_retry", "input")
-workflow.add_connection("increment_retry", "result", "api_call", "retry")  # Loop!
+pipeline.connect("init_retry", "retry_count", "api_call", "retry")
+pipeline.connect("api_call", "status_code", "check_success", "condition")
+pipeline.connect("check_success", "output_false", "check_retry", "condition")
+pipeline.connect("check_retry", "output_true", "calculate_backoff", "input")
+pipeline.connect("calculate_backoff", "result", "backoff_wait", "duration_seconds")
+pipeline.connect("backoff_wait", "done", "increment_retry", "input")
+pipeline.connect("increment_retry", "result", "api_call", "retry")  # Loop!
 ```
 
 ## Pattern 4: Iterative Refinement
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Initial prompt
-workflow.add_node("SetVariableNode", "init_prompt", {
+pipeline.add_step("SetVariableNode", "init_prompt", {
     "prompt": "Write a product description for: {{product_name}}",
     "iteration": 0
 })
 
 # 2. Generate content (LLM)
-workflow.add_node("LLMNode", "generate", {
+pipeline.add_step("LLMNode", "generate", {
     "provider": "openai",
     "model": "gpt-4",
     "prompt": "{{init_prompt.prompt}}"
 })
 
 # 3. Evaluate quality
-workflow.add_node("LLMNode", "evaluate", {
+pipeline.add_step("LLMNode", "evaluate", {
     "provider": "openai",
     "model": "gpt-4",
     "prompt": "Rate this description 1-10: {{generate.response}}"
 })
 
 # 4. Check quality threshold
-workflow.add_node("ConditionalNode", "check_quality", {
+pipeline.add_step("ConditionalNode", "check_quality", {
     "condition": "{{evaluate.score}} >= 8",
     "true_branch": "approved",
     "false_branch": "refine"
 })
 
 # 5. Refine prompt with feedback
-workflow.add_node("LLMNode", "refine", {
+pipeline.add_step("LLMNode", "refine", {
     "provider": "openai",
     "model": "gpt-4",
     "prompt": "Improve this: {{generate.response}}. Feedback: {{evaluate.feedback}}"
 })
 
 # 6. Check max iterations
-workflow.add_node("ConditionalNode", "check_max", {
+pipeline.add_step("ConditionalNode", "check_max", {
     "condition": "{{init_prompt.iteration}} < 3",
     "true_branch": "increment",
     "false_branch": "use_best"
 })
 
 # 7. Increment iteration
-workflow.add_node("TransformNode", "increment", {
+pipeline.add_step("TransformNode", "increment", {
     "input": "{{init_prompt.iteration}}",
     "transformation": "value + 1"
 })
 
 # Loop back for refinement
-workflow.add_connection("init_prompt", "prompt", "generate", "prompt")
-workflow.add_connection("generate", "response", "evaluate", "prompt")
-workflow.add_connection("evaluate", "score", "check_quality", "condition")
-workflow.add_connection("check_quality", "output_false", "refine", "input")
-workflow.add_connection("refine", "response", "check_max", "condition")
-workflow.add_connection("check_max", "output_true", "increment", "input")
-workflow.add_connection("increment", "result", "generate", "iteration")  # Loop!
+pipeline.connect("init_prompt", "prompt", "generate", "prompt")
+pipeline.connect("generate", "response", "evaluate", "prompt")
+pipeline.connect("evaluate", "score", "check_quality", "condition")
+pipeline.connect("check_quality", "output_false", "refine", "input")
+pipeline.connect("refine", "response", "check_max", "condition")
+pipeline.connect("check_max", "output_true", "increment", "input")
+pipeline.connect("increment", "result", "generate", "iteration")  # Loop!
 ```
 
 ## Best Practices

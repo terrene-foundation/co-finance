@@ -14,7 +14,7 @@ description: "Test implementation patterns for the 3-tier testing strategy inclu
 
 ```python
 import pytest
-from kailash.nodes.custom_analysis_node import CustomAnalysisNode
+from python.nodes.custom_analysis_node import CustomAnalysisNode
 
 def test_analysis_node_basic_functionality():
     """Test basic node functionality in isolation."""
@@ -42,8 +42,8 @@ def test_analysis_node_error_handling():
 
 ```python
 import pytest
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime.local import LocalRuntime
+import pandas as pd
+from python.runtime.local import LocalRuntime
 
 @pytest.mark.integration
 def test_workflow_database_integration():
@@ -74,8 +74,8 @@ def test_workflow_database_integration():
 
 ```python
 import pytest
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime.local import LocalRuntime
+import pandas as pd
+from python.runtime.local import LocalRuntime
 
 @pytest.mark.e2e
 def test_complete_data_processing_pipeline():
@@ -183,7 +183,7 @@ def test_database_integration(mock_db):  # WRONG
     pass
 
 # ❌ Don't mock SDK components
-@patch('kailash.nodes.csv_reader_node.CSVReaderNode')
+@patch('python.nodes.csv_reader_node.CSVReaderNode')
 def test_workflow_integration(mock_node):  # WRONG
     pass
 
@@ -209,7 +209,7 @@ pytest tests/e2e/ --timeout=10 -v
 pytest tests/ --timeout=10 --tb=short
 
 # With coverage
-pytest tests/unit/ --cov=src/kailash --cov-report=term-missing
+pytest tests/unit/ --cov=src/python --cov-report=term-missing
 ```
 
 ## Docker Infrastructure

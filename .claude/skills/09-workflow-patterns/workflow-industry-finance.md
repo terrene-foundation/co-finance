@@ -13,25 +13,25 @@ description: "Finance industry workflows (payments, fraud, compliance). Use when
 ## Pattern: Payment Processing with Fraud Detection
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
+import pandas as pd
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Validate payment details
-workflow.add_node("DataValidationNode", "validate", {
+pipeline.add_step("DataValidationNode", "validate", {
     "input": "{{input.payment}}",
     "schema": {"amount": "decimal", "card_number": "credit_card"}
 })
 
 # 2. Fraud check
-workflow.add_node("APICallNode", "fraud_check", {
+pipeline.add_step("APICallNode", "fraud_check", {
     "url": "https://api.fraudcheck.com/analyze",
     "method": "POST",
     "body": "{{validate.valid_data}}"
 })
 
 # 3. Risk assessment
-workflow.add_node("ConditionalNode", "assess_risk", {
+pipeline.add_step("ConditionalNode", "assess_risk", {
     "condition": "{{fraud_check.risk_score}}",
     "branches": {
         "low": "process_payment",
@@ -41,22 +41,22 @@ workflow.add_node("ConditionalNode", "assess_risk", {
 })
 
 # 4. Process payment
-workflow.add_node("APICallNode", "process_payment", {
+pipeline.add_step("APICallNode", "process_payment", {
     "url": "https://api.paymentgateway.com/charge",
     "method": "POST",
     "body": "{{validate.valid_data}}"
 })
 
 # 5. Record transaction
-workflow.add_node("DatabaseExecuteNode", "record", {
+pipeline.add_step("DatabaseExecuteNode", "record", {
     "query": "INSERT INTO transactions (amount, status, timestamp) VALUES (?, ?, NOW())",
     "parameters": ["{{input.amount}}", "completed"]
 })
 
-workflow.add_connection("validate", "valid_data", "fraud_check", "body")
-workflow.add_connection("fraud_check", "risk_score", "assess_risk", "condition")
-workflow.add_connection("assess_risk", "output_low", "process_payment", "body")
-workflow.add_connection("process_payment", "result", "record", "parameters")
+pipeline.connect("validate", "valid_data", "fraud_check", "body")
+pipeline.connect("fraud_check", "risk_score", "assess_risk", "condition")
+pipeline.connect("assess_risk", "output_low", "process_payment", "body")
+pipeline.connect("process_payment", "result", "record", "parameters")
 ```
 
 <!-- Trigger Keywords: finance workflow, payment processing, fraud detection, financial compliance -->

@@ -1,6 +1,6 @@
 # Regression Testing
 
-You are an expert in regression testing strategies for Kailash SDK. Guide users through preventing regressions and maintaining test quality.
+You are an expert in regression testing strategies for Python finance applications. Guide users through preventing regressions and maintaining test quality.
 
 ## Core Responsibilities
 

@@ -6,7 +6,7 @@
  * Purpose: Block dangerous commands, suggest tmux for long-running,
  *          ENFORCE .env loading for pytest/python commands
  *
- * Framework-agnostic — works with any Kailash project.
+ * Framework-agnostic — works with any FMI project.
  *
  * Exit Codes:
  *   0 = success (continue)

@@ -1,209 +1,201 @@
 ---
-name: template-cyclic-workflow
-description: "Generate Kailash cyclic workflow template. Use when requesting 'cyclic workflow template', 'loop workflow template', 'iterative workflow', 'cycle template', or 'convergence workflow'."
+name: template-iterative-optimization
+description: "Generate iterative optimization template for financial calculations. Use when requesting 'optimization template', 'iterative calculation', 'convergence template', 'portfolio optimization', or 'iterative workflow'."
 ---
 
-# Cyclic Workflow Template
+# Iterative Optimization Template
 
-Template for creating cyclic/iterative workflows with convergence criteria.
+Template for creating iterative/convergent financial calculations such as portfolio optimization, Newton-Raphson IRR, and iterative risk budgeting.
 
 > **Skill Metadata**
 > Category: `cross-cutting` (code-generation)
 > Priority: `MEDIUM`
-> SDK Version: `0.9.0+`
-> Related Skills: [`cycle-workflows-basics`](../../06-cheatsheets/cycle-workflows-basics.md), [`workflow-quickstart`](../../01-core-sdk/workflow-quickstart.md)
-> Related Subagents: `pattern-expert` (complex cycles)
+> Related Skills: [`template-financial-calculator`](template-financial-calculator.md)
+> Related Subagents: `finance-pattern-expert` (complex optimizations)
 
-## WorkflowBuilder Cyclic Template (Recommended)
+## Portfolio Optimization Template (Iterative)
 
 ```python
-"""Cyclic Workflow Template using WorkflowBuilder"""
+"""Iterative Portfolio Optimization Template"""
 
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import numpy as np
+from scipy.optimize import minimize
+import logging
 
-# 1. Create workflow
-workflow = WorkflowBuilder()
+logger = logging.getLogger(__name__)
 
-# 2. Add cycle node with try/except for first iteration
-workflow.add_node("PythonCodeNode", "counter", {
-    "code": """
-# Handle first iteration
-try:
-    count = x
-except NameError:
-    count = 0
+TRADING_DAYS_PER_YEAR = 252
 
-count += 1
-done = count >= 10
 
-result = {'count': count, 'done': done}
-"""
-})
+def optimize_portfolio(
+    returns: np.ndarray,
+    target_return: float = None,
+    max_iterations: int = 100,
+    tolerance: float = 1e-8,
+    risk_free_rate: float = 0.0,
+) -> dict:
+    """Find optimal portfolio weights using mean-variance optimization.
 
-# 3. CRITICAL: Build workflow FIRST (WorkflowBuilder doesn't have create_cycle)
-built_workflow = workflow.build()
+    Args:
+        returns: Matrix of asset returns (rows=observations, cols=assets)
+        target_return: Target portfolio return (None for max Sharpe)
+        max_iterations: Maximum optimization iterations
+        tolerance: Convergence tolerance
+        risk_free_rate: Annual risk-free rate
 
-# 4. Create cycle on BUILT workflow
-# CRITICAL: mapping needs "result." prefix for PythonCodeNode outputs
-cycle_builder = built_workflow.create_cycle("count_cycle")
-cycle_builder.connect("counter", "counter", mapping={"result.count": "x"}) \
-             .max_iterations(20) \
-             .converge_when("done == True") \
-             .build()
+    Returns:
+        Dictionary with optimal weights and portfolio metrics
+    """
+    n_assets = returns.shape[1]
+    mean_returns = np.mean(returns, axis=0)
+    cov_matrix = np.cov(returns, rowvar=False)
 
-# 5. Execute
-runtime = LocalRuntime()
-results, run_id = runtime.execute(built_workflow)
+    # Initial weights (equal weight)
+    initial_weights = np.ones(n_assets) / n_assets
 
-print(f"Final count: {results['counter']['result']['count']}")
+    # Constraints: weights sum to 1
+    constraints = [{"type": "eq", "fun": lambda w: np.sum(w) - 1}]
+
+    if target_return is not None:
+        constraints.append({
+            "type": "eq",
+            "fun": lambda w: np.dot(w, mean_returns) - target_return
+        })
+
+    # Bounds: 0 <= weight <= 1 (long only)
+    bounds = [(0, 1) for _ in range(n_assets)]
+
+    # Objective: minimize portfolio variance
+    def portfolio_variance(weights):
+        return np.dot(weights, np.dot(cov_matrix, weights))
+
+    # Optimize
+    result = minimize(
+        portfolio_variance,
+        initial_weights,
+        method="SLSQP",
+        bounds=bounds,
+        constraints=constraints,
+        options={"maxiter": max_iterations, "ftol": tolerance},
+    )
+
+    if not result.success:
+        logger.warning("Optimization did not converge: %s", result.message)
+
+    weights = result.x
+    port_return = np.dot(weights, mean_returns)
+    port_vol = np.sqrt(portfolio_variance(weights))
+
+    # Annualize
+    annual_return = (1 + port_return) ** TRADING_DAYS_PER_YEAR - 1
+    annual_vol = port_vol * np.sqrt(TRADING_DAYS_PER_YEAR)
+
+    daily_rf = risk_free_rate / TRADING_DAYS_PER_YEAR
+    sharpe = (port_return - daily_rf) / port_vol * np.sqrt(TRADING_DAYS_PER_YEAR)
+
+    return {
+        "weights": weights,
+        "annual_return": annual_return,
+        "annual_volatility": annual_vol,
+        "sharpe_ratio": sharpe,
+        "converged": result.success,
+        "iterations": result.nit,
+    }
 ```
 
-## Simple Counter Template
+## Newton-Raphson IRR Template
 
 ```python
-"""Simple counter cyclic workflow"""
+"""Newton-Raphson IRR Calculation with Convergence"""
 
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import numpy as np
 
-workflow = WorkflowBuilder()
 
-# Counter node with try/except for first iteration
-workflow.add_node("PythonCodeNode", "counter", {
-    "code": """
-# Handle first iteration
-try:
-    count = x
-    max_val = max_count
-except NameError:
-    count = 0
-    max_val = 10
+def irr_newton(cashflows: list, guess: float = 0.1,
+               max_iterations: int = 100, tolerance: float = 1e-10) -> float:
+    """Calculate IRR using Newton-Raphson method.
 
-count += 1
-done = count >= max_val
+    Args:
+        cashflows: List of cash flows (first is typically negative)
+        guess: Initial IRR guess
+        max_iterations: Maximum iterations
+        tolerance: Convergence tolerance
 
-result = {'count': count, 'done': done}
-"""
-})
+    Returns:
+        IRR as a decimal (e.g., 0.12 for 12%)
 
-# CRITICAL: Build workflow FIRST
-built_workflow = workflow.build()
+    Raises:
+        ValueError: If calculation doesn't converge
+    """
+    rate = guess
 
-# Create cycle on BUILT workflow
-# CRITICAL: Use "result." prefix in mapping for PythonCodeNode
-cycle_builder = built_workflow.create_cycle("count_cycle")
-cycle_builder.connect("counter", "counter", mapping={"result.count": "x"}) \
-             .max_iterations(100) \
-             .converge_when("done == True") \
-             .build()
+    for iteration in range(max_iterations):
+        # NPV at current rate
+        npv = sum(cf / (1 + rate) ** t for t, cf in enumerate(cashflows))
 
-# Execute
-runtime = LocalRuntime()
-results, run_id = runtime.execute(built_workflow)
+        # Derivative of NPV
+        npv_deriv = sum(
+            -t * cf / (1 + rate) ** (t + 1)
+            for t, cf in enumerate(cashflows)
+        )
 
-print(f"Final count: {results['counter']['result']['count']}")
-```
+        if abs(npv_deriv) < 1e-15:
+            raise ValueError("Derivative too small; try a different initial guess")
 
-## SwitchNode + Cycle Template
+        # Newton-Raphson update
+        new_rate = rate - npv / npv_deriv
 
-```python
-"""Conditional cycle with SwitchNode"""
+        # Check convergence
+        if abs(new_rate - rate) < tolerance:
+            return new_rate
 
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+        rate = new_rate
 
-workflow = WorkflowBuilder()
+    raise ValueError(
+        f"IRR did not converge after {max_iterations} iterations. "
+        f"Last rate: {rate:.6f}, NPV: {npv:.6f}"
+    )
 
-# Optimizer node
-workflow.add_node("PythonCodeNode", "optimizer", {
-    "code": """
-optimized_value = current_value * 1.1
-result = {'optimized': optimized_value}
-"""
-})
 
-# Condition checker (SwitchNode)
-workflow.add_node("SwitchNode", "check_quality", {
-    "condition": "optimized >= target",
-    "condition_type": "expression"
-})
-
-# Packager for switch input
-workflow.add_node("PythonCodeNode", "packager", {
-    "code": "result = {'optimized': optimized, 'target': target}"
-})
-
-# Final result node
-workflow.add_node("PythonCodeNode", "final", {
-    "code": "result = {'final_value': optimized, 'iterations': 'completed'}"
-})
-
-# CRITICAL: Setup forward connections FIRST
-workflow.add_connection("check_quality", "output_false", "optimizer", "current_value")
-workflow.add_connection("check_quality", "output_true", "final", "optimized")
-
-# Build and create cycle
-built_workflow = workflow.build()
-cycle_builder = built_workflow.create_cycle("optimization_cycle")
-cycle_builder.connect("optimizer", "packager", mapping={"optimized": "optimized"}) \
-             .connect("packager", "check_quality", mapping={"package": "input"}) \
-             .max_iterations(20) \
-             .converge_when("converged == True") \
-             .build()
-
-# Execute
-runtime = LocalRuntime()
-results, run_id = runtime.execute(built_workflow, parameters={
-    "optimizer": {"current_value": 1.0, "target": 10.0}
-})
+# Usage
+cashflows = [-1000, 300, 400, 400, 200]
+irr = irr_newton(cashflows)
+print(f"IRR: {irr:.2%}")  # e.g., IRR: 12.83%
 ```
 
 ## Key Patterns
 
-### Critical Steps
-1. **Build workflow** FIRST with `workflow.build()`
-2. **Create cycle** on built workflow
-3. **Use mapping** for parameter flow
-4. **Set max_iterations** to prevent infinite loops
-5. **Define convergence** criteria
-6. **Provide initial** parameters at runtime
+### Critical Steps for Iterative Calculations
+
+1. **Set max iterations** to prevent infinite loops
+2. **Define convergence criteria** (tolerance)
+3. **Provide initial guess** or starting values
+4. **Log convergence status** (did it converge? how many iterations?)
+5. **Validate inputs** before starting iteration
+6. **Handle non-convergence** gracefully (raise informative error)
 
 ### Convergence Criteria
+
 ```python
-# ✅ Flattened fields (no 'result.' prefix)
-.converge_when("done == True")
-.converge_when("quality >= 0.95")
-.converge_when("count > max_count")
+# Absolute tolerance
+if abs(new_value - old_value) < tolerance:
+    break  # Converged
 
-# ❌ Don't use nested paths
-.converge_when("result.done == True")  # ERROR!
+# Relative tolerance
+if abs((new_value - old_value) / old_value) < rel_tolerance:
+    break  # Converged
+
+# Function value tolerance
+if abs(f(x)) < f_tolerance:
+    break  # Root found
 ```
-
-## Related Patterns
-
-- **Cyclic basics**: [`cycle-workflows-basics`](../../06-cheatsheets/cycle-workflows-basics.md)
-- **Cycle debugging**: [`cycle-debugging`](../../06-cheatsheets/cycle-debugging.md)
-- **Cycle errors**: [`error-cycle-convergence`](../15-error-troubleshooting/error-cycle-convergence.md)
-
-## When to Escalate
-
-Use `pattern-expert` when:
-- Complex multi-cycle workflows
-- Advanced convergence logic
-- Performance optimization
-- Nested cycles
-
-## Documentation References
-
-### Primary Sources
-- **Pattern Expert**: [`.claude/agents/pattern-expert.md` (lines 103-158)](../../../../.claude/agents/pattern-expert.md#L103-L158)
 
 ## Quick Tips
 
-- 💡 **Build first**: Always `.build()` before creating cycle
-- 💡 **Max iterations**: Prevent infinite loops
-- 💡 **Initial values**: Provide starting parameters
-- 💡 **Flat convergence**: No `result.` in `converge_when()`
+- Always set `max_iterations` to prevent infinite loops
+- Log whether optimization converged and how many iterations it took
+- Use scipy.optimize for standard optimization problems
+- Provide sensible initial guesses (equal weights for portfolios, 10% for IRR)
+- Validate inputs before starting expensive iterations
 
-<!-- Trigger Keywords: cyclic workflow template, loop workflow template, iterative workflow, cycle template, convergence workflow, cyclic template, loop template, iterative template -->
+<!-- Trigger Keywords: optimization template, iterative calculation, convergence template, portfolio optimization, iterative workflow, Newton-Raphson, IRR calculation, mean-variance -->

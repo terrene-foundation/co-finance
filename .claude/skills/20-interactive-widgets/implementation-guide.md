@@ -8,6 +8,7 @@
 ---
 
 ## Table of Contents
+
 1. [Quick Start](#quick-start)
 2. [Backend Implementation Walkthrough](#backend-implementation-walkthrough)
 3. [Frontend Implementation Walkthrough](#frontend-implementation-walkthrough)
@@ -27,26 +28,26 @@
 
 **Goal**: Render your first interactive widget in an AI response.
 
-#### Backend (Python + Kailash)
+#### Backend (Python)
 
 ```python
 # backend/agents/simple_widget_agent.py
-from kaizen.agents import BaseAgent, Signature
-from kaizen.signatures import InputField, OutputField
 from typing import Dict, Any
+from dataclasses import dataclass, field
 import uuid
 from datetime import datetime
 
-class SimpleWidgetSignature(Signature):
-    query: str = InputField(description="User query")
-    widget_descriptor: Dict[str, Any] = OutputField(description="Widget descriptor")
 
-class SimpleWidgetAgent(BaseAgent):
-    def __init__(self):
-        super().__init__(
-            signature=SimpleWidgetSignature,
-            instructions="""Generate a simple card widget."""
-        )
+@dataclass
+class SimpleWidgetConfig:
+    """Configuration for simple widget generation."""
+    query: str = ""
+    instructions: str = "Generate a simple card widget."
+
+
+class SimpleWidgetAgent:
+    def __init__(self, config: SimpleWidgetConfig = SimpleWidgetConfig()):
+        self.config = config
 
     async def generate_hello_widget(self) -> Dict[str, Any]:
         """Generate a hello world card widget"""
@@ -81,13 +82,13 @@ class SimpleWidgetAgent(BaseAgent):
         }
 
 # backend/api/endpoints.py
-from nexus import Nexus
-from kailash.runtime import AsyncLocalRuntime
+from fastapi import FastAPI
+import asyncio
 import json
 
-nexus = Nexus()
+app = FastAPI()
 
-@nexus.stream_endpoint("/ai/chat")
+@app.stream_endpoint("/ai/chat")
 async def chat_stream(message: str):
     """Simple streaming endpoint"""
     agent = SimpleWidgetAgent()
@@ -105,7 +106,7 @@ async def chat_stream(message: str):
         "content": widget
     }) + "\n"
 
-@nexus.endpoint("/api/widget/hello", methods=["POST"])
+@app.endpoint("/api/widget/hello", methods=["POST"])
 async def handle_hello_action():
     """Handle widget button click"""
     return {"message": "Hello from backend!"}
@@ -175,9 +176,10 @@ class HelloCardWidget extends StatelessWidget {
 ```
 
 **Run it**:
+
 ```bash
 # Backend
-cd backend && python -m nexus run
+cd backend && python -m app run
 
 # Frontend
 cd frontend && flutter run -d chrome
@@ -193,9 +195,9 @@ cd frontend && flutter run -d chrome
 
 ```python
 # backend/agents/widget_generator.py
-from kaizen.agents import BaseAgent, Signature
-from kaizen.signatures import InputField, OutputField
-from dataflow import DataFlow
+# AI agent base class
+# AI input/output fields
+# database access
 from typing import Dict, Any, List, Optional
 import uuid
 from datetime import datetime
@@ -211,14 +213,16 @@ class QueryIntent(str, Enum):
     NAVIGATION = "navigation"              # "Go to dashboard"
     TEXT_ONLY = "text_only"                # "What is our policy?"
 
-class WidgetGeneratorSignature(Signature):
-    query: str = InputField(description="User's natural language query")
-    intent: str = OutputField(description="Query intent classification")
-    needs_widget: bool = OutputField(description="True if widget is needed")
-    widget_type: Optional[str] = OutputField(description="Suggested widget type")
-    reasoning: str = OutputField(description="Why this widget type")
+@dataclass
+class WidgetGeneratorConfig:
+    """Configuration for widget generation."""
+    query: str = ""
+    intent: str = ""
+    needs_widget: bool = False
+    widget_type: Optional[str] = None
+    reasoning: str = ""
 
-class WidgetGeneratorAgent(BaseAgent):
+class WidgetGeneratorAgent:
     """
     Master agent for widget generation.
 
@@ -230,9 +234,9 @@ class WidgetGeneratorAgent(BaseAgent):
     5. Apply RBAC to actions
     """
 
-    def __init__(self, db: DataFlow):
-        super().__init__(
-            signature=WidgetGeneratorSignature,
+    def __init__(self, db):
+        self.db = db
+        self.config = WidgetGeneratorConfig()
             instructions="""
             You are an expert at analyzing user queries for data visualization needs.
 
@@ -465,23 +469,23 @@ class WidgetGeneratorAgent(BaseAgent):
         pass
 ```
 
-### Step 2: Integrate with Nexus Streaming API
+### Step 2: Integrate with Streaming API
 
 **Purpose**: Stream text + widgets to Flutter frontend via WebSocket.
 
 ```python
 # backend/api/chat_endpoint.py
-from nexus import Nexus
-from kailash.runtime import AsyncLocalRuntime
-from dataflow import DataFlow
+from fastapi import FastAPI
+import asyncio
+# database access
 from agents.widget_generator import WidgetGeneratorAgent
 from typing import Dict, Any, AsyncGenerator
 import json
 
-nexus = Nexus()
-db = DataFlow()  # Initialize DataFlow
+app = FastAPI()
+db = database()  # Initialize database
 
-@nexus.stream_endpoint("/ai/chat")
+@app.stream_endpoint("/ai/chat")
 async def chat_stream(
     session_id: str,
     message: str,
@@ -492,7 +496,7 @@ async def chat_stream(
 
     Flow:
     1. Analyze query → determine if widget needed
-    2. Fetch data from DataFlow sources
+    2. Fetch data from database sources
     3. Stream text response
     4. Stream widget descriptor (if needed)
     5. Stream citations
@@ -592,7 +596,7 @@ async def _fetch_data(
     permissions: List[str]
 ) -> Dict[str, Any]:
     """
-    Fetch data from DataFlow sources.
+    Fetch data from database sources.
 
     Args:
         query: User's query
@@ -609,7 +613,7 @@ async def _fetch_data(
             'data_key': str  # For future drill-down
         }
     """
-    # This is where you'd integrate with DataFlow
+    # This is where you'd integrate with database
     # Example: Query sales data
 
     # Placeholder data
@@ -659,14 +663,14 @@ async def _generate_citations(
 
 ```python
 # backend/api/widget_actions.py
-from nexus import Nexus
-from kailash.rbac import check_permissions
+from fastapi import FastAPI
+# Access control check
 from typing import Dict, Any
 import uuid
 
-nexus = Nexus()
+app = FastAPI()
 
-@nexus.endpoint("/api/widget/action", methods=["POST"])
+@app.endpoint("/api/widget/action", methods=["POST"])
 async def handle_widget_action(
     widget_id: str,
     action_id: str,
@@ -859,7 +863,7 @@ async def upload_file(content: bytes, filename: str) -> str:
 
 ### Step 1: WebSocket Connection Manager
 
-**Purpose**: Manage persistent WebSocket connection to Nexus API.
+**Purpose**: Manage persistent WebSocket connection to the streaming API.
 
 ```dart
 // lib/core/services/chat_websocket_service.dart
@@ -1424,6 +1428,7 @@ class _ErrorWidget extends StatelessWidget {
 **Use Case**: User clicks on a bar chart → Show detailed table.
 
 **Backend**:
+
 ```python
 # Add drill-down action to chart widget
 actions.append({
@@ -1439,7 +1444,7 @@ actions.append({
 })
 
 # Handle drill-down
-@nexus.endpoint("/api/data/drilldown", methods=["POST"])
+@app.endpoint("/api/data/drilldown", methods=["POST"])
 async def drilldown(
     data_key: str,
     selected_item: str,  # e.g., "North Region"
@@ -1466,6 +1471,7 @@ async def drilldown(
 ```
 
 **Frontend**:
+
 ```dart
 // Handle bar tap in ChartWidget
 void _handleBarTap(int index) {
@@ -1501,8 +1507,9 @@ void _handleBarTap(int index) {
 **Use Case**: User submits filter form → AI generates filtered chart.
 
 **Backend**:
+
 ```python
-@nexus.stream_endpoint("/ai/chat/filter")
+@app.stream_endpoint("/ai/chat/filter")
 async def filter_and_visualize(
     form_data: Dict[str, Any],
     user_context: Dict[str, Any]
@@ -1540,6 +1547,7 @@ async def filter_and_visualize(
 ```
 
 **Frontend**:
+
 ```dart
 // FormWidget handles submission
 Future<void> _handleSubmit() async {
@@ -1571,6 +1579,7 @@ Future<void> _handleSubmit() async {
 **Use Case**: AI suggests related pages/reports with clickable cards.
 
 **Backend**:
+
 ```python
 navigation_widget = {
     "widget_type": "navigation",
@@ -1597,6 +1606,7 @@ navigation_widget = {
 ```
 
 **Frontend**:
+
 ```dart
 // NavigationWidget
 class NavigationWidget extends StatelessWidget {
@@ -1643,17 +1653,20 @@ class NavigationWidget extends StatelessWidget {
 ### Three-Tier State Architecture
 
 **Tier 1: Widget-Local State (Ephemeral)**
+
 - User interactions within widget (hover, focus, selection)
 - Does NOT persist across widget rebuilds
 - Use `StatefulWidget` + `setState`
 
 **Tier 2: Conversation State (Session-Scoped)**
+
 - Active data sources
 - Uploaded documents
 - Widget states that affect other widgets
 - Use `Provider` or `Riverpod`
 
 **Tier 3: Backend-Synced State (Persistent)**
+
 - Form submissions
 - User preferences
 - Action triggers that need server validation
@@ -1721,6 +1734,7 @@ class ConversationProvider extends ChangeNotifier {
 ```
 
 **Usage in Widgets**:
+
 ```dart
 // FormWidget updates global filters
 class _FormWidgetState extends State<FormWidget> {
@@ -2016,12 +2030,12 @@ class MyApp extends StatelessWidget {
 # tests/test_widget_generator.py
 import pytest
 from agents.widget_generator import WidgetGeneratorAgent, QueryIntent
-from dataflow import DataFlow
+# database access
 
 @pytest.mark.asyncio
 async def test_chart_widget_generation():
     """Test that chart widget is correctly generated"""
-    db = DataFlow()
+    db = database()
     agent = WidgetGeneratorAgent(db)
 
     data = {
@@ -2054,7 +2068,7 @@ async def test_chart_widget_generation():
 @pytest.mark.asyncio
 async def test_rbac_action_filtering():
     """Test that actions are filtered by user permissions"""
-    db = DataFlow()
+    db = database()
     agent = WidgetGeneratorAgent(db)
 
     data = {...}  # Same as above
@@ -2219,13 +2233,13 @@ void main() {
 ### Backend Deployment
 
 - [ ] **Environment Variables**
-  - [ ] `NEXUS_API_URL`
-  - [ ] `DATAFLOW_DATABASE_URL`
+  - [ ] `API_URL`
+  - [ ] `DATABASE_URL`
   - [ ] `LLM_API_KEY` (OpenAI, Anthropic, etc.)
   - [ ] `AWS_S3_BUCKET` (for file downloads)
 
 - [ ] **Database Setup**
-  - [ ] DataFlow migrations applied
+  - [ ] database migrations applied
   - [ ] Widget cache table created
   - [ ] RBAC tables populated
 
@@ -2284,12 +2298,14 @@ void main() {
 **Symptoms**: Widget descriptors arrive but nothing shows in UI.
 
 **Checks**:
+
 1. Verify `widget_type` is supported in `WidgetRenderer.build()`
 2. Check console for parsing errors in `WidgetDescriptor.fromJson()`
 3. Verify `widget_id` is valid UUID v4
 4. Check if widget is marked as visible (if using lazy rendering)
 
 **Fix**:
+
 ```dart
 // Add debug logging in WidgetRenderer
 @override
@@ -2307,12 +2323,14 @@ Widget build(BuildContext context) {
 **Symptoms**: User clicks button but nothing happens.
 
 **Checks**:
+
 1. Verify action has correct `endpoint` in params
 2. Check RBAC permissions (user may lack permission)
 3. Check network console for API call errors
 4. Verify `action_id` exists in widget descriptor
 
 **Fix**:
+
 ```dart
 Future<void> _handleAction(WidgetAction action) async {
   debugPrint('Triggering action: ${action.label} (${action.actionId})');
@@ -2335,12 +2353,14 @@ Future<void> _handleAction(WidgetAction action) async {
 **Symptoms**: Frequent disconnects, reconnection loops.
 
 **Checks**:
+
 1. Verify WebSocket URL is correct (`wss://` not `ws://` for SSL)
 2. Check backend logs for connection errors
 3. Verify authentication payload is correct
 4. Check network stability (mobile data vs WiFi)
 
 **Fix**:
+
 ```dart
 // Add more robust reconnection logic
 void _scheduleReconnect() {
@@ -2364,12 +2384,14 @@ void _scheduleReconnect() {
 **Symptoms**: Lag when scrolling through conversation.
 
 **Checks**:
+
 1. Verify lazy rendering is enabled
 2. Check if widget caching is working
 3. Profile with Flutter DevTools (CPU, memory)
 4. Check if heavy computation is on UI thread
 
 **Fix**:
+
 ```dart
 // Use Isolate.run for heavy processing
 Future<void> _processChartData() async {
@@ -2393,6 +2415,7 @@ Future<void> _processChartData() async {
 **User Query**: "Show me Q2 sales by region with drill-down"
 
 **Backend Response**:
+
 ```python
 {
     "type": "widget",
@@ -2454,6 +2477,7 @@ Future<void> _processChartData() async {
 ```
 
 **Flutter Widget** (simplified):
+
 ```dart
 AppCard(
   child: Column(
@@ -2493,6 +2517,7 @@ AppCard(
 **User Query**: "Help me find customers in New York"
 
 **Backend Response**:
+
 ```python
 {
     "type": "widget",
@@ -2549,6 +2574,7 @@ AppCard(
 ```
 
 **Flutter Widget** (simplified):
+
 ```dart
 Form(
   key: _formKey,
@@ -2573,6 +2599,7 @@ Form(
 **User Query**: "What can I do with sales data?"
 
 **Backend Response**:
+
 ```python
 {
     "type": "widget",
@@ -2606,6 +2633,7 @@ Form(
 ```
 
 **Flutter Widget** (simplified):
+
 ```dart
 Wrap(
   spacing: 16,

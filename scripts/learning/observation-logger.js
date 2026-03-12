@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Observation Logger for Kailash Continuous Learning System
+ * Observation Logger for FMI Continuous Learning System
  *
  * Captures tool usage, patterns, and session data for learning.
  * Part of Phase 4: Continuous Learning implementation.
@@ -182,7 +182,7 @@ function getStats(learningDir) {
   };
 }
 
-// Observation types for Kailash-specific patterns
+// Observation types for FMI-specific patterns
 const OBSERVATION_TYPES = {
   TOOL_USE: "tool_use",
   WORKFLOW_PATTERN: "workflow_pattern",
@@ -192,7 +192,7 @@ const OBSERVATION_TYPES = {
   NODE_USAGE: "node_usage",
   CONNECTION_PATTERN: "connection_pattern",
   TEST_PATTERN: "test_pattern",
-  DATAFLOW_MODEL: "dataflow_model",
+  MARKET_DATA_MODEL: "market_data_model",
   SESSION_SUMMARY: "session_summary",
 };
 
@@ -210,7 +210,7 @@ if (require.main === module) {
   // Handle --help flag
   if (args.includes("--help")) {
     console.log(`
-Observation Logger for Kailash Continuous Learning
+Observation Logger for FMI Continuous Learning
 
 Usage:
   echo '{"type": "...", "data": {...}}' | node observation-logger.js

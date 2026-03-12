@@ -4,7 +4,7 @@
 
 Load the UI/UX Design Principles skill for framework-agnostic design patterns, layout principles, and enterprise UX guidelines.
 
-**CRITICAL**: This skill should be invoked PROACTIVELY for ALL frontend work, regardless of framework (React, Flutter, etc.).
+**CRITICAL**: This skill should be invoked PROACTIVELY for ALL frontend work, regardless of framework (React, etc.).
 
 ## Quick Reference
 
@@ -27,6 +27,16 @@ Load the UI/UX Design Principles skill for framework-agnostic design patterns, l
 - Accessibility Standards (WCAG 2.1 AA compliance)
 - Design System Principles (tokens, naming conventions)
 - Common Pitfalls & Solutions
+
+## Finance-Specific Design Considerations
+
+When designing financial interfaces, pay special attention to:
+
+- **Data-Dense Tables**: Financial dashboards often require high-density data display — use tabular figures, right-aligned numbers, consistent decimal places, and alternating row shading for readability
+- **Real-Time Updates**: Price feeds, portfolio values, and market data need clear update indicators — show staleness, last-updated timestamps, and visual cues for live vs. delayed data
+- **Portfolio Visualizations**: Allocation pie charts, performance line charts, and risk scatter plots should use colorblind-safe palettes and clear legends
+- **Number Formatting**: Currency with proper symbols and locale formatting, percentages with consistent precision, large numbers abbreviated appropriately (1.2M, 3.4B)
+- **Positive/Negative Distinction**: Gains and losses must be visually distinct — use color (green/red) paired with icons or signs (never color alone, for accessibility)
 
 ## Quick Principles
 
@@ -98,7 +108,6 @@ Deploy these agents when doing design work:
 
 - **uiux-designer** — Design analysis, layout critique, visual hierarchy recommendations
 - **frontend-developer** — React implementation of design patterns
-- **flutter-specialist** — Flutter/Material implementation
 - **react-specialist** — React 19 / Next.js patterns
 
 ## Skill Reference

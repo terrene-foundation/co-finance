@@ -226,5 +226,5 @@ For AI interaction design questions, invoke:
 
 - `ai-ux-designer` - AI-specific interaction pattern selection and design
 - `uiux-designer` - General layout, hierarchy, and visual design
-- `kaizen-specialist` - AI agent capabilities informing UX decisions
+- `finance-pattern-expert` - Domain-specific patterns informing UX decisions
 - `frontend-developer` - Implementation of AI interaction patterns

@@ -12,7 +12,7 @@ Retrieval Augmented Generation patterns for AI-powered document search and Q&A.
 > Priority: `HIGH`
 > SDK Version: `0.9.25+`
 > Related Skills: [`nodes-ai-reference`](../nodes/nodes-ai-reference.md), [`workflow-pattern-ai-document`](workflow-pattern-ai-document.md)
-> Related Subagents: `pattern-expert` (RAG workflows), `kaizen-specialist` (AI agents)
+> Related Subagents: `pattern-expert` (RAG workflows), `ai_agent-specialist` (AI agents)
 
 ## Quick Reference
 
@@ -26,19 +26,19 @@ RAG workflow components:
 ## Pattern 1: Document Ingestion Pipeline
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+# runtime setup
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Load document
-workflow.add_node("DocumentProcessorNode", "load_doc", {
+pipeline.add_step("DocumentProcessorNode", "load_doc", {
     "file_path": "{{input.document_path}}",
     "extract_metadata": True
 })
 
 # 2. Split into chunks
-workflow.add_node("TextChunkerNode", "chunk_text", {
+pipeline.add_step("TextChunkerNode", "chunk_text", {
     "input": "{{load_doc.content}}",
     "chunk_size": 512,
     "chunk_overlap": 50,
@@ -46,14 +46,14 @@ workflow.add_node("TextChunkerNode", "chunk_text", {
 })
 
 # 3. Generate embeddings
-workflow.add_node("EmbeddingNode", "generate_embeddings", {
+pipeline.add_step("EmbeddingNode", "generate_embeddings", {
     "provider": "openai",
     "model": "text-embedding-3-small",
     "text": "{{chunk_text.chunks}}"
 })
 
 # 4. Store in vector database
-workflow.add_node("VectorStoreNode", "store_vectors", {
+pipeline.add_step("VectorStoreNode", "store_vectors", {
     "collection": "documents",
     "vectors": "{{generate_embeddings.embeddings}}",
     "metadata": {
@@ -63,9 +63,9 @@ workflow.add_node("VectorStoreNode", "store_vectors", {
     }
 })
 
-workflow.add_connection("load_doc", "content", "chunk_text", "input")
-workflow.add_connection("chunk_text", "chunks", "generate_embeddings", "text")
-workflow.add_connection("generate_embeddings", "embeddings", "store_vectors", "vectors")
+pipeline.connect("load_doc", "content", "chunk_text", "input")
+pipeline.connect("chunk_text", "chunks", "generate_embeddings", "text")
+pipeline.connect("generate_embeddings", "embeddings", "store_vectors", "vectors")
 
 with LocalRuntime() as runtime:
     results, run_id = runtime.execute(workflow.build(), inputs={
@@ -77,17 +77,17 @@ with LocalRuntime() as runtime:
 ## Pattern 2: RAG Query Pipeline
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Generate query embedding
-workflow.add_node("EmbeddingNode", "query_embedding", {
+pipeline.add_step("EmbeddingNode", "query_embedding", {
     "provider": "openai",
     "model": "text-embedding-3-small",
     "text": "{{input.query}}"
 })
 
 # 2. Vector similarity search
-workflow.add_node("VectorSearchNode", "search_similar", {
+pipeline.add_step("VectorSearchNode", "search_similar", {
     "collection": "documents",
     "query_vector": "{{query_embedding.embedding}}",
     "top_k": 5,
@@ -95,14 +95,14 @@ workflow.add_node("VectorSearchNode", "search_similar", {
 })
 
 # 3. Rerank results (optional)
-workflow.add_node("RerankNode", "rerank", {
+pipeline.add_step("RerankNode", "rerank", {
     "query": "{{input.query}}",
     "documents": "{{search_similar.results}}",
     "model": "rerank-english-v2.0"
 })
 
 # 4. Build context prompt
-workflow.add_node("TransformNode", "build_prompt", {
+pipeline.add_step("TransformNode", "build_prompt", {
     "input": "{{rerank.documents}}",
     "transformation": """
         context = '\n\n'.join([doc['text'] for doc in input])
@@ -118,52 +118,52 @@ Answer:'''
 })
 
 # 5. Generate answer with LLM
-workflow.add_node("LLMNode", "generate_answer", {
+pipeline.add_step("LLMNode", "generate_answer", {
     "provider": "openai",
     "model": "gpt-4",
     "prompt": "{{build_prompt.result}}",
     "temperature": 0.3
 })
 
-workflow.add_connection("query_embedding", "embedding", "search_similar", "query_vector")
-workflow.add_connection("search_similar", "results", "rerank", "documents")
-workflow.add_connection("rerank", "documents", "build_prompt", "input")
-workflow.add_connection("build_prompt", "result", "generate_answer", "prompt")
+pipeline.connect("query_embedding", "embedding", "search_similar", "query_vector")
+pipeline.connect("search_similar", "results", "rerank", "documents")
+pipeline.connect("rerank", "documents", "build_prompt", "input")
+pipeline.connect("build_prompt", "result", "generate_answer", "prompt")
 ```
 
 ## Pattern 3: Multi-Document RAG
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Query embedding
-workflow.add_node("EmbeddingNode", "query_embed", {
+pipeline.add_step("EmbeddingNode", "query_embed", {
     "provider": "openai",
     "model": "text-embedding-3-small",
     "text": "{{input.query}}"
 })
 
 # 2. Search multiple collections in parallel
-workflow.add_node("VectorSearchNode", "search_docs", {
+pipeline.add_step("VectorSearchNode", "search_docs", {
     "collection": "documents",
     "query_vector": "{{query_embed.embedding}}",
     "top_k": 3
 })
 
-workflow.add_node("VectorSearchNode", "search_code", {
+pipeline.add_step("VectorSearchNode", "search_code", {
     "collection": "codebase",
     "query_vector": "{{query_embed.embedding}}",
     "top_k": 3
 })
 
-workflow.add_node("VectorSearchNode", "search_api", {
+pipeline.add_step("VectorSearchNode", "search_api", {
     "collection": "api_docs",
     "query_vector": "{{query_embed.embedding}}",
     "top_k": 3
 })
 
 # 3. Merge and rerank all results
-workflow.add_node("MergeNode", "merge_results", {
+pipeline.add_step("MergeNode", "merge_results", {
     "inputs": [
         "{{search_docs.results}}",
         "{{search_code.results}}",
@@ -172,14 +172,14 @@ workflow.add_node("MergeNode", "merge_results", {
     "strategy": "combine"
 })
 
-workflow.add_node("RerankNode", "rerank_all", {
+pipeline.add_step("RerankNode", "rerank_all", {
     "query": "{{input.query}}",
     "documents": "{{merge_results.combined}}",
     "top_k": 5
 })
 
 # 4. Generate comprehensive answer
-workflow.add_node("LLMNode", "generate", {
+pipeline.add_step("LLMNode", "generate", {
     "provider": "openai",
     "model": "gpt-4",
     "prompt": """Answer using context from docs, code, and API:
@@ -192,25 +192,25 @@ Provide a comprehensive answer with examples."""
 })
 
 # Parallel searches
-workflow.add_connection("query_embed", "embedding", "search_docs", "query_vector")
-workflow.add_connection("query_embed", "embedding", "search_code", "query_vector")
-workflow.add_connection("query_embed", "embedding", "search_api", "query_vector")
+pipeline.connect("query_embed", "embedding", "search_docs", "query_vector")
+pipeline.connect("query_embed", "embedding", "search_code", "query_vector")
+pipeline.connect("query_embed", "embedding", "search_api", "query_vector")
 
-workflow.add_connection("search_docs", "results", "merge_results", "input_docs")
-workflow.add_connection("search_code", "results", "merge_results", "input_code")
-workflow.add_connection("search_api", "results", "merge_results", "input_api")
+pipeline.connect("search_docs", "results", "merge_results", "input_docs")
+pipeline.connect("search_code", "results", "merge_results", "input_code")
+pipeline.connect("search_api", "results", "merge_results", "input_api")
 
-workflow.add_connection("merge_results", "combined", "rerank_all", "documents")
-workflow.add_connection("rerank_all", "documents", "generate", "context")
+pipeline.connect("merge_results", "combined", "rerank_all", "documents")
+pipeline.connect("rerank_all", "documents", "generate", "context")
 ```
 
 ## Pattern 4: Conversational RAG with Memory
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Load conversation history
-workflow.add_node("DatabaseQueryNode", "load_history", {
+pipeline.add_step("DatabaseQueryNode", "load_history", {
     "query": """
         SELECT role, content FROM messages
         WHERE conversation_id = ?
@@ -220,27 +220,27 @@ workflow.add_node("DatabaseQueryNode", "load_history", {
 })
 
 # 2. Build conversation context
-workflow.add_node("TransformNode", "build_context", {
+pipeline.add_step("TransformNode", "build_context", {
     "input": "{{load_history.results}}",
     "transformation": "'\n'.join([f'{m.role}: {m.content}' for m in input])"
 })
 
 # 3. Embed query with context
-workflow.add_node("EmbeddingNode", "embed_query", {
+pipeline.add_step("EmbeddingNode", "embed_query", {
     "provider": "openai",
     "model": "text-embedding-3-small",
     "text": "{{input.query}} Context: {{build_context.context}}"
 })
 
 # 4. Vector search
-workflow.add_node("VectorSearchNode", "search", {
+pipeline.add_step("VectorSearchNode", "search", {
     "collection": "documents",
     "query_vector": "{{embed_query.embedding}}",
     "top_k": 5
 })
 
 # 5. Generate answer with history
-workflow.add_node("LLMNode", "generate", {
+pipeline.add_step("LLMNode", "generate", {
     "provider": "openai",
     "model": "gpt-4",
     "prompt": """Conversation History:

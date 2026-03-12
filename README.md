@@ -1,21 +1,22 @@
-# Kailash COC Claude (Python)
+# FMI COC Claude (Python)
 
 <p align="center">
   <img src="https://img.shields.io/badge/platform-Claude%20Code-7C3AED.svg" alt="Claude Code">
   <img src="https://img.shields.io/badge/architecture-COC%205--Layer-blue.svg" alt="COC 5-Layer">
+  <img src="https://img.shields.io/badge/domain-Financial%20Markets-green.svg" alt="Financial Markets">
   <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="Apache 2.0">
 </p>
 
 <p align="center">
-  <strong>Cognitive Orchestration for Codegen (COC)</strong><br>
-  A five-layer cognitive architecture for <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> that replaces unstructured vibe coding with institutionally aware, self-enforcing AI code generation.
+  <strong>Cognitive Orchestration for Codegen (COC) — Financial Markets & Investments Edition</strong><br>
+  A five-layer cognitive architecture for <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> that makes AI your specialized partner for building financial education tools, market analysis applications, and investment research platforms.
 </p>
 
 ---
 
 > "The problem with vibe coding is not the AI model. It's the absence of institutional knowledge in the coding loop."
 
-Vibe coding fails because AI forgets your conventions (amnesia), drifts across patterns (convention drift), has never seen your frameworks (framework ignorance), degrades over sessions (quality erosion), and generates security vulnerabilities faster than humans can review (security blindness). COC solves all five by encoding institutional knowledge directly into the AI's operating environment.
+This COC setup encodes deep financial domain knowledge — market data APIs, portfolio theory, risk management, regulatory compliance, and Python finance libraries — directly into the AI's operating environment. The result: AI that understands finance, not just code.
 
 ---
 
@@ -24,79 +25,67 @@ Vibe coding fails because AI forgets your conventions (amnesia), drifts across p
 ```
 Your Natural Language Request
          |
-  1. Intent       30 Agents          Who should handle this?
+  1. Intent       25+ Agents         Who should handle this?
          |
-  2. Context      28 Skills          What does the AI need to know?
+  2. Context      20+ Skills         What does the AI need to know?
          |
-  3. Guardrails   9 Rules + 9 Hooks  What must the AI never do?
+  3. Guardrails   Rules + Hooks      What must the AI never do?
          |
-  4. Instructions CLAUDE.md + 20 Cmds What should the AI prioritize?
+  4. Instructions CLAUDE.md + Cmds   What should the AI prioritize?
          |
   5. Learning     Observe -> Evolve  How does the system improve?
          |
-  Production-Ready Code
+  Production-Ready Financial Software
 ```
 
-### Layer 1: Intent -- 30 Specialized Agents
+### Layer 1: Intent -- Specialized Finance Agents
 
-Each agent is a Markdown file in `.claude/agents/` with a defined role, tools, and model tier. Agents span the full development lifecycle:
+Each agent is a Markdown file in `.claude/agents/` with a defined role, tools, and model tier.
 
-**Analysis** `deep-analyst` `requirements-analyst` `sdk-navigator` `framework-advisor`
-**Planning** `todo-manager` `gh-manager` `intermediate-reviewer`
-**Implementation** `tdd-implementer` `pattern-expert` `dataflow-specialist` `nexus-specialist` `kaizen-specialist` `mcp-specialist` `gold-standards-validator`
-**Testing** `testing-specialist` `documentation-validator`
-**Deployment** `deployment-specialist`
-**Release** `git-release-specialist` `security-reviewer`
-**Frontend** `flutter-specialist` `react-specialist` `ai-ux-designer` `uiux-designer`
-**Standards** `care-expert` `eatp-expert` `coc-expert`
+**Finance Specialists** `market-data-specialist` `quantitative-analyst` `financial-engineer` `regulatory-compliance` `curriculum-designer` `financial-literacy-expert`
+**Analysis** `deep-analyst` `requirements-analyst` `finance-navigator` `library-advisor`
+**Implementation** `tdd-implementer` `finance-pattern-expert` `gold-standards-validator`
+**Testing** `testing-specialist` `documentation-validator` `learning-outcome-auditor`
+**Frontend** `react-specialist` `uiux-designer` `frontend-developer`
+**Operations** `deployment-specialist` `git-release-specialist` `security-reviewer` `todo-manager` `gh-manager`
+**Standards** `coc-expert`
 
-Analysis agents run on Opus (deep reasoning). Review agents run on Sonnet (fast, cost-efficient).
+### Layer 2: Context -- Finance Knowledge Base
 
-### Layer 2: Context -- 28 Skill Directories, 100+ Files
+Progressive disclosure: quick patterns -> specific domains -> full reference. Located in `.claude/skills/`.
 
-Progressive disclosure: quick patterns (10-50 lines) -> specific domains (50-250 lines) -> full SDK reference. Located in `.claude/skills/`.
-
-Domains include: Core SDK, DataFlow, Nexus, Kaizen, MCP, cheatsheets, 110+ node reference, workflow patterns, deployment, frontend integration (React + Flutter), 3-tier testing, architecture decisions, security patterns, enterprise AI UX, and more.
+Domains include: Financial Instruments, Market Analysis, Portfolio Theory, Risk Management, Financial Data APIs, Python Finance Libraries, Regulatory Framework, Learning Design, Personal Finance, Behavioral Finance, plus general development guides, testing strategies, deployment, security patterns, and UI/UX design.
 
 ### Layer 3: Guardrails -- Defense in Depth
 
-**9 Rules** (`.claude/rules/` -- soft enforcement via AI interpretation):
-No mocking in integration tests. No hardcoded secrets. No stubs/TODOs in production. Conventional commits. Mandatory code review after every change. Security review before every commit. E2E god-mode testing. Environment-only API keys.
+**Rules** (`.claude/rules/` -- soft enforcement via AI interpretation):
+Financial accuracy (Decimal for currency, named constants). Disclaimer compliance (educational content rules). Data sourcing (cite providers, handle staleness). No hardcoded secrets. No stubs/TODOs in production. Conventional commits.
 
-**9 Hooks** (`scripts/hooks/` -- hard enforcement, deterministic Node.js):
+**Hooks** (`scripts/hooks/` -- hard enforcement, deterministic Node.js):
 
-| Hook                            | What It Does                                                  |
-| ------------------------------- | ------------------------------------------------------------- |
-| `session-start.js`              | Validates `.env`, detects active framework + workspace        |
-| `user-prompt-rules-reminder.js` | **Anti-amnesia**: re-injects rules + workspace state per turn |
-| `validate-bash-command.js`      | Blocks destructive commands (`rm -rf /`, fork bombs)          |
-| `validate-workflow.js`          | Blocks hardcoded models, detects 13 API key patterns          |
-| `auto-format.js`                | Runs `black`/`prettier` on every write                        |
-| `pre-compact.js`                | Saves state before context compression + workspace reminder   |
-| `session-end.js`                | Persists session stats for learning                           |
-| `stop.js`                       | Emergency state save + workspace reminder                     |
-| `detect-package-manager.js`     | Detects npm/pnpm/yarn/bun                                     |
+| Hook                               | What It Does                                            |
+| ---------------------------------- | ------------------------------------------------------- |
+| `session-start.js`                 | Validates `.env`, detects active workspace              |
+| `user-prompt-rules-reminder.js`    | **Anti-amnesia**: re-injects rules per turn             |
+| `validate-financial-code-style.js` | Checks Decimal usage, named constants, formula patterns |
+| `validate-disclaimer.js`           | Ensures disclaimers on financial content                |
+| `validate-workflow.js`             | Validates Python finance patterns, API key usage        |
+| `validate-bash-command.js`         | Blocks destructive commands                             |
+| `auto-format.js`                   | Runs `black`/`prettier` on every write                  |
+| `pre-compact.js`                   | Saves state before context compression                  |
+| `session-end.js`                   | Persists session stats for learning                     |
 
-Critical rules have 5-8 independent enforcement layers. If any four fail, the fifth catches it.
+### Layer 4: Instructions -- CLAUDE.md + Slash Commands
 
-### Layer 4: Instructions -- CLAUDE.md + 19 Slash Commands
+`CLAUDE.md` is auto-loaded every session with finance context and directives.
 
-`CLAUDE.md` is auto-loaded every session with framework context, relationship mapping, and directive escalation. Slash commands are context-efficient entry points:
-
-**Framework**: `/sdk` `/db` `/api` `/ai` `/test` `/validate` `/design` `/i-audit` `/i-harden` `/learn` `/evolve` `/checkpoint`
+**Finance**: `/finance` `/data` `/portfolio` `/backtest` `/curriculum`
+**Quality**: `/test` `/validate` `/design` `/i-audit` `/i-harden`
 **Workspace**: `/analyze` `/todos` `/implement` `/redteam` `/codify` `/ws` `/wrapup`
 
 ### Layer 5: Learning -- Closed Loop Evolution
 
-```
-Session Activity -> Observations (JSONL) -> Instinct Processor -> Evolver
-                                                                     |
-                                                    0.85+ conf -> New Skill
-                                                    0.90+ conf -> New Command
-                                                    0.95+ conf -> New Agent
-```
-
-The system discovers recurring patterns and automatically generates new skills, commands, and agents. It gets smarter with every session.
+The system discovers recurring patterns and generates new skills, commands, and agents. It gets smarter with every session.
 
 ---
 
@@ -104,17 +93,17 @@ The system discovers recurring patterns and automatically generates new skills, 
 
 ```bash
 # Clone
-git clone https://github.com/Integrum-Global/kailash-coc-claude-py.git
-cd kailash-coc-claude-py
+git clone <your-repo-url>
+cd fmi-agents
 
 # Configure
-cp .env.example .env   # Edit with your API keys
+cp .env.example .env   # Edit with your API keys (Polygon, FRED, etc.)
 
 # Go
 claude
 ```
 
-The `session-start.js` hook validates your environment automatically. Then just describe what you want -- COC handles agent selection, skill loading, pattern enforcement, and quality gates.
+The `session-start.js` hook validates your environment automatically. Then just describe what you want to build — COC handles agent selection, skill loading, pattern enforcement, and quality gates.
 
 ---
 
@@ -122,39 +111,46 @@ The `session-start.js` hook validates your environment automatically. Then just 
 
 ```
 .claude/
-  agents/          30 specialist agents (Markdown + YAML frontmatter)
-  skills/          28 domain knowledge directories, 100+ files
-  rules/           9 behavioral constraint files
-  commands/        20 slash command definitions (13 framework + 7 workspace)
-  learning/        Observation-instinct-evolution pipeline
+  agents/          25+ specialist agents (Markdown + YAML frontmatter)
+    finance/       6 finance domain experts
+    frontend/      3 frontend specialists
+    management/    3 operations agents
+    standards/     1 methodology expert
+  skills/          20+ domain knowledge directories
+  rules/           13 behavioral constraint files
+  commands/        20+ slash command definitions
 
 scripts/
-  hooks/           9 Node.js lifecycle hooks (deterministic enforcement)
+  hooks/           10+ Node.js lifecycle hooks (deterministic enforcement)
   learning/        Learning system scripts
-  ci/              CI validation scripts
 
 workspaces/
   instructions/    5 phase templates (analyze, todos, implement, validate, codify)
   <project>/       Per-project workspace directories
 
 CLAUDE.md          Root instructions (auto-loaded every session)
-pyproject.toml     Python dependencies
-.env.example       Environment template
+pyproject.toml     Python dependencies (pandas, numpy, yfinance, etc.)
+.env.example       Environment template (market data API keys)
 ```
 
 ---
 
-## Relationship to CARE/EATP
+## Finance Stack
 
-COC applies the same trust architecture from the [Kailash SDK's CARE/EATP framework](https://github.com/Integrum-Global/kailash_sdk) to codegen: humans define the operating envelope (Trust Plane), AI executes within those boundaries at machine speed (Execution Plane). Rules and hooks form the Operating Envelope. Mandatory review gates maintain Trust Lineage. Hook enforcement provides Audit Anchors.
-
----
-
-## Built For Kailash, Designed For Everyone
-
-Built for the [Kailash SDK](https://github.com/Integrum-Global/kailash_sdk) ecosystem ([Core SDK](https://github.com/Integrum-Global/kailash_sdk), [DataFlow](https://github.com/Integrum-Global/kailash-dataflow), [Nexus](https://github.com/Integrum-Global/kailash-nexus), [Kaizen](https://github.com/Integrum-Global/kailash-kaizen)), but the COC architecture is framework-agnostic. Fork this repo, replace the Kailash-specific skills and agents with your own framework knowledge, and you have COC for any stack.
-
-**Sibling repo**: [kailash-vibe-gemini-setup](https://github.com/Integrum-Global/kailash-vibe-gemini-setup) (same architecture for Gemini CLI)
+| Library             | Purpose                               | Install                       |
+| ------------------- | ------------------------------------- | ----------------------------- |
+| **pandas**          | Time series data manipulation         | `pip install pandas`          |
+| **numpy**           | Numerical computation, portfolio math | `pip install numpy`           |
+| **numpy-financial** | Time value of money (NPV, IRR, PMT)   | `pip install numpy-financial` |
+| **yfinance**        | Yahoo Finance market data (free)      | `pip install yfinance`        |
+| **fredapi**         | FRED economic data                    | `pip install fredapi`         |
+| **scipy**           | Optimization, statistics              | `pip install scipy`           |
+| **matplotlib**      | Static charts and plots               | `pip install matplotlib`      |
+| **mplfinance**      | Candlestick and financial charts      | `pip install mplfinance`      |
+| **plotly**          | Interactive charts and dashboards     | `pip install plotly`          |
+| **backtrader**      | Strategy backtesting framework        | `pip install backtrader`      |
+| **cvxpy**           | Portfolio optimization                | `pip install cvxpy`           |
+| **QuantLib**        | Derivatives pricing and fixed income  | `pip install QuantLib`        |
 
 ---
 
@@ -163,7 +159,5 @@ Built for the [Kailash SDK](https://github.com/Integrum-Global/kailash_sdk) ecos
 Apache License, Version 2.0. See [LICENSE](LICENSE).
 
 <p align="center">
-  <a href=".claude/guides/claude-code/README.md">Full Documentation</a> |
-  <a href="https://github.com/Integrum-Global/kailash_sdk">Kailash SDK</a> |
-  <a href="https://github.com/Integrum-Global/kailash-vibe-gemini-setup">Gemini Sibling</a>
+  <a href=".claude/guides/claude-code/README.md">Full Documentation</a>
 </p>

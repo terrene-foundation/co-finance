@@ -11,8 +11,8 @@ Comprehensive patterns for Extract, Transform, Load workflows.
 > Category: `workflow-patterns`
 > Priority: `HIGH`
 > SDK Version: `0.9.25+`
-> Related Skills: [`workflow-pattern-data`](workflow-pattern-data.md), [`dataflow-specialist`](../../02-dataflow/dataflow-specialist.md)
-> Related Subagents: `dataflow-specialist` (database ETL), `pattern-expert` (ETL workflows)
+> Related Skills: [`workflow-pattern-data`](workflow-pattern-data.md), [`database-specialist`](../../02-database/database-specialist.md)
+> Related Subagents: `database-specialist` (database ETL), `pattern-expert` (ETL workflows)
 
 ## Quick Reference
 
@@ -25,20 +25,20 @@ ETL patterns enable:
 ## Pattern 1: CSV to Database ETL
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+# runtime setup
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. EXTRACT: Read CSV
-workflow.add_node("CSVReaderNode", "extract", {
+pipeline.add_step("CSVReaderNode", "extract", {
     "file_path": "data/customers.csv",
     "delimiter": ",",
     "encoding": "utf-8"
 })
 
 # 2. TRANSFORM: Validate data
-workflow.add_node("DataValidationNode", "validate", {
+pipeline.add_step("DataValidationNode", "validate", {
     "input": "{{extract.data}}",
     "schema": {
         "email": "email",
@@ -49,7 +49,7 @@ workflow.add_node("DataValidationNode", "validate", {
 })
 
 # 3. TRANSFORM: Clean data
-workflow.add_node("TransformNode", "clean", {
+pipeline.add_step("TransformNode", "clean", {
     "input": "{{validate.valid_data}}",
     "transformations": [
         {"field": "email", "operation": "lowercase"},
@@ -59,14 +59,14 @@ workflow.add_node("TransformNode", "clean", {
 })
 
 # 4. TRANSFORM: Enrich data
-workflow.add_node("APICallNode", "enrich_location", {
+pipeline.add_step("APICallNode", "enrich_location", {
     "url": "https://api.example.com/geocode",
     "method": "POST",
     "body": "{{clean.data}}"
 })
 
 # 5. LOAD: Insert to database
-workflow.add_node("DatabaseExecuteNode", "load", {
+pipeline.add_step("DatabaseExecuteNode", "load", {
     "query": """
         INSERT INTO customers (name, email, age, location)
         VALUES (?, ?, ?, ?)
@@ -79,18 +79,18 @@ workflow.add_node("DatabaseExecuteNode", "load", {
 })
 
 # 6. Error handling: Log invalid rows
-workflow.add_node("CSVWriterNode", "log_errors", {
+pipeline.add_step("CSVWriterNode", "log_errors", {
     "file_path": "logs/invalid_rows.csv",
     "data": "{{validate.invalid_data}}",
     "headers": ["row", "error", "data"]
 })
 
 # Connect nodes
-workflow.add_connection("extract", "data", "validate", "input")
-workflow.add_connection("validate", "valid_data", "clean", "input")
-workflow.add_connection("clean", "data", "enrich_location", "body")
-workflow.add_connection("enrich_location", "enriched_data", "load", "parameters")
-workflow.add_connection("validate", "invalid_data", "log_errors", "data")
+pipeline.connect("extract", "data", "validate", "input")
+pipeline.connect("validate", "valid_data", "clean", "input")
+pipeline.connect("clean", "data", "enrich_location", "body")
+pipeline.connect("enrich_location", "enriched_data", "load", "parameters")
+pipeline.connect("validate", "invalid_data", "log_errors", "data")
 
 with LocalRuntime() as runtime:
     results, run_id = runtime.execute(workflow.build())
@@ -99,22 +99,22 @@ with LocalRuntime() as runtime:
 ## Pattern 2: API to Database ETL
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. EXTRACT: Paginated API
-workflow.add_node("SetVariableNode", "init_page", {
+pipeline.add_step("SetVariableNode", "init_page", {
     "page": 1,
     "has_more": True
 })
 
-workflow.add_node("APICallNode", "extract_api", {
+pipeline.add_step("APICallNode", "extract_api", {
     "url": "https://api.example.com/users?page={{init_page.page}}",
     "method": "GET",
     "headers": {"Authorization": "Bearer {{secrets.api_token}}"}
 })
 
 # 2. TRANSFORM: Normalize API response
-workflow.add_node("TransformNode", "normalize", {
+pipeline.add_step("TransformNode", "normalize", {
     "input": "{{extract_api.data}}",
     "mapping": {
         "user_id": "id",
@@ -125,13 +125,13 @@ workflow.add_node("TransformNode", "normalize", {
 })
 
 # 3. TRANSFORM: Filter records
-workflow.add_node("FilterNode", "filter_active", {
+pipeline.add_step("FilterNode", "filter_active", {
     "input": "{{normalize.data}}",
     "condition": "status == 'active' AND created_at > '2024-01-01'"
 })
 
 # 4. LOAD: Batch insert
-workflow.add_node("DatabaseExecuteNode", "load_batch", {
+pipeline.add_step("DatabaseExecuteNode", "load_batch", {
     "query": """
         INSERT INTO users (user_id, full_name, email_address, created_at)
         VALUES (?, ?, ?, ?)
@@ -142,35 +142,35 @@ workflow.add_node("DatabaseExecuteNode", "load_batch", {
 })
 
 # 5. Check for more pages
-workflow.add_node("ConditionalNode", "check_more", {
+pipeline.add_step("ConditionalNode", "check_more", {
     "condition": "{{extract_api.has_next_page}} == true",
     "true_branch": "next_page",
     "false_branch": "complete"
 })
 
 # 6. Increment page
-workflow.add_node("TransformNode", "next_page", {
+pipeline.add_step("TransformNode", "next_page", {
     "input": "{{init_page.page}}",
     "transformation": "value + 1"
 })
 
 # Loop for pagination
-workflow.add_connection("init_page", "page", "extract_api", "page")
-workflow.add_connection("extract_api", "data", "normalize", "input")
-workflow.add_connection("normalize", "data", "filter_active", "input")
-workflow.add_connection("filter_active", "filtered_data", "load_batch", "parameters")
-workflow.add_connection("load_batch", "result", "check_more", "input")
-workflow.add_connection("check_more", "output_true", "next_page", "input")
-workflow.add_connection("next_page", "result", "extract_api", "page")  # Loop!
+pipeline.connect("init_page", "page", "extract_api", "page")
+pipeline.connect("extract_api", "data", "normalize", "input")
+pipeline.connect("normalize", "data", "filter_active", "input")
+pipeline.connect("filter_active", "filtered_data", "load_batch", "parameters")
+pipeline.connect("load_batch", "result", "check_more", "input")
+pipeline.connect("check_more", "output_true", "next_page", "input")
+pipeline.connect("next_page", "result", "extract_api", "page")  # Loop!
 ```
 
 ## Pattern 3: Database to Database Migration
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. EXTRACT: Read from source DB
-workflow.add_node("DatabaseQueryNode", "extract_source", {
+pipeline.add_step("DatabaseQueryNode", "extract_source", {
     "connection": "source_db",
     "query": """
         SELECT id, name, email, created_at
@@ -181,7 +181,7 @@ workflow.add_node("DatabaseQueryNode", "extract_source", {
 })
 
 # 2. TRANSFORM: Data mapping
-workflow.add_node("TransformNode", "transform_schema", {
+pipeline.add_step("TransformNode", "transform_schema", {
     "input": "{{extract_source.results}}",
     "transformations": [
         {"source": "id", "target": "legacy_id", "type": "string"},
@@ -192,7 +192,7 @@ workflow.add_node("TransformNode", "transform_schema", {
 })
 
 # 3. TRANSFORM: Validate business rules
-workflow.add_node("DataValidationNode", "validate_rules", {
+pipeline.add_step("DataValidationNode", "validate_rules", {
     "input": "{{transform_schema.data}}",
     "rules": [
         {"field": "email_address", "validation": "email_format"},
@@ -202,7 +202,7 @@ workflow.add_node("DataValidationNode", "validate_rules", {
 })
 
 # 4. LOAD: Insert to target DB
-workflow.add_node("DatabaseExecuteNode", "load_target", {
+pipeline.add_step("DatabaseExecuteNode", "load_target", {
     "connection": "target_db",
     "query": """
         INSERT INTO users (legacy_id, full_name, email_address, registration_date)
@@ -213,7 +213,7 @@ workflow.add_node("DatabaseExecuteNode", "load_target", {
 })
 
 # 5. Update source DB (mark as migrated)
-workflow.add_node("DatabaseExecuteNode", "mark_migrated", {
+pipeline.add_step("DatabaseExecuteNode", "mark_migrated", {
     "connection": "source_db",
     "query": """
         UPDATE legacy_users
@@ -223,7 +223,7 @@ workflow.add_node("DatabaseExecuteNode", "mark_migrated", {
 })
 
 # 6. Handle failures
-workflow.add_node("DatabaseExecuteNode", "log_failures", {
+pipeline.add_step("DatabaseExecuteNode", "log_failures", {
     "connection": "source_db",
     "query": """
         INSERT INTO migration_failures (legacy_id, error, data)
@@ -232,27 +232,27 @@ workflow.add_node("DatabaseExecuteNode", "log_failures", {
     "parameters": "{{validate_rules.invalid_data}}"
 })
 
-workflow.add_connection("extract_source", "results", "transform_schema", "input")
-workflow.add_connection("transform_schema", "data", "validate_rules", "input")
-workflow.add_connection("validate_rules", "valid_data", "load_target", "parameters")
-workflow.add_connection("load_target", "inserted_ids", "mark_migrated", "ids")
-workflow.add_connection("validate_rules", "invalid_data", "log_failures", "parameters")
+pipeline.connect("extract_source", "results", "transform_schema", "input")
+pipeline.connect("transform_schema", "data", "validate_rules", "input")
+pipeline.connect("validate_rules", "valid_data", "load_target", "parameters")
+pipeline.connect("load_target", "inserted_ids", "mark_migrated", "ids")
+pipeline.connect("validate_rules", "invalid_data", "log_failures", "parameters")
 ```
 
 ## Pattern 4: Real-Time Streaming ETL
 
 ```python
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. EXTRACT: Stream from message queue
-workflow.add_node("MessageQueueConsumerNode", "extract_stream", {
+pipeline.add_step("MessageQueueConsumerNode", "extract_stream", {
     "queue_url": "kafka://localhost:9092/events",
     "topic": "user_events",
     "batch_size": 50
 })
 
 # 2. TRANSFORM: Parse events
-workflow.add_node("TransformNode", "parse_events", {
+pipeline.add_step("TransformNode", "parse_events", {
     "input": "{{extract_stream.messages}}",
     "parsing": {
         "format": "json",
@@ -262,7 +262,7 @@ workflow.add_node("TransformNode", "parse_events", {
 })
 
 # 3. TRANSFORM: Aggregate metrics
-workflow.add_node("AggregateNode", "calculate_metrics", {
+pipeline.add_step("AggregateNode", "calculate_metrics", {
     "input": "{{parse_events.events}}",
     "group_by": ["user_id", "event_type"],
     "aggregations": {
@@ -274,7 +274,7 @@ workflow.add_node("AggregateNode", "calculate_metrics", {
 })
 
 # 4. LOAD: Write to time-series DB
-workflow.add_node("DatabaseExecuteNode", "load_metrics", {
+pipeline.add_step("DatabaseExecuteNode", "load_metrics", {
     "connection": "timescaledb",
     "query": """
         INSERT INTO user_metrics (user_id, event_type, count, avg_duration, last_seen, window_start)
@@ -284,14 +284,14 @@ workflow.add_node("DatabaseExecuteNode", "load_metrics", {
 })
 
 # 5. Acknowledge messages
-workflow.add_node("MessageQueueAckNode", "ack_messages", {
+pipeline.add_step("MessageQueueAckNode", "ack_messages", {
     "message_ids": "{{extract_stream.message_ids}}"
 })
 
-workflow.add_connection("extract_stream", "messages", "parse_events", "input")
-workflow.add_connection("parse_events", "events", "calculate_metrics", "input")
-workflow.add_connection("calculate_metrics", "aggregated", "load_metrics", "parameters")
-workflow.add_connection("load_metrics", "result", "ack_messages", "message_ids")
+pipeline.connect("extract_stream", "messages", "parse_events", "input")
+pipeline.connect("parse_events", "events", "calculate_metrics", "input")
+pipeline.connect("calculate_metrics", "aggregated", "load_metrics", "parameters")
+pipeline.connect("load_metrics", "result", "ack_messages", "message_ids")
 ```
 
 ## Best Practices
@@ -314,7 +314,7 @@ workflow.add_connection("load_metrics", "result", "ack_messages", "message_ids")
 
 ## Related Skills
 
-- **DataFlow Framework**: [`dataflow-specialist`](../../02-dataflow/dataflow-specialist.md)
+- **database Framework**: [`database-specialist`](../../02-database/database-specialist.md)
 - **Data Patterns**: [`workflow-pattern-data`](workflow-pattern-data.md)
 - **Database Nodes**: [`nodes-database-reference`](../nodes/nodes-database-reference.md)
 

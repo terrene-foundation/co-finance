@@ -13,38 +13,38 @@ description: "Project management workflow patterns (tasks, approvals, notificati
 ## Pattern: Task Approval Workflow
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
+import pandas as pd
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Create task
-workflow.add_node("DatabaseExecuteNode", "create_task", {
+pipeline.add_step("DatabaseExecuteNode", "create_task", {
     "query": "INSERT INTO tasks (title, description, status) VALUES (?, ?, 'pending')",
     "parameters": ["{{input.title}}", "{{input.description}}"]
 })
 
 # 2. Notify approver
-workflow.add_node("APICallNode", "notify_approver", {
+pipeline.add_step("APICallNode", "notify_approver", {
     "url": "https://api.slack.com/messages",
     "method": "POST",
     "body": {"text": "New task needs approval: {{input.title}}"}
 })
 
 # 3. Wait for approval
-workflow.add_node("WaitForEventNode", "wait_approval", {
+pipeline.add_step("WaitForEventNode", "wait_approval", {
     "event_type": "task_approved",
     "timeout": 86400  # 24 hours
 })
 
 # 4. Update status
-workflow.add_node("DatabaseExecuteNode", "update_status", {
+pipeline.add_step("DatabaseExecuteNode", "update_status", {
     "query": "UPDATE tasks SET status = 'approved' WHERE id = ?",
     "parameters": ["{{create_task.task_id}}"]
 })
 
-workflow.add_connection("create_task", "task_id", "notify_approver", "task_id")
-workflow.add_connection("notify_approver", "result", "wait_approval", "trigger")
-workflow.add_connection("wait_approval", "event_data", "update_status", "parameters")
+pipeline.connect("create_task", "task_id", "notify_approver", "task_id")
+pipeline.connect("notify_approver", "result", "wait_approval", "trigger")
+pipeline.connect("wait_approval", "event_data", "update_status", "parameters")
 ```
 
 <!-- Trigger Keywords: project workflow, task automation, approval workflow, project management -->

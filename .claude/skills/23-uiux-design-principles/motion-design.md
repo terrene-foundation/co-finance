@@ -39,7 +39,7 @@ transition-timing-function: cubic-bezier(0, 0, 0, 1);
 transition-timing-function: cubic-bezier(0.3, 0, 1, 1);
 ```
 
-### Flutter Easing
+### CSS Easing
 
 ```dart
 // Standard
@@ -235,7 +235,7 @@ Only animate these properties for smooth 60fps performance:
 ```
 
 ```dart
-// Flutter — check platform setting
+// Check platform accessibility setting
 final reduceMotion = MediaQuery.of(context).disableAnimations;
 if (reduceMotion) {
   // Use instant transitions or no animation

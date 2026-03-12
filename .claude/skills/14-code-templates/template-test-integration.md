@@ -1,202 +1,251 @@
 ---
 name: template-test-integration
-description: "Generate Kailash integration test template (Tier 2). Use when requesting 'integration test template', 'Tier 2 test', 'real infrastructure test', 'NO MOCKING test', or 'integration test example'."
+description: "Financial data pipeline integration test template with real file I/O, database roundtrip, and multi-step calculation verification. Use when requesting 'integration test template', 'pipeline test', 'data pipeline test', 'database roundtrip test', or 'integration test example'."
 ---
 
-# Integration Test Template (Tier 2)
+# Integration Test Template (Data Pipeline)
 
-Integration test template with real Docker services (NO MOCKING policy).
+Integration test template for financial data pipelines with real file I/O, database operations, and multi-step calculations.
 
 > **Skill Metadata**
 > Category: `cross-cutting` (code-generation)
 > Priority: `HIGH`
-> SDK Version: `0.9.25+`
-> Related Skills: [`test-3tier-strategy`](../../4-operations/testing/test-3tier-strategy.md), [`template-test-unit`](template-test-unit.md), [`template-test-e2e`](template-test-e2e.md)
-> Related Subagents: `testing-specialist` (NO MOCKING policy), `tdd-implementer`
 
-## Quick Reference
-
-- **Purpose**: Test component interactions with real services
-- **Speed**: <5 seconds per test
-- **Dependencies**: Real Docker services (PostgreSQL, Redis, etc.)
-- **Location**: `tests/integration/`
-- **Mocking**: ❌ **FORBIDDEN** - use real services only
-
-## Integration Test Template
+## Complete Integration Test Template
 
 ```python
-"""Integration tests for [Component] with real infrastructure"""
+"""Integration tests for financial data pipeline.
+
+Tests validate real file I/O, database operations, and multi-step
+calculation pipelines using actual data (no mocking).
+"""
 
 import pytest
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime.local import LocalRuntime
+import pandas as pd
+import numpy as np
+import sqlite3
+import tempfile
+from pathlib import Path
+from datetime import datetime
 
-@pytest.mark.integration
-class Test[Component]Integration:
-    """Integration tests with real Docker services."""
 
-    def test_database_integration(self, test_database_url):
-        """Test workflow with real database operations."""
-        workflow = WorkflowBuilder()
+class TestCSVPipelineIntegration:
+    """Test loading, validating, and processing CSV market data."""
 
-        # Use real database node
-        workflow.add_node("AsyncSQLDatabaseNode", "db_write", {
-            "connection_string": test_database_url,
-            "query": "INSERT INTO test_table (name, value) VALUES ($1, $2)",
-            "params": ["test_name", 42]
+    @pytest.fixture
+    def sample_csv(self, tmp_path):
+        """Create a real CSV file with known OHLCV data."""
+        csv_path = tmp_path / "AAPL.csv"
+        df = pd.DataFrame({
+            "date": pd.date_range("2024-01-02", periods=5, freq="B"),
+            "open": [185.0, 186.5, 184.0, 187.0, 188.5],
+            "high": [187.0, 187.5, 186.0, 189.0, 190.0],
+            "low": [184.0, 185.0, 183.0, 186.0, 187.5],
+            "close": [186.0, 185.5, 185.0, 188.0, 189.5],
+            "volume": [1000000, 1200000, 900000, 1100000, 1300000],
+        })
+        df.to_csv(csv_path, index=False)
+        return csv_path
+
+    def test_csv_load_and_validate(self, sample_csv):
+        """Load CSV, validate schema, check data quality."""
+        df = pd.read_csv(sample_csv, parse_dates=["date"])
+
+        # Schema validation
+        required_cols = {"date", "open", "high", "low", "close", "volume"}
+        assert required_cols.issubset(set(df.columns))
+
+        # Data quality checks
+        assert df["close"].gt(0).all(), "All prices must be positive"
+        assert (df["high"] >= df["low"]).all(), "High must be >= Low"
+        assert df["volume"].ge(0).all(), "Volume must be non-negative"
+        assert df["date"].is_monotonic_increasing, "Dates must be sorted"
+
+    def test_csv_returns_calculation(self, sample_csv):
+        """Load CSV and calculate returns end-to-end."""
+        df = pd.read_csv(sample_csv, parse_dates=["date"])
+        returns = df["close"].pct_change().dropna()
+
+        # Known values: 186->185.5->185->188->189.5
+        expected_returns = [
+            (185.5 - 186.0) / 186.0,
+            (185.0 - 185.5) / 185.5,
+            (188.0 - 185.0) / 185.0,
+            (189.5 - 188.0) / 188.0,
+        ]
+
+        for actual, expected in zip(returns.values, expected_returns):
+            assert actual == pytest.approx(expected, abs=1e-6)
+
+    def test_csv_roundtrip_preserves_data(self, tmp_path):
+        """Write CSV, read it back, verify data unchanged."""
+        original = pd.DataFrame({
+            "date": ["2024-01-02", "2024-01-03"],
+            "open": [100.25, 101.50],
+            "high": [102.00, 103.00],
+            "low": [99.50, 100.00],
+            "close": [101.00, 102.50],
+            "volume": [500000, 600000],
         })
 
-        workflow.add_node("AsyncSQLDatabaseNode", "db_read", {
-            "connection_string": test_database_url,
-            "query": "SELECT * FROM test_table WHERE name = $1",
-            "params": ["test_name"]
+        path = tmp_path / "roundtrip.csv"
+        original.to_csv(path, index=False)
+        loaded = pd.read_csv(path)
+
+        pd.testing.assert_frame_equal(original, loaded)
+
+
+class TestDatabaseIntegration:
+    """Test SQLite database operations for market data storage."""
+
+    @pytest.fixture
+    def db_path(self, tmp_path):
+        """Create a temporary SQLite database with schema."""
+        path = tmp_path / "market_data.db"
+        conn = sqlite3.connect(str(path))
+        conn.execute("""
+            CREATE TABLE prices (
+                date TEXT NOT NULL,
+                symbol TEXT NOT NULL,
+                open REAL, high REAL, low REAL, close REAL,
+                volume INTEGER,
+                PRIMARY KEY (date, symbol)
+            )
+        """)
+        conn.commit()
+        conn.close()
+        return path
+
+    def test_insert_and_query_prices(self, db_path):
+        """Insert price data and query it back."""
+        conn = sqlite3.connect(str(db_path))
+
+        # Insert
+        conn.execute(
+            "INSERT INTO prices VALUES (?, ?, ?, ?, ?, ?, ?)",
+            ("2024-01-02", "AAPL", 185.0, 187.0, 184.0, 186.0, 1000000),
+        )
+        conn.commit()
+
+        # Query
+        df = pd.read_sql(
+            "SELECT * FROM prices WHERE symbol = ?",
+            conn, params=("AAPL",),
+        )
+        conn.close()
+
+        assert len(df) == 1
+        assert df.iloc[0]["close"] == 186.0
+        assert df.iloc[0]["symbol"] == "AAPL"
+
+    def test_bulk_insert_and_aggregate(self, db_path):
+        """Insert multiple rows and run aggregate queries."""
+        conn = sqlite3.connect(str(db_path))
+
+        rows = [
+            ("2024-01-02", "AAPL", 185.0, 187.0, 184.0, 186.0, 1000000),
+            ("2024-01-03", "AAPL", 186.5, 187.5, 185.0, 185.5, 1200000),
+            ("2024-01-04", "AAPL", 184.0, 186.0, 183.0, 185.0, 900000),
+        ]
+        conn.executemany(
+            "INSERT INTO prices VALUES (?, ?, ?, ?, ?, ?, ?)", rows
+        )
+        conn.commit()
+
+        # Aggregate: average close
+        result = conn.execute(
+            "SELECT AVG(close) FROM prices WHERE symbol = ?", ("AAPL",)
+        ).fetchone()
+        conn.close()
+
+        avg_close = result[0]
+        expected_avg = (186.0 + 185.5 + 185.0) / 3
+        assert avg_close == pytest.approx(expected_avg, abs=1e-6)
+
+    def test_parquet_roundtrip(self, tmp_path):
+        """Write to Parquet, read back, verify fidelity."""
+        df = pd.DataFrame({
+            "date": pd.date_range("2024-01-02", periods=3, freq="B"),
+            "symbol": ["AAPL"] * 3,
+            "close": [186.0, 185.5, 185.0],
+            "volume": [1000000, 1200000, 900000],
         })
 
-        workflow.add_connection("db_write", "result", "db_read", "trigger")
+        path = tmp_path / "prices.parquet"
+        df.to_parquet(path, engine="pyarrow", index=False)
+        loaded = pd.read_parquet(path)
 
-        # Execute with real database
-        runtime = LocalRuntime()
-        results, run_id = runtime.execute(workflow.build())
+        pd.testing.assert_frame_equal(df, loaded)
 
-        # Verify real database operations
-        assert results["db_read"]["data"] is not None
-        assert len(results["db_read"]["data"]) > 0
 
-    def test_node_interaction(self):
-        """Test multiple nodes working together."""
-        workflow = WorkflowBuilder()
+class TestMultiStepCalculation:
+    """Test multi-step financial calculations end-to-end."""
 
-        # Node 1: Data source
-        workflow.add_node("PythonCodeNode", "source", {
-            "code": "result = {'items': [1, 2, 3, 4, 5]}"
-        })
+    @pytest.fixture
+    def price_series(self):
+        """Known price series for reproducible results."""
+        return pd.Series(
+            [100.0, 102.0, 101.0, 104.0, 103.0, 106.0, 105.0, 108.0],
+            index=pd.date_range("2024-01-02", periods=8, freq="B"),
+            name="close",
+        )
 
-        # Node 2: Processor
-        workflow.add_node("PythonCodeNode", "process", {
-            "code": """
-items = input_data
-filtered = [x for x in items if x > 2]
-result = {'filtered': filtered, 'count': len(filtered)}
-"""
-        })
+    def test_returns_to_risk_metrics_pipeline(self, price_series):
+        """Calculate returns -> volatility -> Sharpe, verify each step."""
+        # Step 1: Returns
+        returns = price_series.pct_change().dropna()
+        assert len(returns) == 7
+        assert returns.iloc[0] == pytest.approx(0.02, abs=1e-6)
 
-        # Node 3: Validator
-        workflow.add_node("PythonCodeNode", "validate", {
-            "code": """
-data = input_data
-valid = data['count'] > 0 and len(data['filtered']) == data['count']
-result = {'valid': valid, 'data': data}
-"""
-        })
+        # Step 2: Annualized volatility
+        daily_vol = returns.std(ddof=1)
+        annual_vol = daily_vol * np.sqrt(252)
+        assert annual_vol > 0
 
-        # Connect nodes
-        workflow.add_connection("source", "result.items", "process", "input_data")
-        workflow.add_connection("process", "result", "validate", "input_data")
+        # Step 3: Sharpe ratio (rf=4%)
+        rf_daily = 0.04 / 252
+        excess = returns - rf_daily
+        sharpe = np.mean(excess) / np.std(excess, ddof=1) * np.sqrt(252)
+        assert isinstance(sharpe, float)
+        assert not np.isnan(sharpe)
 
-        # Execute
-        runtime = LocalRuntime()
-        results, run_id = runtime.execute(workflow.build())
+    def test_portfolio_weights_sum_to_one(self):
+        """Equal-weight portfolio construction pipeline."""
+        symbols = ["AAPL", "MSFT", "GOOG", "AMZN"]
 
-        # Validate integration
-        assert results["validate"]["result"]["valid"] is True
-        assert results["validate"]["result"]["data"]["count"] == 3
+        # Step 1: Equal weights
+        weights = np.array([1.0 / len(symbols)] * len(symbols))
+        assert weights.sum() == pytest.approx(1.0, abs=1e-10)
+
+        # Step 2: Simulated returns
+        np.random.seed(42)
+        returns = pd.DataFrame(
+            np.random.normal(0.0005, 0.02, (252, len(symbols))),
+            columns=symbols,
+        )
+
+        # Step 3: Portfolio return
+        portfolio_return = (returns * weights).sum(axis=1)
+        assert len(portfolio_return) == 252
+        assert not portfolio_return.isna().any()
+
+    def test_cumulative_return_matches_price_ratio(self, price_series):
+        """Verify cumulative return equals (final/initial - 1)."""
+        returns = price_series.pct_change().dropna()
+        cumulative = (1 + returns).prod() - 1
+
+        direct = (price_series.iloc[-1] / price_series.iloc[0]) - 1
+
+        assert cumulative == pytest.approx(direct, abs=1e-10)
 ```
-
-## Docker Setup Required
-
-```bash
-# MUST run before integration tests
-```
-
-## Fixtures for Real Services
-
-```python
-import pytest
-
-@pytest.fixture(scope="session")
-def test_database_url():
-    """Provide real test database URL."""
-    return "postgresql://test:test@localhost:5433/test_db"
-
-@pytest.fixture(scope="session")
-def test_redis_url():
-    """Provide real Redis URL."""
-    return "redis://localhost:6380/0"
-
-@pytest.fixture(autouse=True)
-def cleanup_database(test_database_url):
-    """Clean database before each test."""
-    import psycopg2
-    conn = psycopg2.connect(test_database_url)
-    cursor = conn.cursor()
-    cursor.execute("TRUNCATE TABLE test_table CASCADE")
-    conn.commit()
-    conn.close()
-
-    yield
-
-    # Cleanup after test
-    conn = psycopg2.connect(test_database_url)
-    cursor = conn.cursor()
-    cursor.execute("TRUNCATE TABLE test_table CASCADE")
-    conn.commit()
-    conn.close()
-```
-
-## NO MOCKING Policy
-
-### ❌ FORBIDDEN in Tier 2
-```python
-# ❌ Don't mock databases
-@patch('database.connect')
-def test_database_integration(mock_db):
-    mock_db.return_value = fake_connection
-
-# ❌ Don't mock SDK components
-@patch('kailash.nodes.CSVReaderNode')
-def test_workflow(mock_node):
-    mock_node.execute.return_value = fake_data
-```
-
-### ✅ USE REAL SERVICES
-```python
-# ✅ Use real database from Docker
-def test_database_integration(test_database_url):
-    # Uses actual PostgreSQL from Docker
-    workflow.add_node("AsyncSQLDatabaseNode", "db", {
-        "connection_string": test_database_url,
-        "query": "SELECT * FROM users"
-    })
-```
-
-## Related Patterns
-
-- **Unit tests**: [`template-test-unit`](template-test-unit.md)
-- **E2E tests**: [`template-test-e2e`](template-test-e2e.md)
-- **Testing strategy**: [`test-3tier-strategy`](../../4-operations/testing/test-3tier-strategy.md)
-- **NO MOCKING policy**: [`gold-mocking-policy`](../../17-gold-standards/gold-mocking-policy.md)
-
-## When to Escalate
-
-Use `testing-specialist` when:
-- Complex test infrastructure needed
-- Custom Docker setup required
-- CI/CD integration
-
-Use `tdd-implementer` when:
-- Test-first development approach
-- Complete test suite design
-
-## Documentation References
-
-### Primary Sources
-- **Testing Specialist**: [`.claude/agents/testing-specialist.md` (lines 178-209)](../../../../.claude/agents/testing-specialist.md#L178-L209)
 
 ## Quick Tips
 
-- 💡 **Real services**: Use Docker for databases, Redis, etc.
-- 💡 **<5 seconds**: Keep tests fast
-- 💡 **NO MOCKING**: Absolute rule for Tier 2
-- 💡 **Cleanup**: Always clean test data before/after
+- Use `tmp_path` fixture for temporary files (automatic cleanup)
+- Use real SQLite databases for storage tests (lightweight, no Docker needed)
+- Verify each step independently in multi-step pipelines
+- Use `pd.testing.assert_frame_equal` for DataFrame comparison
+- Use `pytest.approx` with explicit tolerance for floating-point comparison
+- Known input data makes assertions deterministic
 
-<!-- Trigger Keywords: integration test template, Tier 2 test, real infrastructure test, NO MOCKING test, integration test example, integration test boilerplate, Docker test template -->
+<!-- Trigger Keywords: integration test template, pipeline test, data pipeline test, database roundtrip test, integration test example, financial pipeline test, data validation test, multi-step test -->

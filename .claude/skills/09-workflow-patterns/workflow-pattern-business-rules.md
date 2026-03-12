@@ -13,18 +13,18 @@ description: "Business rule engine patterns. Use when asking 'business rules', '
 ## Pattern: Discount Calculation Rules
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
+import pandas as pd
 
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 1. Load customer data
-workflow.add_node("DatabaseQueryNode", "load_customer", {
+pipeline.add_step("DatabaseQueryNode", "load_customer", {
     "query": "SELECT * FROM customers WHERE id = ?",
     "parameters": ["{{input.customer_id}}"]
 })
 
 # 2. Check membership tier
-workflow.add_node("ConditionalNode", "check_tier", {
+pipeline.add_step("ConditionalNode", "check_tier", {
     "condition": "{{load_customer.tier}}",
     "branches": {
         "gold": "gold_discount",
@@ -34,30 +34,30 @@ workflow.add_node("ConditionalNode", "check_tier", {
 })
 
 # 3. Calculate discounts
-workflow.add_node("TransformNode", "gold_discount", {
+pipeline.add_step("TransformNode", "gold_discount", {
     "input": "{{input.amount}}",
     "transformation": "value * 0.80"  # 20% off
 })
 
-workflow.add_node("TransformNode", "silver_discount", {
+pipeline.add_step("TransformNode", "silver_discount", {
     "input": "{{input.amount}}",
     "transformation": "value * 0.90"  # 10% off
 })
 
-workflow.add_node("TransformNode", "bronze_discount", {
+pipeline.add_step("TransformNode", "bronze_discount", {
     "input": "{{input.amount}}",
     "transformation": "value * 0.95"  # 5% off
 })
 
 # 4. Apply additional rules
-workflow.add_node("ConditionalNode", "check_bulk", {
+pipeline.add_step("ConditionalNode", "check_bulk", {
     "condition": "{{input.quantity}} > 10",
     "true_branch": "bulk_discount",
     "false_branch": "final_price"
 })
 
-workflow.add_connection("load_customer", "tier", "check_tier", "condition")
-workflow.add_connection("check_tier", "result", "check_bulk", "input")
+pipeline.connect("load_customer", "tier", "check_tier", "condition")
+pipeline.connect("check_tier", "result", "check_bulk", "input")
 ```
 
 <!-- Trigger Keywords: business rules, rule engine, conditional logic, decision workflow -->

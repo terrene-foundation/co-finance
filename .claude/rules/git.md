@@ -36,8 +36,8 @@ type(scope): description
 feat(auth): add OAuth2 support
 fix(api): resolve rate limiting issue
 docs(readme): update installation guide
-refactor(workflow): simplify node connection logic
-test(dataflow): add integration tests for bulk operations
+refactor(portfolio): simplify optimization logic
+test(market-data): add integration tests for API caching
 ```
 
 **Enforced by**: Pre-commit hook (future)
@@ -61,7 +61,7 @@ Feature branches MUST follow naming convention.
 - `fix/api-timeout`
 - `docs/update-readme`
 - `refactor/workflow-builder`
-- `test/dataflow-integration`
+- `test/market-data-integration`
 
 ### 4. PR Description
 

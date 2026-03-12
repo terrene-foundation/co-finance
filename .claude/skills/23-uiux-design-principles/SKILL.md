@@ -40,7 +40,7 @@ This skill provides:
 
 - **[motion-design](motion-design.md)** - Animation timing, easing curves, and motion patterns
   - Timing reference (50ms-800ms+ by interaction type)
-  - Modern easing curves (CSS + Flutter)
+  - Modern easing curves (CSS)
   - Animation categories (entrance, micro-interaction, state, loading, page)
   - GPU-accelerated properties checklist
   - `prefers-reduced-motion` accessibility (mandatory)
@@ -121,7 +121,7 @@ Use this skill **PROACTIVELY** when:
 ## Related Skills
 
 - **[11-frontend-integration](../11-frontend-integration/SKILL.md)** - Technical integration patterns
-- **[19-flutter-patterns](../19-flutter-patterns/SKILL.md)** - Flutter-specific implementation
+- **[23-uiux-design-principles](../23-uiux-design-principles/SKILL.md)** - Design implementation
 - **[21-enterprise-ai-ux](../21-enterprise-ai-ux/SKILL.md)** - AI application UX patterns
 - **[22-conversation-ux](../22-conversation-ux/SKILL.md)** - Conversation UI patterns
 
@@ -131,5 +131,5 @@ For UI/UX design questions, invoke:
 
 - `uiux-designer` - Design analysis and recommendations
 - `frontend-developer` - Implementation guidance
-- `flutter-specialist` - Flutter/Material Design implementation
+- `frontend-developer` - Flutter/Material Design implementation
 - `react-specialist` - React component implementation

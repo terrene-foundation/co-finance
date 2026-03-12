@@ -16,7 +16,7 @@ Analyze the project to understand what needs deploying. Check:
 - **Dependencies**: Database (PostgreSQL, MySQL, SQLite, MongoDB), cache (Redis, Memcached), queue (RabbitMQ, SQS), external APIs
 - **Entry points**: ASGI/WSGI app, CLI script, scheduled jobs
 - **Docs**: sphinx `conf.py`, mkdocs.yml, or docs/ directory
-- **Kailash frameworks**: DataFlow models (`DataFlowModel`, `FieldDef`)? Nexus platform (`NexusPlatform`)? Kaizen agents? MCP servers?
+- **Python frameworks**: database models (`databaseModel`, `FieldDef`)? FastAPI platform (`FastAPIPlatform`)? AI agents? MCP servers?
 
 ## Step 2: Structured Questions for the Human
 
@@ -47,11 +47,11 @@ Analyze the project to understand what needs deploying. Check:
 - Secrets management: which service?
 - Budget constraints?
 
-### Kailash-Specific (if applicable)
+### Python-Specific (if applicable)
 
-- If **DataFlow**: Database provider preference? (managed PostgreSQL via RDS/Cloud SQL, self-hosted, SQLite for dev only, MongoDB)
-- If **Nexus**: API domain? Reverse proxy preference (nginx, Caddy, cloud ALB)? CORS origins? Rate limiting?
-- If **Kaizen**: LLM provider (OpenAI, Anthropic, Ollama)? GPU/ML inference requirements? Agent timeout limits?
+- If **database**: Database provider preference? (managed PostgreSQL via RDS/Cloud SQL, self-hosted, SQLite for dev only, MongoDB)
+- If **FastAPI**: API domain? Reverse proxy preference (nginx, Caddy, cloud ALB)? CORS origins? Rate limiting?
+- If **AI**: LLM provider (OpenAI, Anthropic, Ollama)? GPU/ML inference requirements? Agent timeout limits?
 - If **MCP**: Transport mode (stdio, SSE, HTTP)? Networked or local-only?
 - If **Enterprise**: RBAC/ABAC storage backend? Audit log retention policy?
 
@@ -139,23 +139,23 @@ The onboarding process creates this file. Structure adapts to the project:
 
 1. [step-by-step rollback]
 
-## Kailash Frameworks (if applicable)
+## Python Frameworks (if applicable)
 
-- **Frameworks in use**: [DataFlow | Nexus | Kaizen | MCP | Enterprise]
+- **Frameworks in use**: [database | FastAPI | AI | MCP | Enterprise]
 - **Runtime**: AsyncLocalRuntime (required for Docker/containers)
 
-### DataFlow
+### database
 - **Database**: [provider, managed/self-hosted]
 - **Connection pooling**: [config]
 - **Migrations**: [strategy]
 
-### Nexus
+### FastAPI
 - **API domain**: [domain]
 - **Reverse proxy**: [nginx | Caddy | cloud ALB]
 - **CORS origins**: [origins]
-- **Health endpoint**: [built-in Nexus health]
+- **Health endpoint**: [built-in FastAPI health]
 
-### Kaizen
+### AI
 - **LLM provider**: [OpenAI | Anthropic | Ollama]
 - **API keys**: [secrets manager path]
 - **GPU/inference**: [requirements]

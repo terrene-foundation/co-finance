@@ -1,88 +1,92 @@
 /**
- * Shared utility: Environment variable parsing and model-key validation.
+ * Shared utility: Environment variable parsing and API key validation.
  *
  * Used by session-start.js, validate-workflow.js, and user-prompt-rules-reminder.js.
- * Framework-agnostic — works with any Kailash project.
+ * Finance-focused — validates finance data API keys and AI provider keys.
  */
 
 const fs = require("fs");
 const path = require("path");
 
 // =========================================================================
-// Model → Provider → Required API Key mapping
+// Finance & AI API Key definitions
 // =========================================================================
 
-const MODEL_PROVIDERS = [
+/**
+ * Known API keys for finance data providers and AI services.
+ * Each entry defines the env var name, display label, and detection pattern.
+ */
+const KNOWN_API_KEYS = [
   {
+    key: "POLYGON_API_KEY",
+    provider: "Polygon.io",
+    category: "market-data",
+    description: "Real-time and historical market data",
+  },
+  {
+    key: "ALPHA_VANTAGE_API_KEY",
+    provider: "Alpha Vantage",
+    category: "market-data",
+    description: "Stock, forex, and crypto data",
+  },
+  {
+    key: "FRED_API_KEY",
+    provider: "FRED (Federal Reserve)",
+    category: "economic-data",
+    description: "Economic and macroeconomic data",
+  },
+  {
+    key: "QUANDL_API_KEY",
+    provider: "Quandl/Nasdaq Data Link",
+    category: "market-data",
+    description: "Financial and alternative data",
+  },
+  {
+    key: "OPENAI_API_KEY",
     provider: "OpenAI",
-    prefixes: [
-      "gpt-",
-      "o1-",
-      "o3-",
-      "o4-",
-      "chatgpt-",
-      "dall-e",
-      "whisper",
-      "tts-",
-      "text-embedding",
-    ],
-    keys: ["OPENAI_API_KEY"],
+    category: "ai",
+    description: "AI features (GPT models)",
   },
   {
+    key: "ANTHROPIC_API_KEY",
     provider: "Anthropic",
-    prefixes: ["claude-"],
-    keys: ["ANTHROPIC_API_KEY", "ANTROPIC_API_KEY"], // Intentional: common misspelling fallback
-  },
-  {
-    provider: "Google",
-    prefixes: ["gemini-", "models/gemini", "palm-"],
-    keys: ["GOOGLE_API_KEY", "GEMINI_API_KEY"],
-  },
-  {
-    provider: "DeepSeek",
-    prefixes: ["deepseek-"],
-    keys: ["DEEPSEEK_API_KEY"],
-  },
-  {
-    provider: "Mistral",
-    prefixes: ["mistral-", "mixtral-", "codestral-", "pixtral-"],
-    keys: ["MISTRAL_API_KEY"],
-  },
-  {
-    provider: "Cohere",
-    prefixes: ["command-", "embed-", "rerank-"],
-    keys: ["COHERE_API_KEY"],
-  },
-  {
-    provider: "Perplexity",
-    prefixes: ["pplx-", "sonar-"],
-    keys: ["PERPLEXITY_API_KEY"],
-  },
-  {
-    provider: "Hume",
-    prefixes: ["hume-"],
-    keys: ["HUME_API_KEY"],
+    category: "ai",
+    description: "AI features (Claude models)",
   },
 ];
 
 /**
- * Identify the provider and required API key(s) for a model name.
+ * Check which known API keys are present in a parsed env config.
  *
- * @param {string} modelName - e.g. "gpt-5-2025-08-07", "claude-3-opus"
- * @returns {{ provider: string, keys: string[] } | null}
+ * @param {Object} env - Parsed env object
+ * @returns {{ configured: Array, missing: Array }}
  */
-function getModelProvider(modelName) {
-  if (!modelName) return null;
-  const m = modelName.toLowerCase();
+function checkApiKeys(env) {
+  const configured = [];
+  const missing = [];
 
-  for (const entry of MODEL_PROVIDERS) {
-    for (const prefix of entry.prefixes) {
-      if (m.startsWith(prefix)) {
-        return { provider: entry.provider, keys: entry.keys };
-      }
+  for (const entry of KNOWN_API_KEYS) {
+    const value = env[entry.key];
+    const isPresent = value && value.length > 5 && !value.includes("your-key");
+
+    if (isPresent) {
+      configured.push({
+        key: entry.key,
+        provider: entry.provider,
+        category: entry.category,
+        status: "ok",
+      });
+    } else {
+      missing.push({
+        key: entry.key,
+        provider: entry.provider,
+        category: entry.category,
+        status: value ? "placeholder" : "missing",
+      });
     }
   }
-  return null;
+
+  return { configured, missing };
 }
 
 // =========================================================================
@@ -131,14 +135,14 @@ function parseEnvFile(envPath) {
 }
 
 // =========================================================================
-// Discover models & keys from parsed env
+// Discover API keys from parsed env
 // =========================================================================
 
 /**
- * Scan env config for all *_MODEL and *_API_KEY variables.
+ * Scan env config for all API keys (both known finance keys and others).
  *
  * @param {Object} env - Parsed env object
- * @returns {{ models: Object, keys: Object, validations: Array }}
+ * @returns {{ keys: Object, validations: Array }}
  */
 function discoverModelsAndKeys(env) {
   const models = {};
@@ -153,31 +157,29 @@ function discoverModelsAndKeys(env) {
     }
   }
 
-  // Validate each model has a corresponding key
+  // Validate known finance/AI API keys
   const validations = [];
-  for (const [varName, modelName] of Object.entries(models)) {
-    const info = getModelProvider(modelName);
-    if (!info) {
-      validations.push({
-        model: varName,
-        modelName,
-        status: "unknown_provider",
-        message: `Unknown provider for ${modelName}`,
-      });
-      continue;
-    }
+  const apiKeyCheck = checkApiKeys(env);
 
-    const hasKey = info.keys.some((k) => env[k] && env[k].length > 5);
+  for (const entry of apiKeyCheck.configured) {
     validations.push({
-      model: varName,
-      modelName,
-      provider: info.provider,
-      requiredKeys: info.keys,
-      hasKey,
-      status: hasKey ? "ok" : "MISSING_KEY",
-      message: hasKey
-        ? `${info.provider} key found for ${modelName}`
-        : `MISSING: ${info.keys.join(" or ")} required for ${modelName}`,
+      key: entry.key,
+      provider: entry.provider,
+      category: entry.category,
+      hasKey: true,
+      status: "ok",
+      message: `${entry.provider} key configured (${entry.key})`,
+    });
+  }
+
+  for (const entry of apiKeyCheck.missing) {
+    validations.push({
+      key: entry.key,
+      provider: entry.provider,
+      category: entry.category,
+      hasKey: false,
+      status: "MISSING_KEY",
+      message: `MISSING: ${entry.key} (${entry.provider})`,
     });
   }
 
@@ -211,25 +213,25 @@ function ensureEnvFile(cwd) {
     }
   }
 
-  // Generate minimal template
+  // Generate minimal template for FMI project
   const template = [
-    "# Auto-generated .env template",
+    "# Auto-generated .env template for FMI (Financial Market Intelligence)",
     "# Fill in your API keys below",
     "",
-    "# LLM Configuration",
-    "# OPENAI_API_KEY=sk-your-key-here",
-    "# OPENAI_PROD_MODEL=gpt-4o",
-    "# OPENAI_DEV_MODEL=gpt-4o-mini",
-    "# DEFAULT_LLM_MODEL=gpt-4o",
+    "# ── Market Data Providers ──────────────────────────────────────",
+    "# POLYGON_API_KEY=your-polygon-key-here",
+    "# ALPHA_VANTAGE_API_KEY=your-alpha-vantage-key-here",
     "",
-    "# ANTHROPIC_API_KEY=sk-ant-your-key-here",
-    "# GOOGLE_API_KEY=your-key-here",
+    "# ── Economic Data ────────────────────────────────────────────",
+    "# FRED_API_KEY=your-fred-key-here",
+    "# QUANDL_API_KEY=your-quandl-key-here",
     "",
-    "# Database",
-    "# DATABASE_URL=postgresql://user:pass@localhost:5432/dbname",
+    "# ── AI Services ──────────────────────────────────────────────",
+    "# OPENAI_API_KEY=sk-your-openai-key-here",
+    "# ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here",
     "",
-    "# Authentication",
-    "# JWT_SECRET_KEY=change-this-to-a-random-string",
+    "# ── Database ─────────────────────────────────────────────────",
+    "# DATABASE_URL=postgresql://user:pass@localhost:5432/fmi",
     "",
   ].join("\n");
 
@@ -249,33 +251,57 @@ function ensureEnvFile(cwd) {
  * Build a terse summary string for injection into conversation context.
  *
  * @param {Object} env - Parsed env
- * @param {{ models: Object, keys: Object, validations: Array }} discovery
+ * @param {{ keys: Object, validations: Array }} discovery
  * @returns {string}
  */
 function buildCompactSummary(env, discovery) {
   const parts = [];
 
-  // Models line
-  const modelParts = Object.entries(discovery.models)
-    .map(([k, v]) => `${k}=${v}`)
-    .join(", ");
-  if (modelParts) parts.push(`Models: ${modelParts}`);
+  // Count configured keys by category
+  const configured = discovery.validations.filter((v) => v.status === "ok");
+  const marketData = configured.filter((v) => v.category === "market-data");
+  const economicData = configured.filter((v) => v.category === "economic-data");
+  const aiKeys = configured.filter((v) => v.category === "ai");
+
+  const summaryParts = [];
+  if (marketData.length > 0)
+    summaryParts.push(`${marketData.length} market data`);
+  if (economicData.length > 0)
+    summaryParts.push(`${economicData.length} economic data`);
+  if (aiKeys.length > 0) summaryParts.push(`${aiKeys.length} AI`);
+
+  if (summaryParts.length > 0) {
+    parts.push(`API Keys: ${summaryParts.join(", ")}`);
+  }
 
   // Key status line
   const failures = discovery.validations.filter(
     (v) => v.status === "MISSING_KEY",
   );
   if (failures.length > 0) {
-    parts.push(`MISSING KEYS: ${failures.map((f) => f.message).join("; ")}`);
+    parts.push(`MISSING: ${failures.map((f) => f.key).join(", ")}`);
   } else if (discovery.validations.length > 0) {
-    parts.push("All model-key pairings validated");
+    parts.push("All API keys configured");
   }
 
   return parts.join(" | ");
 }
 
+// =========================================================================
+// Backward-compatible exports
+// =========================================================================
+
+/**
+ * getModelProvider is kept for backward compatibility but returns null
+ * since we no longer do model-provider mapping in the finance context.
+ */
+function getModelProvider(modelName) {
+  return null;
+}
+
 module.exports = {
-  MODEL_PROVIDERS,
+  KNOWN_API_KEYS,
+  checkApiKeys,
   getModelProvider,
   parseEnvFile,
   discoverModelsAndKeys,

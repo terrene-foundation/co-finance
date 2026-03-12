@@ -4,7 +4,7 @@
 
 Perform a comprehensive design quality audit on frontend code. Evaluates visual quality, interaction design, and — critically — detects telltale patterns of AI-generated "slop" aesthetics.
 
-Adapted from [Impeccable](https://impeccable.style/) (Apache 2.0), enhanced with Kailash enterprise AI evaluation criteria.
+Adapted from [Impeccable](https://impeccable.style/) (Apache 2.0), enhanced with financial dashboard evaluation criteria.
 
 ## Usage
 
@@ -19,10 +19,10 @@ Adapted from [Impeccable](https://impeccable.style/) (Apache 2.0), enhanced with
 
 Before auditing, gather:
 
-1. **What framework?** (React, Flutter, vanilla HTML/CSS)
+1. **What framework?** (React, vanilla HTML/CSS)
 2. **What component/page?** (Read the target files)
 3. **Existing design system?** (Check for design tokens, theme files)
-4. **Target audience?** (Enterprise SaaS users vs consumer vs internal tool)
+4. **Target audience?** (Financial learners, retail investors, enterprise analysts)
 
 ### Step 2: AI Slop Test (CRITICAL — Run First)
 
@@ -82,7 +82,17 @@ Rate each dimension 1-5 (1=critical issues, 5=excellent):
 | 9   | **Responsive Design**        | Works across breakpoints? Layout adapts (not just scales)? Touch targets?                       |
 | 10  | **Distinctiveness**          | Would users remember this UI? Does it have character? Or is it forgettable?                     |
 
-### Step 4: Report Structure
+### Step 4: Financial Dashboard Context
+
+When auditing financial interfaces, also evaluate:
+
+- **Data Density**: Is the information density appropriate? Financial users expect more data per screen than typical consumer apps — but it must still be scannable
+- **Chart Readability**: Are charts legible at a glance? Do axes have labels, units, and reasonable scales? Are legends clear?
+- **Real-Time Update Patterns**: Is it obvious which data is live vs. delayed vs. stale? Are there timestamps and refresh indicators?
+- **Financial Data Formatting**: Are currencies displayed with proper symbols, decimal places, and locale formatting? Are percentages consistent? Are large numbers abbreviated sensibly (1.2M not 1,200,000)?
+- **Gain/Loss Clarity**: Are positive and negative values visually distinct using more than just color (signs, parentheses, icons)?
+
+### Step 5: Report Structure
 
 ```
 ## AI Slop Test: [PASS/MARGINAL/FAIL]
@@ -94,6 +104,9 @@ Rate each dimension 1-5 (1=critical issues, 5=excellent):
 | ... | .../5 | one-line verdict |
 
 ## Overall: [X/50]
+
+## Financial Dashboard Assessment
+[Data density, chart readability, number formatting findings]
 
 ## What's Working (2-3 highlights)
 - ...
@@ -122,15 +135,6 @@ Questions that challenge assumptions about the design decisions.
 | 10-19 | Fundamental problems, needs substantial rework     |
 | 1-9   | Start over with clear design direction             |
 
-## Enterprise AI Context (Kailash-Specific)
-
-When auditing AI-facing interfaces, also evaluate:
-
-- **Trust signals**: Does the UI build confidence? (See skill/25, Trust Builders)
-- **AI state visibility**: Can users see what the AI is doing? (See skill/25, Governors)
-- **Wayfinding**: Can new users start without prompt expertise? (See skill/25, Wayfinders)
-- **Control**: Can users stop/redirect AI actions? (See skill/25, Controls)
-
 ## Related Commands
 
 - `/i-polish` - Fix aesthetic issues identified by this audit (dimensions 1-7)
@@ -143,7 +147,7 @@ When auditing AI-facing interfaces, also evaluate:
 Deploy these agents for design audits:
 
 - **uiux-designer** — Deep design analysis and recommendations
-- **ai-ux-designer** — AI-specific interaction pattern evaluation
+- **learning-outcome-auditor** — Evaluate educational content clarity and effectiveness
 - **value-auditor** — Enterprise demo value assessment (via Playwright)
 
 ## Skill References
@@ -151,4 +155,3 @@ Deploy these agents for design audits:
 - `.claude/skills/23-uiux-design-principles/SKILL.md` - Design principles
 - `.claude/skills/23-uiux-design-principles/motion-design.md` - Motion design
 - `.claude/skills/23-uiux-design-principles/ux-writing.md` - UX writing
-- `.claude/skills/25-ai-interaction-patterns/SKILL.md` - AI interaction patterns

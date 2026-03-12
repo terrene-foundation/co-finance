@@ -6,33 +6,33 @@ paths:
   - ".env*"
 ---
 
-# Environment Variables & Model Rules
+# Environment Variables & Finance API Keys
 
 ## Scope
 
-These rules apply to ALL operations involving API keys, LLM models, or environment configuration.
+These rules apply to ALL operations involving API keys, data provider credentials, or environment configuration.
 
 ## ABSOLUTE RULES (BLOCKING - Exit Code 2)
 
 ### 1. .env Is The Single Source of Truth
 
-ALL API keys and model names MUST be read from `.env`. NEVER hardcode them.
+ALL API keys MUST be read from `.env`. NEVER hardcode them.
 
 > Also enforced by `security.md` Rule 1 (No Hardcoded Secrets).
 
-**Before ANY LLM operation**: Check `.env` for current model names and keys.
+**Before ANY data fetch or AI operation**: Check `.env` for current API keys.
 
-### 2. NEVER Hardcode Model Names
+### 2. NEVER Hardcode API Keys
 
-MUST NOT use hardcoded model strings like `"gpt-4"`, `"claude-3-opus"`, `"gemini-pro"`.
+MUST NOT use hardcoded API key strings anywhere in the codebase.
 
 **Detection Patterns:**
 
 ```
-BLOCKED: model="gpt-4"
-BLOCKED: model="claude-3-opus"
-BLOCKED: model="gemini-1.5-pro"
-BLOCKED: "model_name": "gpt-4o"
+BLOCKED: api_key = "pk_abc123..."
+BLOCKED: POLYGON_API_KEY = "aB3x..."
+BLOCKED: headers = {"Authorization": "Bearer sk-..."}
+BLOCKED: fred_key = "abcdef1234567890"
 ```
 
 **Correct Pattern (Python):**
@@ -42,17 +42,19 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-model = os.environ.get("OPENAI_PROD_MODEL", os.environ.get("DEFAULT_LLM_MODEL"))
+polygon_key = os.environ.get("POLYGON_API_KEY")
+fred_key = os.environ.get("FRED_API_KEY")
 ```
 
 **Correct Pattern (TypeScript):**
 
 ```typescript
-const model = process.env.OPENAI_PROD_MODEL ?? process.env.DEFAULT_LLM_MODEL;
+const polygonKey = process.env.POLYGON_API_KEY;
+const fredKey = process.env.FRED_API_KEY;
 ```
 
 **Enforced by**: validate-workflow.js hook (BLOCKS Python, WARNS JS/TS)
-**Violation**: BLOCK - must fix before proceeding
+**Violation**: BLOCK — must fix before proceeding
 
 ### 3. ALWAYS Load .env Before Operations
 
@@ -70,21 +72,49 @@ load_dotenv()  # MUST be before any os.environ access
 **Enforced by**: session-start.js hook, validate-workflow.js hook
 **Violation**: BLOCK test/script execution
 
-### 4. Model-Key Pairings
+### 4. API Key Pairings
 
-Each model provider requires a matching API key in `.env`:
+Each data provider and AI service requires a matching API key in `.env`:
 
-| Model Prefix                    | Required Key(s)                      |
-| ------------------------------- | ------------------------------------ |
-| `gpt-*`, `o1-*`, `o3-*`, `o4-*` | `OPENAI_API_KEY`                     |
-| `claude-*`                      | `ANTHROPIC_API_KEY`                  |
-| `gemini-*`                      | `GOOGLE_API_KEY` or `GEMINI_API_KEY` |
-| `deepseek-*`                    | `DEEPSEEK_API_KEY`                   |
-| `mistral-*`, `mixtral-*`        | `MISTRAL_API_KEY`                    |
-| `command-*`                     | `COHERE_API_KEY`                     |
-| `pplx-*`, `sonar-*`             | `PERPLEXITY_API_KEY`                 |
+| Service                 | Required Key            | Notes                                    |
+| ----------------------- | ----------------------- | ---------------------------------------- |
+| Yahoo Finance           | _(no key needed)_       | Uses `yfinance` — free, no auth required |
+| Polygon.io              | `POLYGON_API_KEY`       | Real-time and historical market data     |
+| Alpha Vantage           | `ALPHA_VANTAGE_API_KEY` | Stock, forex, crypto data                |
+| FRED                    | `FRED_API_KEY`          | Federal Reserve economic data            |
+| Quandl / Nasdaq         | `QUANDL_API_KEY`        | Alternative and financial datasets       |
+| OpenAI (AI features)    | `OPENAI_API_KEY`        | For AI-powered analysis features         |
+| Anthropic (AI features) | `ANTHROPIC_API_KEY`     | For AI-powered analysis features         |
 
-If a `*_MODEL` var references a model but the corresponding key is missing, the session-start hook will WARN and validate-workflow will BLOCK Python writes.
+If a script or module references a data provider but the corresponding key is missing from `.env`, the session-start hook will WARN and validate-workflow will BLOCK Python writes.
+
+**Example `.env`:**
+
+```bash
+# Market Data Providers
+POLYGON_API_KEY=your_polygon_key_here
+ALPHA_VANTAGE_API_KEY=your_alpha_vantage_key_here
+FRED_API_KEY=your_fred_key_here
+QUANDL_API_KEY=your_quandl_key_here
+
+# AI Services (optional — only needed for AI features)
+OPENAI_API_KEY=your_openai_key_here
+ANTHROPIC_API_KEY=your_anthropic_key_here
+```
+
+**Example `.env.example` (committed to repo — no real values):**
+
+```bash
+# Market Data Providers
+POLYGON_API_KEY=
+ALPHA_VANTAGE_API_KEY=
+FRED_API_KEY=
+QUANDL_API_KEY=
+
+# AI Services
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+```
 
 **Enforced by**: lib/env-utils.js (shared by all hooks)
 

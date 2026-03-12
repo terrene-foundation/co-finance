@@ -1,14 +1,17 @@
 # Security Rules
 
 ## Scope
+
 These rules apply to ALL code changes in the repository.
 
 ## MUST Rules
 
 ### 1. No Hardcoded Secrets
+
 All sensitive data MUST use environment variables.
 
 **Detection Patterns**:
+
 ```
 ❌ api_key = "sk-..."
 ❌ password = "admin123"
@@ -17,6 +20,7 @@ All sensitive data MUST use environment variables.
 ```
 
 **Correct Pattern**:
+
 ```
 ✅ api_key = os.environ.get("API_KEY")
 ✅ password = os.environ["DB_PASSWORD"]
@@ -27,15 +31,18 @@ All sensitive data MUST use environment variables.
 **Violation**: BLOCK commit
 
 ### 2. Parameterized Queries
+
 All database queries MUST use parameterized queries or ORM.
 
 **Detection Patterns**:
+
 ```
 ❌ f"SELECT * FROM users WHERE id = {user_id}"
 ❌ "DELETE FROM users WHERE name = '" + name + "'"
 ```
 
 **Correct Pattern**:
+
 ```
 ✅ "SELECT * FROM users WHERE id = %s", (user_id,)
 ✅ cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
@@ -46,15 +53,18 @@ All database queries MUST use parameterized queries or ORM.
 **Violation**: BLOCK commit
 
 ### 3. Input Validation
+
 All user input MUST be validated before use.
 
 **Applies to**:
+
 - API endpoints
 - CLI inputs
 - File uploads
 - Form submissions
 
 **Required Validations**:
+
 - Type checking
 - Length limits
 - Format validation (email, URL, etc.)
@@ -64,20 +74,24 @@ All user input MUST be validated before use.
 **Violation**: HIGH priority fix
 
 ### 4. Output Encoding
+
 All user-generated content MUST be encoded before display.
 
 **Applies to**:
+
 - HTML templates
 - JSON responses
 - Log output
 
 **Detection Patterns**:
+
 ```
 ❌ element.innerHTML = userContent
 ❌ dangerouslySetInnerHTML={{ __html: userContent }}
 ```
 
 **Correct Pattern**:
+
 ```
 ✅ element.textContent = userContent
 ✅ DOMPurify.sanitize(userContent)
@@ -90,9 +104,11 @@ All user-generated content MUST be encoded before display.
 ## MUST NOT Rules
 
 ### 1. No eval() on User Input
+
 MUST NOT use eval(), exec(), or similar on user-controlled data.
 
 **Detection Patterns**:
+
 ```
 ❌ eval(user_input)
 ❌ exec(user_code)
@@ -102,9 +118,11 @@ MUST NOT use eval(), exec(), or similar on user-controlled data.
 **Consequence**: BLOCK commit
 
 ### 2. No Secrets in Logs
+
 MUST NOT log sensitive data (passwords, tokens, PII).
 
 **Detection Patterns**:
+
 ```
 ❌ logger.info(f"User logged in with password: {password}")
 ❌ print(f"API key: {api_key}")
@@ -113,33 +131,40 @@ MUST NOT log sensitive data (passwords, tokens, PII).
 **Consequence**: CRITICAL fix required
 
 ### 3. No .env in Git
+
 MUST NOT commit .env files to version control.
 
 **Required**:
+
 - .env in .gitignore
 - .env.example for templates (no real values)
 
 **Consequence**: History rewrite required if committed
 
-## Kailash-Specific Security
+## Finance-Specific Security
 
-### DataFlow Models
-- Use proper access controls on models
-- Validate inputs at model level
-- Never expose internal IDs directly
+### Market Data APIs
 
-### Nexus Endpoints
-- Authentication on all protected routes
-- Rate limiting enabled
-- CORS properly configured
+- Never expose API keys in client-side code
+- Cache API responses to avoid rate limit exposure
+- Validate data freshness before serving to users
 
-### Kaizen Agents
-- Prompt injection protection
-- Sensitive data filtering in prompts
-- Output validation
+### Financial Calculations
+
+- Use Decimal for all currency operations to prevent floating-point errors
+- Validate inputs (prices, quantities, dates) before calculations
+- Never expose internal account or portfolio IDs directly
+
+### AI-Generated Financial Content
+
+- Prompt injection protection on financial analysis prompts
+- Sensitive data filtering (account numbers, SSNs) in prompts
+- Output validation for financial accuracy
 
 ## Exceptions
+
 Security exceptions require:
+
 1. Written justification
 2. Approval from security-reviewer
 3. Documentation in security review

@@ -32,7 +32,7 @@ You are a deployment specialist who analyzes codebases and guides developers thr
    - Determine project type (package, web app, API, CLI, multi-service)
    - Identify build system, dependencies, entry points
    - Find existing deployment artifacts (Dockerfile, CI workflows, etc.)
-   - Detect Kailash frameworks in use (`import kailash`, DataFlow models, Nexus endpoints, Kaizen agents, MCP servers)
+   - Detect Python finance libraries in use (`import pandas`, `import numpy`, data pipeline models, financial API endpoints, AI analysis modules)
 
 2. **Interview the human**
    - Release track: package, cloud, or both?
@@ -90,33 +90,33 @@ gcloud auth list
 - .dockerignore to exclude secrets and unnecessary files
 - Resource limits in compose/k8s
 
-## Kailash Framework Requirements
+## Finance Stack Requirements
 
-When a project uses Kailash frameworks, apply these additional deployment considerations:
+When a project uses Python finance libraries, apply these additional deployment considerations:
 
-### DataFlow
-- **Database infrastructure**: Managed (RDS, Cloud SQL, Azure Database) vs self-hosted. PostgreSQL recommended for production.
-- **Migration strategy**: DataFlow auto-generates database nodes — ensure migration scripts are part of the deployment runbook.
+### Market Data Pipelines
+
+- **Database infrastructure**: Managed (RDS, Cloud SQL, Azure Database) vs self-hosted. PostgreSQL recommended for production financial data storage.
+- **Migration strategy**: Ensure database migration scripts for market data schemas are part of the deployment runbook.
 - **Connection pooling**: Configure connection limits appropriate for container replicas.
 
-### Nexus
-- **API gateway**: Nexus exposes REST + CLI + MCP simultaneously. Route API traffic through a reverse proxy (nginx, Caddy, or cloud ALB).
-- **Domain & CORS**: Configure domain name and CORS origins for the API surface.
-- **Rate limiting**: Enable rate limiting at the gateway or Nexus level.
-- **Health endpoints**: Nexus provides built-in health endpoints — wire them into container health checks and load balancer target groups.
+### Financial APIs
 
-### Kaizen
+- **API gateway**: Route financial API traffic through a reverse proxy (nginx, Caddy, or cloud ALB).
+- **Domain & CORS**: Configure domain name and CORS origins for the API surface.
+- **Rate limiting**: Enable rate limiting at the gateway level to protect market data endpoints.
+- **Health endpoints**: Wire health checks into container health checks and load balancer target groups.
+
+### AI-Powered Financial Analysis
+
 - **LLM API access**: Ensure LLM provider API keys (OpenAI, Anthropic, etc.) are in the secrets manager, not environment variables on the host.
 - **Model inference infrastructure**: If running local models (Ollama), provision GPU-capable compute.
-- **Timeout configuration**: Agent workflows may have longer execution times — adjust container and gateway timeouts accordingly.
+- **Timeout configuration**: Financial analysis pipelines may have longer execution times — adjust container and gateway timeouts accordingly.
 
-### MCP
-- **Transport configuration**: MCP servers support stdio, SSE, and HTTP transports. Choose based on deployment context (stdio for local tools, SSE/HTTP for networked).
-- **Port mapping**: Ensure MCP server ports are exposed in container configuration.
+### Async Processing (Critical)
 
-### Runtime (Critical)
-- **MUST use `AsyncLocalRuntime`** for Docker/container deployments. Never use `LocalRuntime` — it causes hangs in containerized environments.
-- Set `RUNTIME_TYPE=async` in container environment or configure in application code.
+- **MUST use async patterns** for Docker/container deployments when running long-running financial calculations.
+- Configure appropriate worker pools and task queues for batch financial computations.
 
 ## Production Readiness Checklist
 
@@ -142,10 +142,10 @@ When a project uses Kailash frameworks, apply these additional deployment consid
 - **security-reviewer**: Pre-deployment security audit (MANDATORY)
 - **git-release-specialist**: Git workflow, PR creation, version management
 - **testing-specialist**: Verify test coverage before deploy
-- **dataflow-specialist**: Database deployment and migration patterns
-- **nexus-specialist**: Multi-channel platform deployment
-- **kaizen-specialist**: AI agent infrastructure and LLM provider configuration
-- **mcp-specialist**: MCP server transport and deployment configuration
+- **market-data-specialist**: Market data pipeline deployment and migration patterns
+- **quantitative-analyst**: Financial calculation infrastructure configuration
+- **financial-engineer**: Financial modeling and computation deployment
+- **regulatory-compliance**: Regulatory compliance verification for deployments
 
 ---
 

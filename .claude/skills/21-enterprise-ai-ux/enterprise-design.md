@@ -482,8 +482,8 @@ class ChartWidget extends StatelessWidget {
 
 **Step 1: Backend generates widget descriptor**
 ```python
-# Kailash SDK - AI Agent generates widget spec
-from kaizen.agents import BaseAgent
+# Python - AI Agent generates widget spec
+# AI agent base class
 
 class DashboardAgent(BaseAgent):
     async def generate_chart_response(self, user_query: str):
@@ -511,12 +511,12 @@ class DashboardAgent(BaseAgent):
 
 **Step 2: Stream to Flutter via WebSocket/SSE**
 ```python
-# Nexus API streaming
-from nexus import Nexus
+# API gateway streaming
+from api import API gateway
 
-nexus = Nexus()
+api = API gateway()
 
-@nexus.stream_endpoint("/ai/chat")
+@api.stream_endpoint("/ai/chat")
 async def chat_stream(session_id: str, message: str):
     agent = DashboardAgent()
 
@@ -1384,9 +1384,9 @@ User types: "What was our customer churn rate in Q2?"
 └─────────────────────────────────────────────────────┘
 ```
 
-**Backend implementation** (Python + Kailash SDK):
+**Backend implementation** (Python):
 ```python
-from kaizen.agents import BaseAgent
+# AI agent base class
 
 class SourceRecommendationAgent(BaseAgent):
     async def recommend_sources(self, user_query: str, available_sources: List[DataSource]):
@@ -2119,9 +2119,9 @@ Example:
 - [ ] Document upload UI (basic)
 
 **Dependencies**:
-- Backend: Kailash SDK + Nexus API for streaming
+- Backend: Streaming API
 - Frontend: Flutter design system components
-- Database: DataFlow models for conversations, messages, sources
+- Database: database models for conversations, messages, sources
 
 **Acceptance Criteria**:
 - User can create new conversation
@@ -2146,7 +2146,7 @@ Example:
 **Dependencies**:
 - Phase 1 complete
 - fl_chart package (Flutter)
-- Kailash SDK: AI agents for widget generation
+- AI agents for widget generation
 
 **Acceptance Criteria**:
 - AI can generate chart widgets from data
@@ -2169,7 +2169,7 @@ Example:
 
 **Dependencies**:
 - Phase 1 complete
-- Backend: Citation extraction (Kailash agents)
+- Backend: Citation extraction (AI agents)
 - Backend: Confidence scoring (ML model)
 
 **Acceptance Criteria**:
@@ -2192,8 +2192,8 @@ Example:
 
 **Dependencies**:
 - Phase 1 complete
-- Backend: Conversation graph structure (DataFlow)
-- Backend: Context merging logic (Kailash agents)
+- Backend: Conversation graph structure (database)
+- Backend: Context merging logic (AI agents)
 
 **Acceptance Criteria**:
 - User can branch from any conversation turn
@@ -2240,8 +2240,8 @@ Example:
 
 **Dependencies**:
 - All previous phases complete
-- Backend: Admin API (Nexus)
-- Backend: Audit trail (DataFlow)
+- Backend: Admin API (API gateway)
+- Backend: Audit trail (database)
 
 **Acceptance Criteria**:
 - Admin can manage users and roles
@@ -2257,7 +2257,7 @@ Example:
 2. **Create detailed mockups** for each phase (Figma/Adobe XD)
 3. **Validate with users** (usability testing on mockups)
 4. **Refine specifications** based on feedback
-5. **Begin Phase 1 implementation** with flutter-specialist and dataflow-specialist
+5. **Begin Phase 1 implementation** with frontend-developer and database-specialist
 
 ---
 

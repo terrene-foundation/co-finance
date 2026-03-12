@@ -19,7 +19,7 @@ Part of the Impeccable pipeline: **`/i-audit` (diagnose) → `/i-polish` (refine
 
 Before refining, gather:
 
-1. **What framework?** (React, Flutter, vanilla HTML/CSS)
+1. **What framework?** (React, vanilla HTML/CSS)
 2. **What component/page?** (Read the target files)
 3. **Existing design system?** (Check for design tokens, theme files)
 4. **Audit results?** (Check if `/i-audit` was run — use those scores to prioritize)
@@ -89,7 +89,17 @@ If `/i-audit` flagged AI slop fingerprints, systematically remove each one:
 - Replace `transition-all` with targeted property transitions
 - Add asymmetry and layout variation to break card-grid monotony
 
-### Step 4: UX Writing Pass
+### Step 4: Financial Data Formatting
+
+When refining financial interfaces, apply these specific rules:
+
+- **Tabular figures**: Use `font-variant-numeric: tabular-nums` for all number columns so digits align vertically
+- **Right-aligned numbers**: Numeric columns in tables must be right-aligned for easy comparison
+- **Consistent decimal places**: Currency always shows 2 decimal places; percentages use a consistent number of decimals throughout the interface
+- **Monospaced or tabular fonts for data**: Consider a monospaced or tabular-figure font for dense financial data grids
+- **Gain/loss formatting**: Green for gains, red for losses — always paired with `+`/`-` signs or parentheses for accessibility
+
+### Step 5: UX Writing Pass
 
 Apply microcopy refinements:
 
@@ -98,7 +108,7 @@ Apply microcopy refinements:
 - Empty states: explain why empty + provide action
 - Loading states: set expectations, show progress
 
-### Step 5: Report
+### Step 6: Report
 
 ```
 ## Polish Summary
@@ -121,7 +131,6 @@ Deploy these agents for visual refinement:
 
 - **uiux-designer** — Design analysis, typography systems, color theory, spacing optimization
 - **frontend-developer** — React implementation of refinements
-- **flutter-specialist** — Flutter implementation of refinements (if applicable)
 
 ## Related Commands
 

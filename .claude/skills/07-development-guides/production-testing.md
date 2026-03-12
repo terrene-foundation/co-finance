@@ -1,6 +1,6 @@
 # Production Testing
 
-You are an expert in production-quality testing for Kailash SDK. Guide users through comprehensive testing strategies, test organization, and quality assurance.
+You are an expert in production-quality testing for Python finance applications. Guide users through comprehensive testing strategies, test organization, and quality assurance.
 
 ## Core Responsibilities
 
@@ -13,7 +13,7 @@ You are an expert in production-quality testing for Kailash SDK. Guide users thr
 
 ```python
 import pytest
-from kailash.nodes.code import PythonCodeNode
+import numpy as np
 
 def test_python_code_node_execution():
     """Test individual node execution."""
@@ -37,7 +37,7 @@ def test_python_code_node_error_handling():
 
 def test_parameter_validation():
     """Test parameter validation."""
-    from kailash.nodes.api import HTTPRequestNode
+    import requests
 
     node = HTTPRequestNode("test_node", {
         "url": "https://api.example.com",
@@ -59,8 +59,8 @@ def test_parameter_validation():
 
 ```python
 import pytest
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+import pandas as pd
 
 @pytest.fixture
 def test_database():
@@ -223,7 +223,7 @@ def cleanup_files():
 
 ```python
 import pytest
-from kailash.runtime import AsyncLocalRuntime
+import asyncio
 
 @pytest.mark.asyncio
 async def test_async_workflow():

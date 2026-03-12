@@ -127,21 +127,21 @@ function detectFramework(cwd) {
     for (const file of files.slice(0, 10)) {
       try {
         const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/@db\.model/.test(content) || /from dataflow/.test(content))
-          return "dataflow";
-        if (/from nexus/.test(content) || /Nexus\(/.test(content))
-          return "nexus";
+        if (/import pandas/.test(content) || /import yfinance/.test(content))
+          return "market-data";
+        if (/import numpy/.test(content) || /import scipy/.test(content))
+          return "quantitative";
         if (
-          /from kaizen/.test(content) ||
-          /BaseAgent/.test(content) ||
-          /from kaizen\.api import Agent/.test(content)
+          /import backtrader/.test(content) ||
+          /import QuantLib/.test(content)
         )
-          return "kaizen";
-        if (/WorkflowBuilder/.test(content)) return "core-sdk";
+          return "backtesting";
+        if (/import matplotlib/.test(content) || /import plotly/.test(content))
+          return "visualization";
       } catch {}
     }
 
-    return "core-sdk";
+    return "financial";
   } catch {
     return "unknown";
   }
@@ -155,11 +155,9 @@ function findActiveWorkflows(cwd) {
     for (const file of files.slice(0, 10)) {
       try {
         const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/WorkflowBuilder/.test(content)) {
-          // Extract workflow name if possible
-          const match = content.match(
-            /workflow\s*=\s*WorkflowBuilder\s*\(\s*["']([^"']+)["']/,
-          );
+        if (/import pandas|import yfinance|import backtrader/.test(content)) {
+          // Extract analysis pipeline name if possible
+          const match = content.match(/(?:def|class)\s+(\w+)/);
           workflows.push({
             file,
             name: match ? match[1] : "unnamed",
@@ -200,11 +198,11 @@ function findRecentlyModified(cwd) {
 
 function extractCriticalPatterns(cwd) {
   const patterns = {
-    hasDataFlowModels: false,
-    hasNexusApp: false,
-    hasKaizenAgent: false,
-    hasCyclicWorkflow: false,
-    hasAsyncRuntime: false,
+    hasMarketDataPipeline: false,
+    hasPortfolioAnalysis: false,
+    hasBacktesting: false,
+    hasVisualization: false,
+    hasRiskMetrics: false,
   };
 
   try {
@@ -213,13 +211,16 @@ function extractCriticalPatterns(cwd) {
     for (const file of files.slice(0, 10)) {
       try {
         const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/@db\.model/.test(content)) patterns.hasDataFlowModels = true;
-        if (/Nexus\(/.test(content)) patterns.hasNexusApp = true;
-        if (/BaseAgent|from kaizen\.api import Agent/.test(content))
-          patterns.hasKaizenAgent = true;
-        if (/enable_cycles\s*=\s*True/.test(content))
-          patterns.hasCyclicWorkflow = true;
-        if (/AsyncLocalRuntime/.test(content)) patterns.hasAsyncRuntime = true;
+        if (/import yfinance|import pandas_datareader/.test(content))
+          patterns.hasMarketDataPipeline = true;
+        if (/import cvxpy|portfolio.*optim/.test(content))
+          patterns.hasPortfolioAnalysis = true;
+        if (/import backtrader|import QuantLib/.test(content))
+          patterns.hasBacktesting = true;
+        if (/import matplotlib|import plotly|import mplfinance/.test(content))
+          patterns.hasVisualization = true;
+        if (/sharpe|volatility|var.*confidence/.test(content))
+          patterns.hasRiskMetrics = true;
       } catch {}
     }
   } catch {}

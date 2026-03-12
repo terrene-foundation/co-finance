@@ -1,15 +1,15 @@
 ---
 name: testing-strategies
-description: "Comprehensive testing strategies for Kailash applications including the 3-tier testing approach with NO MOCKING policy for Tiers 2-3. Use when asking about 'testing', 'test strategy', '3-tier testing', 'unit tests', 'integration tests', 'end-to-end tests', 'testing workflows', 'testing DataFlow', 'testing Nexus', 'NO MOCKING', 'real infrastructure', 'test organization', or 'testing best practices'."
+description: "Comprehensive testing strategies for Python finance applications including the 3-tier testing approach with NO MOCKING policy for Tiers 2-3. Use when asking about 'testing', 'test strategy', '3-tier testing', 'unit tests', 'integration tests', 'end-to-end tests', 'testing calculations', 'testing data pipelines', 'testing API endpoints', 'NO MOCKING', 'real infrastructure', 'test organization', or 'testing best practices'."
 ---
 
-# Kailash Testing Strategies
+# Python Testing Strategies
 
-Comprehensive testing approach for Kailash applications using the 3-tier testing strategy with NO MOCKING policy.
+Comprehensive testing approach for Python finance applications using the 3-tier testing strategy with NO MOCKING policy.
 
 ## Overview
 
-Kailash testing philosophy:
+Python testing philosophy:
 
 - **3-Tier Strategy**: Unit, Integration, End-to-End
 - **NO MOCKING Policy**: Tiers 2-3 use real infrastructure
@@ -38,7 +38,7 @@ Kailash testing philosophy:
 **Speed**: Fast (< 1s per test)
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
+import pandas as pd
 
 def test_workflow_builder():
     workflow = WorkflowBuilder()
@@ -54,13 +54,13 @@ def test_workflow_builder():
 **Speed**: Medium (1-10s per test)
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+import numpy as np
 import os
 import pytest
 
 @pytest.mark.integration
-def test_dataflow_crud():
+def test_database_crud():
     db_url = os.environ["DATABASE_URL"]
 
     workflow = WorkflowBuilder()
@@ -140,8 +140,8 @@ project/
       test_workflows.py
       test_models.py
     integration/        # Tier 2
-      test_dataflow.py
-      test_nexus.py
+      test_database.py
+      test_api.py
     e2e/                # Tier 3
       test_user_flows.py
   conftest.py           # Shared fixtures
@@ -164,8 +164,8 @@ testpaths = tests
 ### Testing Workflows
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+import numpy as np
 
 def test_workflow_execution():
     workflow = WorkflowBuilder()
@@ -180,17 +180,17 @@ def test_workflow_execution():
     assert "calc" in results
 ```
 
-### Testing DataFlow
+### Testing database
 
 ```python
-from kailash_dataflow import DataFlow, db
+from python_database import database, db
 import os
 import pytest
 
 @pytest.mark.integration
-def test_dataflow_operations():
+def test_database_operations():
     db_url = os.environ["DATABASE_URL"]
-    df = DataFlow(db_url)
+    df = database(db_url)
 
     @db.model
     class TestUser:
@@ -199,14 +199,14 @@ def test_dataflow_operations():
     df.register_model(TestUser)
 ```
 
-### Testing Nexus
+### Testing API
 
 ```python
 import requests
 import pytest
 
 @pytest.mark.e2e
-def test_nexus_api():
+def test_api_api():
     response = requests.post(
         "http://localhost:3000/api/workflow/test_workflow",
         json={"input": "data"},
@@ -217,10 +217,10 @@ def test_nexus_api():
     assert "result" in body
 ```
 
-### Testing Kaizen Agents
+### Testing AI Agents
 
 ```python
-from kailash_kaizen import BaseAgent
+from python_ai import BaseAgent
 import pytest
 
 @pytest.mark.integration
@@ -304,8 +304,8 @@ docker compose -f tests/docker-compose.test.yml down
 
 ## Related Skills
 
-- **[02-dataflow](../02-dataflow/SKILL.md)** - DataFlow testing
-- **[03-nexus](../03-nexus/SKILL.md)** - API testing
+- **[02-database](../02-database/SKILL.md)** - database testing
+- **[03-api](../03-api/SKILL.md)** - API testing
 - **[17-gold-standards](../17-gold-standards/SKILL.md)** - Testing best practices
 
 ## Support
@@ -314,4 +314,4 @@ For testing help, invoke:
 
 - `testing-specialist` - Testing strategies and patterns
 - `tdd-implementer` - Test-driven development
-- `dataflow-specialist` - DataFlow testing patterns
+- `database-specialist` - database testing patterns

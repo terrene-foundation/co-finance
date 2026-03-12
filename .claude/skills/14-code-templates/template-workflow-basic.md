@@ -1,59 +1,133 @@
 ---
 name: template-workflow-basic
-description: "Generate basic Kailash workflow template boilerplate code. Use when requesting 'workflow template', 'workflow boilerplate', 'scaffold workflow', 'starter code', or 'create new workflow from scratch'."
+description: "Basic financial analysis script template with data loading, returns calculation, risk metrics, and visualization. Use when requesting 'analysis template', 'analysis script', 'starter code', 'financial analysis boilerplate', or 'create analysis from scratch'."
 ---
 
-# Basic Workflow Template
+# Basic Financial Analysis Template
 
-Ready-to-use Kailash workflow template with all essential imports, structure, and execution pattern.
+Ready-to-use financial analysis script with data loading, returns calculation, risk metrics, and optional visualization.
 
 > **Skill Metadata**
 > Category: `cross-cutting` (code-generation)
 > Priority: `CRITICAL`
-> SDK Version: `0.9.25+`
-> Related Skills: [`workflow-quickstart`](../../01-core-sdk/workflow-quickstart.md), [`connection-patterns`](../../01-core-sdk/connection-patterns.md), [`node-patterns-common`](../../01-core-sdk/node-patterns-common.md)
-> Related Subagents: `pattern-expert` (complex workflows), `tdd-implementer` (test-first development)
 
 ## Quick Start Template
 
-Copy-paste this template to start any Kailash workflow:
+Copy this template to start any financial analysis:
 
 ```python
 """
-Basic Kailash Workflow Template
-Replace placeholders with your specific nodes and logic
+Basic Financial Analysis Script
+Replace placeholders with your specific data and parameters.
 """
 
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime.local import LocalRuntime
+import pandas as pd
+import numpy as np
+import numpy_financial as npf
+from pathlib import Path
+
+def load_and_validate(file_path: str) -> pd.DataFrame:
+    """Load OHLCV data from CSV, validate, and return clean DataFrame."""
+    df = pd.read_csv(file_path, parse_dates=["date"])
+
+    # Normalize column names
+    df.columns = df.columns.str.lower().str.strip()
+
+    # Validate required columns
+    required = {"date", "open", "high", "low", "close", "volume"}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"Missing columns: {missing}")
+
+    # Sort and deduplicate
+    df = df.sort_values("date").drop_duplicates(subset=["date"], keep="last")
+
+    # Quality checks
+    assert df["close"].gt(0).all(), "Negative or zero prices found"
+    assert (df["high"] >= df["low"]).all(), "High < Low detected"
+
+    return df.reset_index(drop=True)
+
+
+def calculate_returns(prices: pd.Series) -> pd.Series:
+    """Calculate daily simple returns from price series."""
+    returns = prices.pct_change().dropna()
+    return returns
+
+
+def risk_metrics(returns: pd.Series, risk_free_rate: float = 0.04) -> dict:
+    """Calculate common risk metrics from a return series.
+
+    Args:
+        returns: Daily return series
+        risk_free_rate: Annual risk-free rate (default 4%)
+
+    Returns:
+        Dictionary of risk metrics
+    """
+    rf_daily = risk_free_rate / 252
+
+    ann_return = (1 + returns.mean()) ** 252 - 1
+    ann_vol = returns.std(ddof=1) * np.sqrt(252)
+
+    excess = returns - rf_daily
+    sharpe = np.mean(excess) / np.std(excess, ddof=1) * np.sqrt(252)
+
+    # Max drawdown
+    cumulative = (1 + returns).cumprod()
+    peak = cumulative.cummax()
+    drawdown = (cumulative - peak) / peak
+    max_dd = drawdown.min()
+
+    # Value at Risk (95%)
+    var_95 = np.percentile(returns, 5)
+
+    return {
+        "annualized_return": ann_return,
+        "annualized_volatility": ann_vol,
+        "sharpe_ratio": sharpe,
+        "max_drawdown": max_dd,
+        "var_95": var_95,
+        "total_observations": len(returns),
+    }
+
+
+def print_report(metrics: dict, symbol: str = "Portfolio") -> None:
+    """Print a formatted risk metrics report."""
+    print(f"\n{'=' * 50}")
+    print(f"  Risk Report: {symbol}")
+    print(f"{'=' * 50}")
+    print(f"  Annualized Return:     {metrics['annualized_return']:>10.2%}")
+    print(f"  Annualized Volatility: {metrics['annualized_volatility']:>10.2%}")
+    print(f"  Sharpe Ratio:          {metrics['sharpe_ratio']:>10.2f}")
+    print(f"  Max Drawdown:          {metrics['max_drawdown']:>10.2%}")
+    print(f"  VaR (95%):             {metrics['var_95']:>10.4f}")
+    print(f"  Observations:          {metrics['total_observations']:>10d}")
+    print(f"{'=' * 50}")
+    print()
+    print("  DISCLAIMER: For educational purposes only.")
+    print("  Not investment advice. Past performance does")
+    print("  not guarantee future results.")
+    print()
+
 
 def main():
-    # 1. Create workflow builder
-    workflow = WorkflowBuilder()
+    """Run the analysis pipeline."""
+    # 1. Load data
+    df = load_and_validate("data/AAPL.csv")
+    print(f"Loaded {len(df)} rows")
 
-    # 2. Add nodes (replace with your nodes)
-    workflow.add_node("PythonCodeNode", "step1", {
-        "code": "result = {'data': 'value'}"
-    })
+    # 2. Calculate returns
+    returns = calculate_returns(df["close"])
 
-    workflow.add_node("PythonCodeNode", "step2", {
-        "code": "result = {'processed': input_data}"
-    })
+    # 3. Compute risk metrics
+    metrics = risk_metrics(returns)
 
-    # 3. Connect nodes (define data flow)
-    workflow.add_connection("step1", "result", "step2", "input_data")
+    # 4. Print report
+    print_report(metrics, symbol="AAPL")
 
-    # 4. Build workflow (CRITICAL)
-    built_workflow = workflow.build()
+    return metrics
 
-    # 5. Execute
-    runtime = LocalRuntime()
-    results, run_id = runtime.execute(built_workflow)
-
-    # 6. Access results
-    print(f"Run ID: {run_id}")
-    print(f"Step2 result: {results['step2']['result']}")  # Access via 'result' key
-    return results
 
 if __name__ == "__main__":
     main()
@@ -61,207 +135,186 @@ if __name__ == "__main__":
 
 ## Template Variations
 
-### CLI/Script Template (Sync)
+### Multi-Asset Comparison
+
 ```python
-#!/usr/bin/env python3
-"""CLI Workflow Template for synchronous execution"""
+"""Compare risk metrics across multiple assets."""
 
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
-import sys
-
-def create_workflow():
-    """Create and return built workflow"""
-    workflow = WorkflowBuilder()
-
-    # TODO: Add your nodes here
-    workflow.add_node("PythonCodeNode", "process", {
-        "code": "result = {'status': 'completed'}"
-    })
-
-    return workflow.build()
-
-def main():
-    workflow = create_workflow()
-    runtime = LocalRuntime()
-
-    try:
-        results, run_id = runtime.execute(workflow)
-        print(f"✓ Success (Run ID: {run_id})")
-        print(f"Results: {results}")
-        return 0
-    except Exception as e:
-        print(f"✗ Error: {e}")
-        return 1
-
-if __name__ == "__main__":
-    sys.exit(main())
-```
-
-### Docker/FastAPI Template (Async)
-```python
-"""FastAPI Workflow Template for asynchronous execution"""
-
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import AsyncLocalRuntime
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-
-app = FastAPI()
-
-class WorkflowRequest(BaseModel):
-    input_data: dict = {}
-
-def create_workflow():
-    """Create and return built workflow"""
-    workflow = WorkflowBuilder()
-
-    # TODO: Add your nodes here
-    workflow.add_node("PythonCodeNode", "process", {
-        "code": "result = {'processed': True}"
-    })
-
-    return workflow.build()
-
-@app.post("/execute")
-async def execute_workflow(request: WorkflowRequest):
-    """Execute workflow with async runtime"""
-    workflow = create_workflow()
-    runtime = AsyncLocalRuntime()
-
-    try:
-        results = await runtime.execute_workflow_async(
-            workflow,
-            inputs=request.input_data
-        )
-        return {"status": "success", "results": results}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Run with: uvicorn your_module:app --reload
-```
-
-### Data Processing Template
-```python
-"""Data Processing Workflow Template"""
-
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime.local import LocalRuntime
-
-def create_etl_workflow(input_file: str, output_file: str):
-    """Create ETL workflow"""
-    workflow = WorkflowBuilder()
-
-    # Extract
-    workflow.add_node("CSVReaderNode", "extract", {
-        "file_path": input_file,
-        "has_header": True
-    })
-
-    # Transform
-    workflow.add_node("PythonCodeNode", "transform", {
-        "code": """
 import pandas as pd
-df = pd.DataFrame(data)
-# TODO: Add your transformation logic
-df['processed'] = df['value'] * 2
-result = df.to_dict('records')
-"""
-    })
+import numpy as np
 
-    # Load
-    workflow.add_node("CSVWriterNode", "load", {
-        "file_path": output_file,
-        "include_header": True
-    })
+def compare_assets(file_paths: dict[str, str]) -> pd.DataFrame:
+    """Load multiple assets and compare risk metrics.
 
-    # Connect pipeline
-    workflow.add_connection("extract", "data", "transform", "data")
-    workflow.add_connection("transform", "result", "load", "data")
+    Args:
+        file_paths: Mapping of symbol -> CSV file path
 
-    return workflow.build()
+    Returns:
+        DataFrame with risk metrics per asset
+    """
+    results = []
 
-def main():
-    workflow = create_etl_workflow("input.csv", "output.csv")
-    runtime = LocalRuntime()
-    results, run_id = runtime.execute(workflow)
-    print(f"Processed {len(results['transform']['result'])} records")
+    for symbol, path in file_paths.items():
+        df = pd.read_csv(path, parse_dates=["date"])
+        df.columns = df.columns.str.lower().str.strip()
+        returns = df["close"].pct_change().dropna()
+        metrics = risk_metrics(returns)
+        metrics["symbol"] = symbol
+        results.append(metrics)
+
+    summary = pd.DataFrame(results).set_index("symbol")
+    summary = summary.sort_values("sharpe_ratio", ascending=False)
+    return summary
+
 
 if __name__ == "__main__":
-    main()
+    assets = {
+        "AAPL": "data/AAPL.csv",
+        "MSFT": "data/MSFT.csv",
+        "GOOG": "data/GOOG.csv",
+    }
+    summary = compare_assets(assets)
+    print(summary.to_string(float_format=lambda x: f"{x:.4f}"))
 ```
 
-## Template Customization Guide
-
-### Step 1: Choose Your Nodes
-Replace placeholders with actual node types based on your needs:
-
-| Need | Node Type | Example Config |
-|------|-----------|----------------|
-| **Read CSV** | `CSVReaderNode` | `{"file_path": "data.csv"}` |
-| **Read JSON** | `JSONReaderNode` | `{"file_path": "data.json"}` |
-| **API Call** | `HTTPRequestNode` | `{"url": "https://...", "method": "GET"}` |
-| **Database Query** | `AsyncSQLDatabaseNode` | `{"connection_string": "...", "query": "..."}` |
-| **LLM Processing** | `LLMAgentNode` | `{"provider": "openai", "model": "gpt-4"}` |
-| **Custom Logic** | `PythonCodeNode` | `{"code": "result = {...}"}` |
-| **Write CSV** | `CSVWriterNode` | `{"file_path": "output.csv"}` |
-
-### Step 2: Define Data Flow
-Connect your nodes using the 4-parameter pattern:
+### Synthetic Data for Testing
 
 ```python
-workflow.add_connection(
-    "source_node_id",    # from_node
-    "output_field",      # from_output
-    "target_node_id",    # to_node
-    "input_field"        # to_input
-)
+"""Generate synthetic price data for development and testing."""
+
+import pandas as pd
+import numpy as np
+
+def generate_synthetic_prices(
+    symbol: str = "TEST",
+    start_date: str = "2022-01-03",
+    periods: int = 504,
+    annual_return: float = 0.08,
+    annual_vol: float = 0.20,
+    seed: int = 42,
+) -> pd.DataFrame:
+    """Generate synthetic OHLCV data using geometric Brownian motion.
+
+    Args:
+        symbol: Ticker symbol
+        start_date: Start date (YYYY-MM-DD)
+        periods: Number of trading days
+        annual_return: Expected annual return
+        annual_vol: Annual volatility
+        seed: Random seed for reproducibility
+
+    Returns:
+        DataFrame with date, open, high, low, close, volume
+    """
+    np.random.seed(seed)
+
+    daily_return = annual_return / 252
+    daily_vol = annual_vol / np.sqrt(252)
+
+    dates = pd.bdate_range(start_date, periods=periods)
+    log_returns = np.random.normal(daily_return, daily_vol, periods)
+    close = 100 * np.exp(np.cumsum(log_returns))
+
+    df = pd.DataFrame({
+        "date": dates,
+        "open": close * (1 + np.random.uniform(-0.005, 0.005, periods)),
+        "high": close * (1 + np.abs(np.random.normal(0, 0.008, periods))),
+        "low": close * (1 - np.abs(np.random.normal(0, 0.008, periods))),
+        "close": close,
+        "volume": np.random.randint(500_000, 5_000_000, periods),
+    })
+
+    return df
+
+
+if __name__ == "__main__":
+    df = generate_synthetic_prices()
+    df.to_csv("data/TEST.csv", index=False)
+    print(f"Generated {len(df)} rows of synthetic data")
+    print(df.head())
 ```
 
-### Step 3: Add Error Handling
+### With Visualization
+
 ```python
-try:
-    results, run_id = runtime.execute(workflow.build())
-except Exception as e:
-    print(f"Workflow failed: {e}")
-    # Handle error appropriately
+"""Financial analysis with matplotlib/mplfinance visualization."""
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+def plot_performance(df: pd.DataFrame, symbol: str = "Asset") -> None:
+    """Plot price and drawdown chart.
+
+    Args:
+        df: DataFrame with date and close columns
+        symbol: Asset name for title
+    """
+    fig, axes = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
+
+    # Price chart
+    axes[0].plot(df["date"], df["close"], linewidth=1)
+    axes[0].set_title(f"{symbol} Price")
+    axes[0].set_ylabel("Price ($)")
+    axes[0].grid(True, alpha=0.3)
+
+    # Drawdown chart
+    returns = df["close"].pct_change().dropna()
+    cumulative = (1 + returns).cumprod()
+    peak = cumulative.cummax()
+    drawdown = (cumulative - peak) / peak
+
+    axes[1].fill_between(
+        df["date"].iloc[1:], drawdown.values, 0,
+        alpha=0.3, color="red"
+    )
+    axes[1].set_title(f"{symbol} Drawdown")
+    axes[1].set_ylabel("Drawdown (%)")
+    axes[1].grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(f"output/{symbol}_performance.png", dpi=150)
+    plt.close()
+    print(f"Chart saved to output/{symbol}_performance.png")
 ```
 
-## Related Patterns
+## Customization Guide
 
-- **Node selection**: [`node-selection-guide`](../../08-nodes-reference/node-selection-guide.md)
-- **Connection patterns**: [`connection-patterns`](../../01-core-sdk/connection-patterns.md)
-- **Parameter passing**: [`param-passing-quick`](../../01-core-sdk/param-passing-quick.md)
-- **Runtime selection**: [`decide-runtime`](../decisions/decide-runtime.md)
-- **Complete guide**: [`workflow-quickstart`](../../01-core-sdk/workflow-quickstart.md)
+### Step 1: Choose Your Data Source
 
-## When to Escalate to Subagent
+| Source        | How                 | Example                                  |
+| ------------- | ------------------- | ---------------------------------------- |
+| **Local CSV** | `pd.read_csv()`     | `pd.read_csv("data/AAPL.csv")`           |
+| **Parquet**   | `pd.read_parquet()` | `pd.read_parquet("data/prices.parquet")` |
+| **SQLite**    | `pd.read_sql()`     | `pd.read_sql("SELECT...", conn)`         |
+| **API**       | `requests.get()`    | See data pipeline template               |
 
-Use `pattern-expert` subagent when:
-- Need custom node development
-- Implementing complex cyclic workflows
-- Advanced parameter passing patterns
-- Performance optimization required
+### Step 2: Select Your Metrics
 
-Use `tdd-implementer` subagent when:
-- Implementing test-first development
-- Need complete test coverage strategy
-- Building production-grade workflows
+| Metric           | Function                                 | When                      |
+| ---------------- | ---------------------------------------- | ------------------------- |
+| **Returns**      | `pct_change()`                           | Always                    |
+| **Volatility**   | `std() * sqrt(252)`                      | Risk assessment           |
+| **Sharpe**       | `mean(excess) / std(excess) * sqrt(252)` | Risk-adjusted performance |
+| **Max Drawdown** | `(cum - peak) / peak`                    | Downside risk             |
+| **VaR**          | `percentile(returns, 5)`                 | Tail risk                 |
 
-## Documentation References
+### Step 3: Add Output
 
-### Primary Sources
-- **Essential Pattern**: [`CLAUDE.md` (lines 106-137)](../../../../CLAUDE.md#L106-L137)
-
-### Related Documentation
+| Output      | Library          | Use             |
+| ----------- | ---------------- | --------------- |
+| **Console** | `print()`        | Quick checks    |
+| **CSV**     | `df.to_csv()`    | Data export     |
+| **Chart**   | `matplotlib`     | Visual analysis |
+| **Report**  | `print_report()` | Summary         |
 
 ## Quick Tips
 
-- 💡 **Start simple**: Use PythonCodeNode for prototyping before specialized nodes
-- 💡 **Build function**: Extract workflow creation into separate function for reusability
-- 💡 **Type hints**: Add type hints to improve code maintainability
-- 💡 **Docstrings**: Document what your workflow does
-- 💡 **Error handling**: Always wrap execution in try-except for production
-- 💡 **Logging**: Add logging for debugging and monitoring
+- Start with the main template, then customize
+- Always validate data before calculations
+- Use `np.random.seed(42)` for reproducible synthetic data
+- Include disclaimers in any output
+- Use functions for each step (load, calculate, report)
+- Keep file I/O separate from calculation logic
 
-<!-- Trigger Keywords: workflow template, workflow boilerplate, scaffold workflow, starter code, create new workflow from scratch, workflow skeleton, basic workflow template, empty workflow, workflow starter, generate workflow code -->
+<!-- Trigger Keywords: analysis template, analysis script, starter code, financial analysis boilerplate, create analysis from scratch, analysis skeleton, basic analysis, portfolio analysis template, risk analysis script -->

@@ -1,6 +1,6 @@
 # AI Interaction Patterns Reference
 
-Complete reference for AI-specific UX patterns. Based on [Shape of AI](https://www.shapeof.ai) (CC-BY-NC-SA) by Emily Campbell, extended with implementation guidance for Kailash SDK applications.
+Complete reference for AI-specific UX patterns. Based on [Shape of AI](https://www.shapeof.ai) (CC-BY-NC-SA) by Emily Campbell, extended with implementation guidance for Python applications.
 
 ---
 
@@ -773,13 +773,13 @@ AGENTIC FLOW:
 
 ---
 
-## Implementation Notes for Kailash Applications
+## Implementation Notes
 
-When building AI interfaces with the Kailash SDK ecosystem:
+When building AI interfaces with the Python application ecosystem:
 
-- **Kaizen agents** power the AI backend; the Signature system maps to Tuner parameters
-- **Nexus** serves the multi-channel frontend (API for web, CLI for terminal, MCP for AI tools)
-- **DataFlow** stores conversation history, memory, citations, and user preferences
+- **AI agents** power the AI backend; configuration dataclasses map to Tuner parameters
+- **FastAPI** serves the frontend (API for web, CLI for terminal)
+- **Database** (SQLite/PostgreSQL) stores conversation history, memory, citations, and user preferences
 - **Interactive Widgets (Skill 20)** handle the rendering of AI responses as structured UI
 - **Conversation UX (Skill 22)** handles thread management and branching data models
 

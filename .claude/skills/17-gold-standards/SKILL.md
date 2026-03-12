@@ -1,21 +1,23 @@
 ---
 name: gold-standards
-description: "Mandatory best practices and gold standards for Kailash SDK development including absolute imports, parameter passing, error handling, testing policies (NO MOCKING in Tiers 2-3), workflow design, custom node development, security, documentation, and test creation. Use when asking about 'best practices', 'standards', 'gold standards', 'mandatory rules', 'required patterns', 'absolute imports', 'NO MOCKING', 'testing policy', 'error handling standards', 'security best practices', 'documentation standards', or 'workflow design standards'."
+description: "Mandatory best practices and gold standards for Python finance development including absolute imports, function signatures, error handling, testing policies (NO MOCKING in Tiers 2-3), calculation design, calculation classes, data handling, security, documentation, and test creation. Use when asking about 'best practices', 'standards', 'gold standards', 'mandatory rules', 'required patterns', 'absolute imports', 'NO MOCKING', 'testing policy', 'error handling standards', 'security best practices', 'documentation standards', 'data handling', or 'calculation design'."
 ---
 
-# Kailash Gold Standards - Mandatory Best Practices
+# Gold Standards - Mandatory Best Practices
 
-Mandatory best practices and standards for all Kailash SDK development. These are **required** patterns that must be followed.
+Mandatory best practices and standards for all Python finance development. These are **required** patterns that must be followed.
 
 ## Overview
 
 Gold standards are **mandatory** practices for:
+
 - Absolute imports (no relative imports)
-- Parameter passing patterns
+- Typed function signatures
 - Error handling strategies
 - Testing policies (NO MOCKING in Tiers 2-3)
-- Workflow design principles
-- Custom node development
+- Calculation pipeline design (Load -> Validate -> Calculate -> Report)
+- Reusable calculation classes
+- Data handling (timezones, splits, NaN, Decimal)
 - Security requirements
 - Documentation standards
 - Test creation guidelines
@@ -27,37 +29,41 @@ Gold standards are **mandatory** practices for:
 ### Code Organization
 
 #### Absolute Imports (MANDATORY)
+
 - **[gold-absolute-imports](gold-absolute-imports.md)** - Absolute import requirement
   - **Rule**: ALWAYS use absolute imports, NEVER relative
   - **Reason**: Prevents import errors, enables refactoring
-  - **Pattern**: `from kailash.workflow.builder import WorkflowBuilder`
-  - **Never**: `from ..workflow import builder`
+  - **Pattern**: `from myproject.calculations.returns import calculate_returns`
+  - **Never**: `from ..calculations import returns`
 
-#### Parameter Passing (MANDATORY)
-- **[gold-parameter-passing](gold-parameter-passing.md)** - Parameter standards
-  - **Rule**: Use 4-parameter connection format
-  - **Pattern**: `workflow.add_connection(source_id, source_param, target_id, target_param)`
-  - **Rule**: Access results with dict pattern
-  - **Pattern**: `results["node_id"]["result"]`
-  - **Never**: `results["node_id"].result`
+#### Function Signatures (MANDATORY)
+
+- **[gold-function-signatures](gold-function-signatures.md)** - Typed function signature standards
+  - **Rule**: Use explicit typed parameters with defaults
+  - **Pattern**: `def sharpe_ratio(returns: pd.Series, risk_free_rate: float = 0.04) -> float:`
+  - **Rule**: Return typed results (dict, NamedTuple, or dataclass)
+  - **Never**: `def calc(data, **kwargs)` with no types
 
 ### Testing Standards
 
 #### NO MOCKING Policy (MANDATORY)
+
 - **[gold-mocking-policy](gold-mocking-policy.md)** - NO MOCKING in Tiers 2-3
   - **Rule**: NO mocking in integration (Tier 2) or E2E (Tier 3) tests
   - **Reason**: Mocking hides real-world issues
-  - **Required**: Use real databases, APIs, infrastructure
+  - **Required**: Use real files, real databases, real calculations
   - **Allowed**: Mocking ONLY in Tier 1 unit tests
 
 #### Testing Standards (MANDATORY)
+
 - **[gold-testing](gold-testing.md)** - Testing requirements
   - **Rule**: Follow 3-tier strategy (Unit, Integration, E2E)
   - **Rule**: Tiers 2-3 use real infrastructure
-  - **Rule**: All tests must clean up resources
-  - **Rule**: Tests must be deterministic
+  - **Rule**: Validate against CFA benchmark values
+  - **Rule**: Use `pytest.approx` with explicit tolerances
 
 #### Test Creation (MANDATORY)
+
 - **[gold-test-creation](gold-test-creation.md)** - Test creation standards
   - **Rule**: Write tests BEFORE implementation (TDD)
   - **Rule**: One assertion focus per test
@@ -67,268 +73,195 @@ Gold standards are **mandatory** practices for:
 ### Error Handling
 
 #### Error Handling (MANDATORY)
+
 - **[gold-error-handling](gold-error-handling.md)** - Error handling requirements
   - **Rule**: Always handle errors explicitly
   - **Rule**: Never swallow exceptions silently
   - **Rule**: Provide actionable error messages
-  - **Rule**: Clean up resources in finally blocks
-  - **Rule**: Log errors with context
+  - **Rule**: Define domain exception hierarchy
+  - **Rule**: Log errors with financial context
 
-### Workflow & Node Design
+### Calculation Design
 
-#### Workflow Design (MANDATORY)
-- **[gold-workflow-design](gold-workflow-design.md)** - Workflow standards
-  - **Rule**: Always call `.build()` before execution
-  - **Pattern**: `runtime.execute(workflow.build())`
-  - **Rule**: Use string-based node API
-  - **Rule**: Validate inputs before processing
-  - **Rule**: Single responsibility per workflow
+#### Calculation Pipeline (MANDATORY)
 
-#### Custom Node Development (MANDATORY)
-- **[gold-custom-nodes](gold-custom-nodes.md)** - Custom node standards
-  - **Rule**: Extend BaseNode
+- **[gold-calculation-design](gold-calculation-design.md)** - Pipeline standards
+  - **Rule**: Follow Load -> Validate -> Calculate -> Report pattern
+  - **Rule**: Use named constants (TRADING_DAYS_PER_YEAR = 252)
+  - **Rule**: Single responsibility per function
+  - **Rule**: Separate data loading from calculation logic
+
+#### Calculation Classes (MANDATORY)
+
+- **[gold-calculation-classes](gold-calculation-classes.md)** - Reusable calculator standards
   - **Rule**: Validate all inputs
-  - **Rule**: Handle errors gracefully
-  - **Rule**: Document parameters clearly
-  - **Rule**: Return consistent output format
+  - **Rule**: Use Decimal for money, float64 for returns
+  - **Rule**: Handle edge cases gracefully
+  - **Rule**: Document parameters and formula sources
+  - **Rule**: Return consistent output format (dataclass)
+
+### Data Handling
+
+#### Data Standards (MANDATORY)
+
+- **[gold-data-handling](gold-data-handling.md)** - Data handling requirements
+  - **Rule**: All dates timezone-aware
+  - **Rule**: Use adjusted close prices (split/dividend adjusted)
+  - **Rule**: Handle NaN explicitly
+  - **Rule**: Use Decimal for monetary amounts
+  - **Rule**: Cache API responses to avoid rate limits
+  - **Rule**: Validate OHLCV data before use
 
 ### Security & Documentation
 
 #### Security (MANDATORY)
+
 - **[gold-security](gold-security.md)** - Security requirements
   - **Rule**: NEVER hardcode secrets
   - **Rule**: Use environment variables for credentials
   - **Rule**: Validate all user inputs
   - **Rule**: Prevent SQL injection
-  - **Rule**: Prevent code injection
   - **Rule**: Use HTTPS for API calls
 
 #### Documentation (MANDATORY)
+
 - **[gold-documentation](gold-documentation.md)** - Documentation standards
-  - **Rule**: Document all public APIs
-  - **Rule**: Include code examples
-  - **Rule**: Keep docs updated with code
-  - **Rule**: Use docstrings for all functions/classes
+  - **Rule**: Document all public APIs with docstrings
+  - **Rule**: Cite formula sources (CFA, Hull, Bodie)
+  - **Rule**: State assumptions explicitly
+  - **Rule**: Include code examples in docstrings
   - **Rule**: Explain WHY, not just WHAT
 
-## Critical Gold Standards
-
-All workflow patterns follow the **canonical 4-parameter pattern** from `/01-core-sdk`.
+## Critical Gold Standards Summary
 
 ### 1. Absolute Imports ALWAYS
-```python
-# ✅ CORRECT (Gold Standard)
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime.local import LocalRuntime
 
-# ❌ WRONG (Violates Gold Standard)
-from ..workflow.builder import WorkflowBuilder
-from .runtime import LocalRuntime
+```python
+# CORRECT
+from myproject.calculations.returns import calculate_returns
+
+# WRONG
+from ..calculations.returns import calculate_returns
 ```
 
 ### 2. NO MOCKING in Tiers 2-3
-```python
-# ✅ CORRECT (Gold Standard - Tier 2)
-def test_dataflow_crud(db: DataFlow):  # Real database
-    """Test with real PostgreSQL/SQLite."""
-    workflow = db.create_workflow(...)
-    results = runtime.execute(workflow.build())
-    # Verify in actual database
 
-# ❌ WRONG (Violates Gold Standard)
-def test_dataflow_crud():
-    """Test with mocked database."""
-    db = Mock(spec=DataFlow)  # NO MOCKING in Tier 2!
-    db.create_workflow.return_value = mock_workflow
+```python
+# CORRECT (Tier 2)
+def test_csv_pipeline(tmp_path):
+    csv_path = tmp_path / "prices.csv"
+    df.to_csv(csv_path, index=False)
+    result = run_pipeline(str(csv_path))
+    assert result["sharpe_ratio"] > 0
+
+# WRONG
+def test_csv_pipeline():
+    with patch("pandas.read_csv") as mock:  # NO MOCKING in Tier 2!
+        mock.return_value = fake_df
 ```
 
-### 3. 4-Parameter Connections ALWAYS
-```python
-# ✅ CORRECT (Gold Standard)
-workflow.add_connection("node1", "result", "node2", "input_data")
+### 3. Typed Function Signatures ALWAYS
 
-# ❌ WRONG (Violates Gold Standard)
-workflow.add_connection("node1", "node2")
+```python
+# CORRECT
+def annualized_return(daily_returns: pd.Series, trading_days: int = 252) -> float:
+    mean_daily = daily_returns.mean()
+    return (1 + mean_daily) ** trading_days - 1
+
+# WRONG
+def calc(data, n=252):
+    return (1 + data.mean()) ** n - 1
 ```
 
-### 4. Always Call .build()
-```python
-# ✅ CORRECT (Gold Standard)
-results = runtime.execute(workflow.build())
+### 4. Named Constants ALWAYS
 
-# ❌ WRONG (Violates Gold Standard)
-results = runtime.execute(workflow)
+```python
+# CORRECT
+TRADING_DAYS_PER_YEAR = 252
+annual_vol = daily_vol * np.sqrt(TRADING_DAYS_PER_YEAR)
+
+# WRONG
+annual_vol = daily_vol * np.sqrt(252)  # Magic number!
 ```
 
-### 5. Dict-Based Result Access
-```python
-# ✅ CORRECT (Gold Standard)
-value = results["node_id"]["result"]
+### 5. Decimal for Money, Float for Returns
 
-# ❌ WRONG (Violates Gold Standard)
-value = results["node_id"].result
+```python
+# CORRECT
+trade_cost = Decimal("149.99") * Decimal("100")  # Monetary
+daily_return = (close - prev_close) / prev_close  # float64 OK
+
+# WRONG
+trade_cost = 149.99 * 100  # Float for money!
 ```
 
 ### 6. Environment Variables for Secrets
-```python
-# ✅ CORRECT (Gold Standard)
-import os
-api_key = os.environ["API_KEY"]
 
-# ❌ WRONG (Violates Gold Standard)
-api_key = "sk-1234567890abcdef"  # Hardcoded!
+```python
+# CORRECT
+api_key = os.environ["POLYGON_API_KEY"]
+
+# WRONG
+api_key = "pk_abc123"  # Hardcoded!
 ```
 
-### 7. TDD (Test-First Development)
+### 7. Timezone-Aware Dates
+
 ```python
-# ✅ CORRECT (Gold Standard)
-# 1. Write test first
-def test_user_creation():
-    user = create_user("test@example.com")
-    assert user.email == "test@example.com"
+# CORRECT
+dates = pd.to_datetime(["2024-01-02"]).tz_localize("America/New_York")
 
-# 2. Then implement
-def create_user(email):
-    return User(email=email)
-
-# ❌ WRONG (Violates Gold Standard)
-# Write implementation first, then add tests
+# WRONG
+dates = pd.to_datetime(["2024-01-02"])  # Naive datetime!
 ```
 
 ### 8. Explicit Error Handling
-```python
-# ✅ CORRECT (Gold Standard)
-try:
-    results = runtime.execute(workflow.build())
-except WorkflowExecutionError as e:
-    logger.error(f"Workflow failed: {e}")
-    raise
-finally:
-    cleanup_resources()
 
-# ❌ WRONG (Violates Gold Standard)
+```python
+# CORRECT
 try:
-    results = runtime.execute(workflow.build())
-except:  # Too broad, swallows errors
-    pass  # Silent failure!
+    df = pd.read_csv(file_path, parse_dates=["date"])
+except FileNotFoundError:
+    logger.error("Price file not found: %s", file_path)
+    raise
+
+# WRONG
+try:
+    df = pd.read_csv(file_path)
+except:
+    pass
 ```
 
 ## Compliance Checklist
 
 ### Before Every Commit
+
 - [ ] All imports are absolute
-- [ ] All connections use 4 parameters
-- [ ] Called `.build()` before execute
+- [ ] All functions have type hints
 - [ ] No hardcoded secrets
 - [ ] Error handling present
 - [ ] Tests written (TDD)
 - [ ] No mocking in Tier 2-3 tests
 - [ ] Documentation updated
-
-### Before Every PR
-- [ ] Gold standards validator passed
-- [ ] All tests passing
-- [ ] Code reviewed for compliance
-- [ ] Security validation passed
-- [ ] Documentation complete
-
-### Before Every Release
-- [ ] Full gold standards audit
-- [ ] All patterns compliant
-- [ ] Security audit complete
-- [ ] Documentation verified
+- [ ] Named constants used (no magic numbers)
+- [ ] Dates are timezone-aware
+- [ ] Decimal for money, float for returns
 
 ## Enforcement
 
-### Automated Validation
 ```bash
-# Run gold standards validator
-python -m kailash.validation.gold_standards validate-all
-
-# Check specific standards
-python -m kailash.validation.gold_standards check-imports
-python -m kailash.validation.gold_standards check-mocking
-python -m kailash.validation.gold_standards check-security
+# Run gold standards checks
+python -m pytest tests/ -v --tb=short
+python -m mypy src/ --strict
+python -m ruff check src/
+python -m bandit -r src/
 ```
-
-### Code Review Focus
-- Check absolute imports
-- Verify NO MOCKING policy
-- Validate connection format
-- Check error handling
-- Verify TDD approach
-- Review security patterns
-
-## Why Gold Standards Matter
-
-### Problems They Prevent
-
-**Absolute Imports**: Prevent import errors during refactoring
-
-**NO MOCKING**: Catch real database issues, API timeouts, race conditions
-
-**4-Parameter Connections**: Prevent wrong data routing
-
-**.build() Requirement**: Prevent TypeError at runtime
-
-**Error Handling**: Prevent silent failures
-
-**TDD**: Prevent bugs before they exist
-
-**Security Standards**: Prevent credential leaks, injection attacks
-
-## Quick Patterns
-
-### Correct Import Pattern
-```python
-# ✅ CORRECT: Absolute imports
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
-
-# ❌ WRONG: Relative imports
-from ..workflow import builder  # NEVER use this
-```
-
-### Correct Execution Pattern
-```python
-# ✅ CORRECT: Always .build()
-results, run_id = runtime.execute(workflow.build())
-
-# ❌ WRONG: Missing .build()
-results = runtime.execute(workflow)  # WILL FAIL
-```
-
-### Correct Testing Pattern
-```python
-# Tier 2-3: Real infrastructure
-@pytest.fixture
-def db():
-    return DataFlow("sqlite:///:memory:")  # Real DB
-
-# ❌ WRONG in Tier 2-3: Mocking
-@patch('module.function')  # PROHIBITED
-```
-
-## When to Use This Skill
-
-Use this skill:
-- **Before writing code** - Know the standards
-- **During code review** - Validate compliance
-- **When in doubt** - Check gold standards
-- **Before deployment** - Ensure compliance
-- **When onboarding** - Learn required patterns
 
 ## Related Skills
 
 - **[16-validation-patterns](../16-validation-patterns/SKILL.md)** - Validation tools
 - **[15-error-troubleshooting](../15-error-troubleshooting/SKILL.md)** - Error patterns
 - **[12-testing-strategies](../12-testing-strategies/SKILL.md)** - Testing strategies
-- **[01-core-sdk](../01-core-sdk/SKILL.md)** - Core patterns
+- **[06-cheatsheets](../06-cheatsheets/SKILL.md)** - Quick reference
 
-## Support
-
-For gold standards compliance, invoke:
-- `gold-standards-validator` - Automated compliance checking
-- `pattern-expert` - Pattern validation
-- `testing-specialist` - Testing compliance
-- `requirements-analyst` - Standards documentation
+<!-- Trigger Keywords: best practices, standards, gold standards, mandatory rules, required patterns, absolute imports, NO MOCKING, testing policy, error handling standards, security best practices, documentation standards, calculation design, data handling -->

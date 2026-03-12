@@ -108,7 +108,7 @@ function collectSessionStats(cwd) {
     const stats = {
       pythonFiles: 0,
       testFiles: 0,
-      workflowFiles: 0,
+      analysisFiles: 0,
     };
 
     const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".py"));
@@ -120,8 +120,8 @@ function collectSessionStats(cwd) {
       }
       try {
         const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/WorkflowBuilder/.test(content)) {
-          stats.workflowFiles++;
+        if (/import pandas|import numpy|import yfinance/.test(content)) {
+          stats.analysisFiles++;
         }
       } catch {}
     }
@@ -139,16 +139,20 @@ function detectFramework(cwd) {
     for (const file of files.slice(0, 10)) {
       try {
         const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/@db\.model/.test(content) || /from dataflow/.test(content))
-          return "dataflow";
-        if (/from nexus/.test(content) || /Nexus\(/.test(content))
-          return "nexus";
-        if (/from kaizen/.test(content) || /BaseAgent/.test(content))
-          return "kaizen";
-        if (/WorkflowBuilder/.test(content)) return "core-sdk";
+        if (/import pandas/.test(content) || /import yfinance/.test(content))
+          return "market-data";
+        if (/import numpy/.test(content) || /import scipy/.test(content))
+          return "quantitative";
+        if (
+          /import backtrader/.test(content) ||
+          /import QuantLib/.test(content)
+        )
+          return "backtesting";
+        if (/import matplotlib/.test(content) || /import plotly/.test(content))
+          return "visualization";
       } catch {}
     }
-    return "core-sdk";
+    return "financial";
   } catch {
     return "unknown";
   }

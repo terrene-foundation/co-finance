@@ -1098,7 +1098,7 @@ START: What data are you showing?
 ### Accessibility ✓
 - [ ] All interactive elements keyboard accessible
 - [ ] Focus indicators visible (2px outline)
-- [ ] Screen reader labels present (Semantics in Flutter)
+- [ ] Screen reader labels present (ARIA attributes)
 - [ ] Color not sole indicator (icons + text for status)
 - [ ] Text scales without breaking layout
 
@@ -1114,7 +1114,7 @@ START: What data are you showing?
 - Supabase (supabase.com) - Developer-focused, efficient
 
 ### Design Systems
-- Material Design 3 (material.io) - Flutter's foundation
+- Material Design 3 (material.io)
 - IBM Carbon (carbondesignsystem.com) - Enterprise patterns
 - Atlassian Design System - Product design at scale
 - Shopify Polaris - Merchant-focused patterns
@@ -1122,7 +1122,7 @@ START: What data are you showing?
 ### Tools
 - WebAIM Contrast Checker - Color contrast testing
 - Figma / Adobe XD - Design mockups
-- Flutter DevTools - Performance and layout debugging
+- Browser DevTools - Performance and layout debugging
 
 ---
 

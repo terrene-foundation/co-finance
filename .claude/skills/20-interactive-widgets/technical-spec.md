@@ -3,15 +3,16 @@
 **Version**: 1.0
 **Created**: 2025-10-18
 **Status**: Technical Design Document
-**Target**: Backend (Python/Kailash) + Frontend (Flutter) Engineers
+**Target**: Backend (Python) + Frontend (Flutter) Engineers
 
 ---
 
 ## Table of Contents
+
 1. [Overview](#overview)
 2. [Architecture](#architecture)
 3. [Widget Descriptor Protocol](#widget-descriptor-protocol)
-4. [Backend Implementation (Python/Kailash)](#backend-implementation-pythonkailash)
+4. [Backend Implementation (Python)](#backend-implementation-pythonpython)
 5. [Frontend Implementation (Flutter)](#frontend-implementation-flutter)
 6. [Widget Types Reference](#widget-types-reference)
 7. [State Management](#state-management)
@@ -24,27 +25,33 @@
 ## Overview
 
 ### Problem Statement
+
 Current AI assistants are limited to:
+
 - Static text responses (markdown)
 - Pre-rendered charts (images)
 - External links (context switching)
 
 **Our Solution**: Embed interactive Flutter widgets directly in AI conversation stream with:
+
 - Real-time interactivity (tap, drag, input)
 - Navigation capabilities
 - State management
 - Backend action triggers
 
 ### Inspiration: Google's AI Playground
+
 Google's AI playground embeds Flutter widgets in responses by:
+
 1. Backend generates widget specifications (JSON)
 2. Streaming API sends widget specs to frontend
 3. Flutter dynamically renders widgets from specs
 4. Widget actions trigger backend API calls
 
 **Our approach builds on this with**:
-- Kailash SDK for widget generation (AI-powered)
-- Nexus API for streaming widget specs
+
+- Python for widget generation (AI-powered)
+- Streaming API layer for widget specs
 - Design system components for consistency
 - RBAC integration for action permissions
 
@@ -69,7 +76,7 @@ Google's AI playground embeds Flutter widgets in responses by:
                 │
                 ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ NEXUS API (Streaming Endpoint)                              │
+│ BACKEND API (Streaming Endpoint)                            │
 │ - Receives query                                            │
 │ - Routes to appropriate AI agent                            │
 │ - Streams response chunks to frontend                       │
@@ -77,9 +84,9 @@ Google's AI playground embeds Flutter widgets in responses by:
                 │
                 ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ KAILASH AI AGENT (Kaizen Framework)                         │
+│ AI AGENT (AI framework)                                     │
 │ - Analyzes query intent                                     │
-│ - Fetches data from sources (DataFlow)                      │
+│ - Fetches data from sources (database)                      │
 │ - Generates widget descriptor (JSON)                        │
 │ - Streams text + widget descriptor                          │
 └───────────────┬─────────────────────────────────────────────┘
@@ -121,7 +128,7 @@ Google's AI playground embeds Flutter widgets in responses by:
                 │
                 ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ BACKEND ACTION HANDLER (Nexus API)                          │
+│ BACKEND ACTION HANDLER (Streaming API)                        │
 │ - Receives action request                                   │
 │ - Validates permissions (RBAC)                              │
 │ - Executes action (query DB, generate file, etc.)          │
@@ -132,18 +139,21 @@ Google's AI playground embeds Flutter widgets in responses by:
 ### Technology Stack
 
 **Backend**:
-- **Kailash SDK Core**: Workflow orchestration
-- **Kaizen Framework**: AI agent development
-- **DataFlow**: Database operations (sales data, user context)
-- **Nexus API**: Multi-channel API gateway (WebSocket/SSE streaming)
+
+- **Python Core**: Workflow orchestration
+- **AI framework**: AI agent development
+- **database**: Database operations (sales data, user context)
+- **Streaming API**: WebSocket/SSE streaming layer
 
 **Frontend**:
+
 - **Flutter**: Cross-platform UI (Web + iOS/Android)
 - **Design System**: `lib/core/design/` components
 - **State Management**: Provider + Riverpod for reactive state
 - **WebSocket**: `web_socket_channel` package for real-time streaming
 
 **Communication Protocol**:
+
 - **WebSocket** (primary): Bidirectional, low-latency
 - **Server-Sent Events (SSE)**: Fallback for unidirectional streaming
 - **JSON**: Widget descriptor format
@@ -197,17 +207,20 @@ Google's AI playground embeds Flutter widgets in responses by:
 ### Validation Rules
 
 **Required Fields**:
+
 - `type` (must be "widget")
 - `widget_id` (must be valid UUID v4)
 - `widget_type` (must be supported type)
 - `data` (structure depends on widget_type)
 
 **Optional Fields**:
+
 - `config` (defaults to `{}`)
 - `actions` (defaults to `[]`)
 - `metadata` (defaults to `{}`)
 
 **Backend Validator** (Python):
+
 ```python
 from pydantic import BaseModel, Field, validator
 from typing import List, Dict, Any, Optional
@@ -272,6 +285,7 @@ class WidgetDescriptor(BaseModel):
 ```
 
 **Frontend Validator** (Dart):
+
 ```dart
 import 'package:uuid/uuid.dart';
 
@@ -327,56 +341,61 @@ class WidgetDescriptor {
 
 ---
 
-## Backend Implementation (Python/Kailash)
+## Backend Implementation (Python)
 
 ### Widget Generator Agent
 
 **Purpose**: AI agent that generates widget descriptors based on user query and data.
 
 **Implementation**:
+
 ```python
-from kaizen.agents import BaseAgent, Signature
-from kaizen.signatures import InputField, OutputField
-from dataflow import DataFlow
+# AI agent base class
+# AI input/output fields
+# database access
 from typing import Dict, Any, List
 import json
 
-class WidgetGeneratorSignature(Signature):
-    """Signature for widget generation"""
-    query: str = InputField(description="User's natural language query")
-    data: Dict[str, Any] = InputField(description="Fetched data from sources")
-    user_context: Dict[str, Any] = InputField(description="User permissions, preferences")
+@dataclass
+class WidgetGeneratorConfig:
+    """Configuration for widget generation."""
+    query: str  # User's natural language query
+    data: Dict[str, Any]  # Fetched data from sources
+    user_context: Dict[str, Any]  # User permissions, preferences
 
-    widget_descriptor: Dict[str, Any] = OutputField(description="Generated widget descriptor")
-    explanation: str = OutputField(description="Explanation of widget choice")
 
-class WidgetGeneratorAgent(BaseAgent):
+@dataclass
+class WidgetGeneratorResult:
+    """Result from widget generation."""
+    widget_descriptor: Dict[str, Any]  # Generated widget descriptor
+    explanation: str  # Explanation of widget choice
+
+
+class WidgetGeneratorAgent:
     """
     AI agent that generates interactive widget descriptors.
 
     Capabilities:
     - Analyzes user query to determine best widget type
-    - Fetches data from DataFlow sources
+    - Fetches data from database sources
     - Generates widget descriptor (JSON)
     - Applies RBAC to actions
     """
 
-    def __init__(self, db: DataFlow):
-        super().__init__(
-            signature=WidgetGeneratorSignature,
-            instructions="""
-            You are an expert at generating interactive data visualizations.
+    INSTRUCTIONS = """
+    You are an expert at generating interactive data visualizations.
 
-            Given a user query and data, determine the best widget type:
-            - Use 'chart' for trends, comparisons, distributions
-            - Use 'table' for detailed data, sorting, filtering
-            - Use 'form' for data input, searches, filters
-            - Use 'card' for metrics, KPIs, summaries
-            - Use 'navigation' for workflows, related pages
+    Given a user query and data, determine the best widget type:
+    - Use 'chart' for trends, comparisons, distributions
+    - Use 'table' for detailed data, sorting, filtering
+    - Use 'form' for data input, searches, filters
+    - Use 'card' for metrics, KPIs, summaries
+    - Use 'navigation' for workflows, related pages
 
-            Generate a complete widget descriptor following the schema.
-            """,
-        )
+    Generate a complete widget descriptor following the schema.
+    """
+
+    def __init__(self, db):
         self.db = db
 
     async def generate_chart_widget(
@@ -472,21 +491,21 @@ class WidgetGeneratorAgent(BaseAgent):
         return descriptor
 ```
 
-### Nexus Streaming Endpoint
+### Streaming API Endpoint
 
 **Purpose**: Stream AI responses + widget descriptors to Flutter frontend.
 
 **Implementation**:
+
 ```python
-from nexus import Nexus
-from kailash.runtime import AsyncLocalRuntime
+from fastapi import FastAPI
+import asyncio
 from typing import AsyncGenerator
 import json
 
-nexus = Nexus()
-runtime = AsyncLocalRuntime()
+app = FastAPI()
 
-@nexus.stream_endpoint("/ai/chat")
+@app.stream_endpoint("/ai/chat")
 async def chat_stream(
     session_id: str,
     message: str,
@@ -505,7 +524,7 @@ async def chat_stream(
     """
 
     # Initialize widget generator agent
-    db = DataFlow()
+    db = database()
     agent = WidgetGeneratorAgent(db)
 
     # Analyze query to determine if widget is needed
@@ -552,14 +571,15 @@ async def chat_stream(
 **Purpose**: Handle widget action triggers (API calls, downloads, etc.).
 
 **Implementation**:
+
 ```python
-from nexus import Nexus
-from kailash.rbac import check_permissions
+from fastapi import FastAPI
+# Access control check
 from typing import Dict, Any
 
-nexus = Nexus()
+app = FastAPI()
 
-@nexus.endpoint("/api/widget/action", methods=["POST"])
+@app.endpoint("/api/widget/action", methods=["POST"])
 async def handle_widget_action(
     widget_id: str,
     action_id: str,
@@ -620,9 +640,10 @@ async def handle_widget_action(
 
 ### WebSocket Connection Manager
 
-**Purpose**: Manage WebSocket connection to Nexus streaming API.
+**Purpose**: Manage WebSocket connection to streaming API.
 
 **Implementation**:
+
 ```dart
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
@@ -711,6 +732,7 @@ class ChatWebSocketManager {
 **Purpose**: Dynamically render widgets from descriptors.
 
 **Implementation**:
+
 ```dart
 import 'package:flutter/material.dart';
 import 'package:aihub/core/design/design_system.dart';
@@ -774,6 +796,7 @@ class ErrorWidget extends StatelessWidget {
 **Purpose**: Render interactive charts from descriptor.
 
 **Implementation**:
+
 ```dart
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -1004,12 +1027,14 @@ class _ChartWidgetState extends State<ChartWidget> {
 ### 1. Chart Widget
 
 **Use Cases**:
+
 - Sales trends over time
 - Regional comparisons
 - Product performance
 - KPI visualizations
 
 **Descriptor Schema**:
+
 ```json
 {
   "widget_type": "chart",
@@ -1040,12 +1065,14 @@ class _ChartWidgetState extends State<ChartWidget> {
 ### 2. Table Widget
 
 **Use Cases**:
+
 - Customer lists
 - Product catalogs
 - Transaction history
 - Search results
 
 **Descriptor Schema**:
+
 ```json
 {
   "widget_type": "table",
@@ -1059,9 +1086,7 @@ class _ChartWidgetState extends State<ChartWidget> {
         "format": "text|currency|percentage|date"
       }
     ],
-    "rows": [
-      {"name": "Alice", "revenue": 123000, "growth": 0.23}
-    ],
+    "rows": [{ "name": "Alice", "revenue": 123000, "growth": 0.23 }],
     "pagination": {
       "page": 1,
       "per_page": 20,
@@ -1079,12 +1104,14 @@ class _ChartWidgetState extends State<ChartWidget> {
 ### 3. Form Widget
 
 **Use Cases**:
+
 - Search forms
 - Filter panels
 - Data input
 - Settings
 
 **Descriptor Schema**:
+
 ```json
 {
   "widget_type": "form",
@@ -1117,12 +1144,14 @@ class _ChartWidgetState extends State<ChartWidget> {
 ### 4. Navigation Card Widget
 
 **Use Cases**:
+
 - Related pages
 - Quick actions
 - Workflow steps
 - Suggested resources
 
 **Descriptor Schema**:
+
 ```json
 {
   "widget_type": "navigation_card",
@@ -1147,6 +1176,7 @@ class _ChartWidgetState extends State<ChartWidget> {
 ### Widget State Hierarchy
 
 **Level 1: Widget-Local State** (Transient)
+
 - Selected bar in chart
 - Expanded row in table
 - Form input values (before submission)
@@ -1154,6 +1184,7 @@ class _ChartWidgetState extends State<ChartWidget> {
 **Implementation**: StatefulWidget + setState
 
 **Level 2: Conversation State** (Persistent)
+
 - Active data sources
 - Uploaded documents
 - User preferences
@@ -1161,6 +1192,7 @@ class _ChartWidgetState extends State<ChartWidget> {
 **Implementation**: Provider/Riverpod
 
 **Level 3: Backend Sync** (Important changes)
+
 - Form submission
 - Filter changes that affect AI responses
 - Action triggers
@@ -1327,6 +1359,7 @@ Future<List<BarChartGroupData>> _processChartData(
 ### Backend Tests (Python)
 
 **Unit Tests**:
+
 ```python
 import pytest
 from widget_generator import WidgetGeneratorAgent
@@ -1334,7 +1367,7 @@ from widget_generator import WidgetGeneratorAgent
 @pytest.mark.asyncio
 async def test_chart_widget_generation():
     """Test chart widget descriptor generation"""
-    agent = WidgetGeneratorAgent(db=MockDataFlow())
+    agent = WidgetGeneratorAgent(db=Mockdatabase())
 
     descriptor = await agent.generate_chart_widget(
         query="Show Q2 sales by region",
@@ -1353,7 +1386,7 @@ async def test_chart_widget_generation():
 @pytest.mark.asyncio
 async def test_rbac_action_filtering():
     """Test that actions are filtered based on user permissions"""
-    agent = WidgetGeneratorAgent(db=MockDataFlow())
+    agent = WidgetGeneratorAgent(db=Mockdatabase())
 
     # User WITHOUT export permissions
     descriptor = await agent.generate_chart_widget(
@@ -1375,13 +1408,14 @@ async def test_rbac_action_filtering():
 ```
 
 **Integration Tests**:
+
 ```python
 @pytest.mark.asyncio
 async def test_end_to_end_widget_streaming():
     """Test full widget generation and streaming"""
-    from nexus_test_client import NexusTestClient
+    from fastapi.testclient import TestClient
 
-    client = NexusTestClient()
+    client = TestClient(app)
 
     # Send query
     response = client.stream_chat(
@@ -1407,6 +1441,7 @@ async def test_end_to_end_widget_streaming():
 ### Frontend Tests (Dart)
 
 **Widget Tests**:
+
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 
@@ -1461,6 +1496,7 @@ void main() {
 ```
 
 **Integration Tests**:
+
 ```dart
 void main() {
   group('Widget Streaming Integration', () {
@@ -1498,27 +1534,32 @@ void main() {
 ### 1. RBAC Enforcement
 
 **Backend**:
+
 - All widget actions MUST check user permissions before execution
 - Widget descriptors MUST only include actions user is authorized for
 
 **Frontend**:
+
 - Display only actions user has permissions for (UI-level filtering)
 - Backend validates again (never trust frontend)
 
 ### 2. Input Validation
 
 **Backend**:
+
 - Validate all widget descriptors against schema
 - Sanitize user inputs in forms
 - Prevent XSS/injection attacks
 
 **Frontend**:
+
 - Validate form inputs before submission
 - Sanitize rendered content (especially custom widgets)
 
 ### 3. Rate Limiting
 
 **Backend**:
+
 - Limit widget generation requests per user
 - Limit action triggers per widget
 - Prevent DoS attacks
@@ -1526,11 +1567,13 @@ void main() {
 ### 4. Data Exposure
 
 **Backend**:
+
 - Only include data user has access to (RBAC-filtered)
 - Mask sensitive data in widget descriptors
 - Audit all widget generations
 
 **Frontend**:
+
 - Never cache sensitive data in local storage
 - Clear widget cache on logout
 

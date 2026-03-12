@@ -709,9 +709,9 @@ AFTER (Focus on "Regional"):
 
 **Step 2: AI Detects References**
 ```
-Backend (Python + Kailash SDK):
+Backend (Python):
 
-from kaizen.agents import BaseAgent
+# AI agent base class
 
 class ConversationReferenceDetector(BaseAgent):
     async def detect_references(self, user_message: str):
@@ -1318,13 +1318,13 @@ User types: "In conversation Q2 Sales, you showed..."
 
 ## Implementation Guide
 
-### Backend: Database Schema (DataFlow)
+### Backend: Database Schema (database)
 
 **Conversation Model**:
 ```python
-from dataflow import DataFlow
+# database access
 
-db = DataFlow()
+db = database()
 
 @db.model
 class Conversation:
@@ -1362,7 +1362,7 @@ class ConversationContext:
     context_tokens: int  # Total token count
 ```
 
-**Branch Relationship Queries** (using DataFlow auto-generated nodes):
+**Branch Relationship Queries** (using database queries):
 ```python
 # Get all branches of a conversation
 branches = await db.query_conversation(
@@ -1575,10 +1575,10 @@ class ConversationTreeView extends StatelessWidget {
 
 ### Backend: Cross-Conversation Reference Detection
 
-**Using Kailash Kaizen AI Agent**:
+**Using AI Agent**:
 ```python
-from kaizen.agents import BaseAgent
-from kaizen.signatures import Signature, InputField, OutputField
+# AI agent base class
+# AI signatures
 
 class ConversationReferenceSignature(Signature):
     user_message: str = InputField(desc="User's message")
@@ -1636,15 +1636,15 @@ references = await detector.detect(
 # ]
 ```
 
-### API: Nexus Endpoints
+### API: API Endpoints
 
 **Multi-Conversation Endpoints**:
 ```python
-from nexus import Nexus
+from api import API
 
-nexus = Nexus()
+api = API()
 
-@nexus.endpoint("/conversations/{conversation_id}/branch")
+@api.endpoint("/conversations/{conversation_id}/branch")
 async def create_branch(
     conversation_id: str,
     branch_point_turn_id: str,
@@ -1683,7 +1683,7 @@ async def create_branch(
 
     return branch
 
-@nexus.endpoint("/conversations/{conversation_id}/tree")
+@api.endpoint("/conversations/{conversation_id}/tree")
 async def get_conversation_tree(conversation_id: str):
     """Get full conversation tree (branches, lineage)"""
     def build_tree(conv_id):
@@ -1702,7 +1702,7 @@ async def get_conversation_tree(conversation_id: str):
 
     return build_tree(conversation_id)
 
-@nexus.endpoint("/conversations/{conversation_id}/context/merge")
+@api.endpoint("/conversations/{conversation_id}/context/merge")
 async def merge_conversation_context(
     conversation_id: str,
     source_conversation_ids: List[str],

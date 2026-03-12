@@ -20,18 +20,18 @@ This skill provides the reference for the COC (Cognitive Orchestration for Codeg
 ### PRIMARY: Anchor Documents
 
 - `docs/00-anchor/00-first-principles.md` - Core mission and principles
-- `docs/00-anchor/01-core-entities.md` - What Foundation provides (including Kailash)
+- `docs/00-anchor/01-core-entities.md` - What Foundation provides (including the SDK)
 
 ### SECONDARY: Technical Documentation
 
-- `docs/03-technology/kailash/04-vibe-coding.md` - Vibe coding methodology
+- `docs/03-technology/04-vibe-coding.md` - Vibe coding methodology
 - `docs/presentations/sg-claude-code-community-vibe-coding-session.md` - Vibe coding presentation
 
 ## What is COC?
 
 COC is a five-layer architecture that provides AI coding assistants with the organizational context, guardrails, and operating procedures they need to function as disciplined engineering partners. It applies the CARE framework's Human-on-the-Loop philosophy to software development.
 
-COC is a new term introduced in the thesis paper. It names an architecture that the Kailash ecosystem has implemented. The principles are not new; the systematic five-layer organization is.
+COC is a new term introduced in the thesis paper. It names an architecture that this project has implemented. The principles are not new; the systematic five-layer organization is.
 
 ## The Problem: Vibe Coding's Three Fault Lines
 
@@ -155,9 +155,9 @@ COC = Cognitive Orchestration for Codegen
   3 Fault Lines: Amnesia, Convention Drift, Security Blindness
   1 Insight: Institutional knowledge > Model capability
 
-The Kailash COC Implementation:
+The COC Implementation:
   30 agents, 28 skills, 9 rules, 9 hooks, 20 commands
-  Reference: github.com/Integrum-Global/kailash-coc-claude-py
+  Reference: this repository
 ```
 
 ## For Detailed Information
@@ -165,7 +165,7 @@ The Kailash COC Implementation:
 Read these source documents:
 
 - `docs/02-standards/publications/COC-Core-Thesis.md` - The thesis paper
-- `docs/03-technology/kailash/04-vibe-coding.md` - Vibe coding methodology
+- `docs/03-technology/04-vibe-coding.md` - Vibe coding methodology
 - `docs/presentations/sg-claude-code-community-vibe-coding-session.md` - Presentation
 
 For comprehensive analysis, invoke the **coc-expert** agent.

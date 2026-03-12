@@ -25,7 +25,7 @@ Enterprise users have long names, mixed-language content, slow connections, and 
 
 **Overflow Handling**
 
-- [ ] Single-line text uses `text-overflow: ellipsis` / Flutter `overflow: TextOverflow.ellipsis`
+- [ ] Single-line text uses `text-overflow: ellipsis`
 - [ ] Multi-line text uses `-webkit-line-clamp` / `maxLines` with overflow
 - [ ] Container widths use `min-width` / `max-width` (never only fixed width)
 - [ ] Long URLs and unbreakable strings use `overflow-wrap: break-word`
@@ -44,7 +44,44 @@ Enterprise users have long names, mixed-language content, slow connections, and 
 - [ ] Numbers with different digit counts don't misalign (use tabular figures)
 - [ ] Dates in different formats fit their containers (MM/DD/YYYY vs DD.MM.YYYY)
 
-### 2. Internationalization (i18n)
+### 2. Financial Data Resilience
+
+**Large Number Formatting**
+
+- [ ] Numbers over 999 use locale-appropriate grouping (1,234,567.89)
+- [ ] Very large numbers abbreviate sensibly (1.2M, 3.4B, 1.5T)
+- [ ] Abbreviation thresholds are consistent throughout the interface
+- [ ] Full precision is available on hover or drill-down
+
+**Currency Precision**
+
+- [ ] All currency values display exactly 2 decimal places (or appropriate precision for the currency)
+- [ ] Currency symbols are correctly positioned for locale (prefix vs suffix)
+- [ ] Different currencies in the same view are clearly labeled
+- [ ] No floating-point display artifacts (e.g., $10.000000000001)
+
+**Negative Values Display**
+
+- [ ] Losses shown in red AND with a minus sign or parentheses (not color alone)
+- [ ] Negative percentages clearly distinguished: -2.5% or (2.5%)
+- [ ] Color choices work for colorblind users (red/green alternatives available)
+- [ ] Zero values are displayed as "0.00" not blank or "-"
+
+**Real-Time Data Staleness**
+
+- [ ] Last-updated timestamps visible on live data
+- [ ] Stale data (>1 min for live feeds) shows visual warning
+- [ ] Connection-lost state shows clear indicator
+- [ ] Market hours indicator (open/closed/pre-market/after-hours)
+- [ ] Delayed data clearly labeled with delay duration (e.g., "15 min delay")
+
+**Percentage Formatting**
+
+- [ ] Consistent decimal places throughout (e.g., always 2 decimal places)
+- [ ] Basis points vs. percentages used appropriately for context
+- [ ] "%" symbol consistently positioned (no mix of prefix and suffix)
+
+### 3. Internationalization (i18n)
 
 **Text Expansion**
 
@@ -66,7 +103,7 @@ Enterprise users have long names, mixed-language content, slow connections, and 
 - [ ] Emoji render correctly in all text fields
 - [ ] Accented characters don't break sorting or searching
 
-### 3. Error States & Recovery
+### 4. Error States & Recovery
 
 **Network Errors**
 
@@ -92,7 +129,7 @@ Enterprise users have long names, mixed-language content, slow connections, and 
 - [ ] User input is preserved after validation failure (never clear the form)
 - [ ] Submit button shows loading state and prevents double-submission
 
-### 4. Edge Cases & Boundary Conditions
+### 5. Edge Cases & Boundary Conditions
 
 **Empty States**
 
@@ -122,7 +159,7 @@ Enterprise users have long names, mixed-language content, slow connections, and 
 - [ ] Stale data detection (show "data has changed" refresh prompt)
 - [ ] Tab/window deduplication for destructive operations
 
-### 5. Accessibility Resilience
+### 6. Accessibility Resilience
 
 - [ ] 200% browser zoom doesn't break layout
 - [ ] Keyboard-only navigation reaches all interactive elements
@@ -131,7 +168,7 @@ Enterprise users have long names, mixed-language content, slow connections, and 
 - [ ] Touch targets are 44x44px minimum on mobile
 - [ ] Reduced motion mode works (`prefers-reduced-motion`)
 
-### 6. Performance Under Stress
+### 7. Performance Under Stress
 
 - [ ] Images use `loading="lazy"` / lazy loading for below-fold content
 - [ ] Large lists use virtual scrolling (not DOM rendering all items)
@@ -144,11 +181,12 @@ Enterprise users have long names, mixed-language content, slow connections, and 
 ```
 ## Hardening Assessment
 
-### Resilience Score: [X/6 categories passing]
+### Resilience Score: [X/7 categories passing]
 
 | Category | Status | Critical Issues |
 |----------|--------|-----------------|
 | Text & Content | PASS/FAIL | ... |
+| Financial Data | PASS/FAIL | ... |
 | Internationalization | PASS/FAIL | ... |
 | Error States | PASS/FAIL | ... |
 | Edge Cases | PASS/FAIL | ... |
@@ -195,7 +233,6 @@ Deploy these agents for production hardening:
 
 - **uiux-designer** — Design-level edge case decisions
 - **frontend-developer** — React implementation of hardening
-- **flutter-specialist** — Flutter implementation of hardening
 - **testing-specialist** — Creating hardening test suites
 
 ## Skill References

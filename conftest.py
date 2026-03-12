@@ -1,8 +1,8 @@
 """
 Root conftest.py — Auto-loads .env for ALL pytest sessions.
 
-This ensures that environment variables (API keys, model names, database URLs)
-are available in every test without manual setup. Works with any Kailash project.
+This ensures that environment variables (API keys, data provider keys)
+are available in every test without manual setup. Works with any FMI project.
 """
 
 import os

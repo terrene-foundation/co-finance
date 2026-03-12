@@ -3,7 +3,7 @@ name: workflow-patterns
 description: "Industry-specific workflow patterns and templates for finance, healthcare, logistics, manufacturing, retail, and common use cases like AI document processing, API integration, business rules, ETL, RAG, security, and project management. Use when asking about 'workflow examples', 'workflow templates', 'industry workflows', 'finance workflows', 'healthcare workflows', 'logistics workflows', 'manufacturing workflows', 'retail workflows', 'ETL workflows', 'RAG workflows', 'API workflows', 'document processing', 'business rules', or 'workflow patterns'."
 ---
 
-# Kailash Workflows - Industry Patterns & Templates
+# Python Workflows - Industry Patterns & Templates
 
 Production-ready workflow patterns and templates for industry-specific use cases and common application patterns.
 
@@ -191,10 +191,10 @@ Use this skill when you need:
 
 ```python
 # 1. Copy pattern template
-workflow = WorkflowBuilder()
+workflow = Pipeline()
 
 # 2. Add nodes from pattern
-workflow.add_node("NodeType", "id", {...})
+pipeline.add_step("NodeType", "id", {...})
 
 # 3. Customize parameters
 # 4. Add industry-specific logic
@@ -212,18 +212,18 @@ workflow.add_node("NodeType", "id", {...})
 
 ### ETL Workflow
 ```python
-workflow.add_node("Extract", "extract", {"source": "..."})
-workflow.add_node("Transform", "transform", {"logic": "..."})
-workflow.add_node("Load", "load", {"destination": "..."})
-workflow.add_connection("extract", "data", "transform", "input")
-workflow.add_connection("transform", "output", "load", "data")
+pipeline.add_step("Extract", "extract", {"source": "..."})
+pipeline.add_step("Transform", "transform", {"logic": "..."})
+pipeline.add_step("Load", "load", {"destination": "..."})
+pipeline.connect("extract", "data", "transform", "input")
+pipeline.connect("transform", "output", "load", "data")
 ```
 
 ### RAG Workflow
 ```python
-workflow.add_node("Embed", "embed", {"model": "text-embedding-ada-002"})
-workflow.add_node("Search", "search", {"index": "vectors"})
-workflow.add_node("Generate", "generate", {"model": "gpt-4"})
+pipeline.add_step("Embed", "embed", {"model": "text-embedding-ada-002"})
+pipeline.add_step("Search", "search", {"index": "vectors"})
+pipeline.add_step("Generate", "generate", {"model": "gpt-4"})
 ```
 
 ## CRITICAL Warnings
@@ -239,8 +239,8 @@ workflow.add_node("Generate", "generate", {"model": "gpt-4"})
 - **[01-core-sdk](../../01-core-sdk/SKILL.md)** - Core workflow creation
 - **[06-cheatsheets](../cheatsheets/SKILL.md)** - Pattern quick reference
 - **[08-nodes-reference](../nodes/SKILL.md)** - Node reference
-- **[02-dataflow](../../02-dataflow/SKILL.md)** - Database workflows
-- **[03-nexus](../../03-nexus/SKILL.md)** - Workflow deployment
+- **[02-database](../../02-database/SKILL.md)** - Database workflows
+- **[03-api_gateway](../../03-api_gateway/SKILL.md)** - Workflow deployment
 - **[17-gold-standards](../../17-gold-standards/SKILL.md)** - Best practices
 
 ## Support

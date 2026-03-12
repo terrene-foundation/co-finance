@@ -114,17 +114,16 @@ Deploy these agents as a team for each implementation cycle:
 
 **Specialist (invoke ONE matching the current todo):**
 
-- **pattern-expert** — Workflow patterns, node configuration
-- **dataflow-specialist** — Database operations (if project uses DataFlow)
-- **nexus-specialist** — API deployment (if project uses Nexus)
-- **kaizen-specialist** — AI agents (if project uses Kaizen)
-- **mcp-specialist** — MCP integration (if project uses MCP)
+- **finance-pattern-expert** — Financial calculation patterns, processing stage configuration
+- **market-data-specialist** — Market data pipelines and data operations
+- **financial-engineer** — Financial API layer and service deployment
+- **quantitative-analyst** — AI-powered financial analysis and modeling
+- **regulatory-compliance** — Regulatory compliance and reporting
 
 **Frontend team (when implementing frontend):**
 
 - **uiux-designer** — Design system, visual hierarchy, responsive layouts
-- **react-specialist** or **flutter-specialist** — Framework-specific implementation
-- **ai-ux-designer** — AI interaction patterns (if AI-facing UI)
+- **react-specialist** — Framework-specific implementation
 - **frontend-developer** — Responsive UI components
 
 **Recovery (invoke when builds break):**
@@ -133,5 +132,5 @@ Deploy these agents as a team for each implementation cycle:
 
 **Quality gate (once per todo, before closing):**
 
-- **value-auditor** — Evaluate from user/buyer perspective, not just technical assertions
+- **learning-outcome-auditor** — Evaluate from user/learner perspective, not just technical assertions
 - **security-reviewer** — Security audit before any commit (MANDATORY)

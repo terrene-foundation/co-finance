@@ -1,5 +1,5 @@
 /**
- * Instinct Renderer for Kailash Continuous Learning System
+ * Instinct Renderer for FMI Continuous Learning System
  *
  * Reads instincts from per-project directory and renders them as concise
  * markdown for injection into `.claude/rules/learned-instincts.md`.
@@ -107,10 +107,10 @@ function summarizePattern(pattern, category) {
     return `Node pattern: ${pattern.pattern_type || JSON.stringify(pattern).substring(0, 60)}`;
   }
 
-  if (category === "dataflow-models") {
+  if (category === "market-data-patterns") {
     const model = pattern.model_name || pattern.model;
-    if (model) return `DataFlow model: ${model}`;
-    return `DataFlow pattern: ${JSON.stringify(pattern).substring(0, 60)}`;
+    if (model) return `Market data model: ${model}`;
+    return `Market data pattern: ${JSON.stringify(pattern).substring(0, 60)}`;
   }
 
   if (category === "test-patterns") {

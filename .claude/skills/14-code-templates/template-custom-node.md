@@ -1,181 +1,178 @@
 ---
-name: template-custom-node
-description: "Generate Kailash custom node template. Use when requesting 'custom node template', 'create custom node', 'extend node', 'node development', or 'custom node boilerplate'."
+name: template-custom-calculation
+description: "Generate a custom financial calculation class template. Use when requesting 'custom calculation template', 'create calculation class', 'extend calculator', 'calculation development', or 'custom function boilerplate'."
 ---
 
-# Custom Node Template
+# Custom Calculation Class Template
 
-Template for creating custom Kailash SDK nodes with proper parameter declaration and execution patterns.
+Template for creating reusable financial calculation classes with proper validation, type hints, and documentation.
 
 > **Skill Metadata**
 > Category: `cross-cutting` (code-generation)
 > Priority: `MEDIUM`
-> SDK Version: `0.9.25+`
-> Related Skills: [`workflow-quickstart`](../../01-core-sdk/workflow-quickstart.md)
-> Related Subagents: `pattern-expert` (advanced node development)
+> Related Skills: [`template-financial-calculator`](template-financial-calculator.md)
+> Related Subagents: `finance-pattern-expert` (advanced calculation patterns)
 
-## Basic Custom Node Template
+## Basic Custom Calculation Template
 
 ```python
-"""Custom Node Implementation"""
+"""Custom Financial Calculation Module"""
 
-from kailash.nodes.base import Node, NodeParameter
-from typing import Dict, Any, Optional
+from decimal import Decimal, ROUND_HALF_UP
+from typing import Union, List, Optional, Dict, Any
+import numpy as np
+import pandas as pd
+import logging
 
-class CustomProcessingNode(Node):
-    """Custom node for [specific purpose]."""
+logger = logging.getLogger(__name__)
 
-    def __init__(self, node_id: Optional[str] = None):
-        """Initialize custom node."""
-        super().__init__(node_id=node_id)
+TRADING_DAYS_PER_YEAR = 252
 
-    def get_parameters(self) -> Dict[str, NodeParameter]:
-        """Declare all expected parameters."""
+
+class CustomCalculation:
+    """Custom calculation class for [specific purpose].
+
+    Uses Decimal for monetary amounts and float64 for returns/ratios.
+    All inputs are validated before calculation.
+    """
+
+    def __init__(self, precision: str = "0.0001"):
+        """Initialize with precision setting.
+
+        Args:
+            precision: Decimal precision for results (e.g., '0.01' for cents)
+        """
+        self.precision = Decimal(precision)
+
+    def calculate(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute the calculation.
+
+        Args:
+            input_data: Dictionary with required inputs
+
+        Returns:
+            Dictionary with calculation results
+
+        Raises:
+            ValueError: If inputs are invalid
+        """
+        # Validate inputs
+        self._validate_inputs(input_data)
+
+        # Extract parameters
+        prices = np.array(input_data["prices"], dtype=np.float64)
+        period = input_data.get("period", TRADING_DAYS_PER_YEAR)
+
+        # Calculate
+        returns = np.diff(prices) / prices[:-1]
+        mean_return = np.mean(returns)
+        volatility = np.std(returns, ddof=1)
+        annualized_return = (1 + mean_return) ** period - 1
+        annualized_vol = volatility * np.sqrt(period)
+
         return {
-            "input_data": NodeParameter(
-                name="input_data",
-                type=dict,
-                required=True,
-                description="Input data to process"
-            ),
-            "operation": NodeParameter(
-                name="operation",
-                type=str,
-                required=False,
-                default="transform",
-                description="Operation to perform"
-            ),
-            "options": NodeParameter(
-                name="options",
-                type=dict,
-                required=False,
-                default={},
-                description="Additional options"
-            )
+            "mean_return": float(mean_return),
+            "volatility": float(volatility),
+            "annualized_return": float(annualized_return),
+            "annualized_volatility": float(annualized_vol),
+            "observations": len(returns),
         }
 
-    def run(self, **kwargs) -> Dict[str, Any]:
-        """Execute node logic."""
-        # Extract parameters (guaranteed by get_parameters())
-        input_data = kwargs["input_data"]
-        operation = kwargs.get("operation", "transform")
-        options = kwargs.get("options", {})
+    def _validate_inputs(self, data: Dict[str, Any]) -> None:
+        """Validate inputs before calculation."""
+        if "prices" not in data:
+            raise ValueError("Missing required input: 'prices'")
 
-        # Implement your custom logic
-        if operation == "transform":
-            result = self._transform_data(input_data, options)
-        elif operation == "validate":
-            result = self._validate_data(input_data, options)
-        else:
-            raise ValueError(f"Unknown operation: {operation}")
+        prices = data["prices"]
+        if len(prices) < 2:
+            raise ValueError("Need at least 2 price observations")
 
-        return result
+        if any(p <= 0 for p in prices):
+            raise ValueError("All prices must be positive")
 
-    def _transform_data(self, data: dict, options: dict) -> dict:
-        """Transform data logic."""
-        # Implement transformation
-        transformed = {k.upper(): v for k, v in data.items()}
-        return {
-            "transformed": transformed,
-            "status": "success",
-            "operation": "transform"
-        }
-
-    def _validate_data(self, data: dict, options: dict) -> dict:
-        """Validate data logic."""
-        # Implement validation
-        valid = all(k and v for k, v in data.items())
-        return {
-            "valid": valid,
-            "status": "success",
-            "operation": "validate"
-        }
+        if any(np.isnan(p) for p in prices):
+            raise ValueError("NaN values not allowed in prices")
 ```
 
-## Usage in Workflow
+## Usage Example
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+calc = CustomCalculation()
 
-# Register custom node (if needed for discovery)
-from kailash.nodes.registry import NodeRegistry
-NodeRegistry.register("CustomProcessingNode", CustomProcessingNode)
-
-# Use in workflow
-workflow = WorkflowBuilder()
-
-workflow.add_node("CustomProcessingNode", "custom", {
-    "input_data": {"name": "test", "value": 123},
-    "operation": "transform"
+result = calc.calculate({
+    "prices": [100, 102, 101, 105, 103, 107, 110],
 })
 
-runtime = LocalRuntime()
-results, run_id = runtime.execute(workflow.build())
-
-print(results["custom"])  # Custom node output
+print(f"Annualized Return: {result['annualized_return']:.2%}")
+print(f"Annualized Volatility: {result['annualized_volatility']:.2%}")
 ```
 
-## Advanced Template with Validation
+## Advanced Template with Monetary Precision
 
 ```python
-from kailash.nodes.base import Node, NodeParameter
+from decimal import Decimal, ROUND_HALF_UP
 from pydantic import BaseModel, Field
 from typing import Dict, Any
 
-class CustomNodeContract(BaseModel):
-    """Parameter contract for validation."""
-    input_data: dict = Field(description="Input data")
-    threshold: float = Field(ge=0.0, le=1.0, default=0.5)
-    operation: str = Field(pattern="^(filter|transform|aggregate)$")
+class CalculationContract(BaseModel):
+    """Input contract for validation."""
+    principal: Decimal = Field(gt=0, description="Principal amount")
+    rate: float = Field(ge=0, le=1, description="Annual rate as decimal")
+    years: int = Field(gt=0, le=50, description="Term in years")
 
-class AdvancedCustomNode(Node):
-    """Custom node with Pydantic validation."""
+class LoanCalculation:
+    """Loan calculation with Pydantic validation."""
 
-    def get_parameters(self) -> Dict[str, NodeParameter]:
-        """Declare parameters matching contract."""
-        return {
-            "input_data": NodeParameter(type=dict, required=True),
-            "threshold": NodeParameter(type=float, required=False, default=0.5),
-            "operation": NodeParameter(type=str, required=False, default="filter")
-        }
-
-    def run(self, **kwargs) -> Dict[str, Any]:
-        """Execute with validation."""
+    def calculate(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        """Calculate loan payments with validation."""
         # Validate with Pydantic
-        validated = CustomNodeContract(**kwargs)
+        validated = CalculationContract(**inputs)
 
-        # Execute logic
-        if validated.operation == "filter":
-            return self._filter(validated.input_data, validated.threshold)
-        # ... more operations
+        # Calculate monthly payment
+        monthly_rate = validated.rate / 12
+        n_payments = validated.years * 12
 
-    def _filter(self, data: dict, threshold: float) -> dict:
-        """Filter implementation."""
-        return {"filtered": data, "threshold": threshold}
+        if monthly_rate == 0:
+            payment = validated.principal / n_payments
+        else:
+            payment = validated.principal * (
+                monthly_rate * (1 + monthly_rate) ** n_payments
+            ) / ((1 + monthly_rate) ** n_payments - 1)
+
+        payment_decimal = Decimal(str(payment)).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+
+        total_paid = payment_decimal * n_payments
+        total_interest = total_paid - validated.principal
+
+        return {
+            "monthly_payment": payment_decimal,
+            "total_paid": total_paid,
+            "total_interest": total_interest,
+            "n_payments": n_payments,
+        }
 ```
 
 ## Related Patterns
 
-- **Node development**: [`custom-node-guide`](../../06-cheatsheets/custom-node-guide.md)
+- **Financial calculator**: [`template-financial-calculator`](template-financial-calculator.md)
 - **Gold standard**: [`gold-custom-nodes`](../../17-gold-standards/gold-custom-nodes.md)
 
 ## When to Escalate
 
-Use `pattern-expert` when:
-- Complex custom node architecture
-- Performance optimization
-- Advanced parameter handling
+Use `finance-pattern-expert` when:
 
-## Documentation References
-
-### Primary Sources
+- Complex multi-step financial calculations
+- Performance optimization needed
+- Advanced validation requirements
 
 ## Quick Tips
 
-- 💡 **Declare parameters**: Always implement `get_parameters()`
-- 💡 **Type validation**: Use Pydantic for complex validation
-- 💡 **Error handling**: Implement proper error handling
-- 💡 **Documentation**: Add docstrings for all methods
+- Use Decimal for monetary amounts, float64 for returns
+- Always validate inputs before calculating
+- Use Pydantic for complex input validation
+- Add docstrings with Args, Returns, and Raises sections
+- Cite formula sources in comments
 
-<!-- Trigger Keywords: custom node template, create custom node, extend node, node development, custom node boilerplate, custom node example, develop node -->
+<!-- Trigger Keywords: custom calculation template, create calculation class, extend calculator, calculation development, custom function boilerplate, reusable calculation -->

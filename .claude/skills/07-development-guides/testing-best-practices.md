@@ -1,6 +1,6 @@
 # Testing Best Practices
 
-Testing strategies for Kailash SDK including 3-tier testing, runtime testing patterns, and quality assurance.
+Testing strategies for Python finance applications including 3-tier testing, runtime testing patterns, and quality assurance.
 
 ## 3-Tier Testing Strategy
 
@@ -11,8 +11,8 @@ Testing strategies for Kailash SDK including 3-tier testing, runtime testing pat
 - Uses LocalRuntime for synchronous execution
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+import pandas as pd
 
 def test_workflow_creation():
     """Test workflow builder."""
@@ -36,8 +36,8 @@ def test_workflow_creation():
 - Medium execution time (< 30s per test)
 
 ```python
-from kailash.workflow.builder import WorkflowBuilder
-from kailash.runtime import LocalRuntime
+import pandas as pd
+import pandas as pd
 from tests.utils.docker_config import get_postgres_connection_string
 
 def test_database_workflow():
@@ -66,7 +66,7 @@ def test_database_workflow():
 
 ```python
 import pytest
-from kailash.runtime import AsyncLocalRuntime
+import asyncio
 
 @pytest.mark.e2e
 @pytest.mark.requires_docker
@@ -86,7 +86,7 @@ async def test_complete_etl_pipeline():
 
 ### Testing LocalRuntime (Sync)
 ```python
-from kailash.runtime import LocalRuntime
+import pandas as pd
 
 def test_sync_execution():
     """Test synchronous runtime execution."""
@@ -105,7 +105,7 @@ def test_sync_execution():
 ### Testing AsyncLocalRuntime (Async)
 ```python
 import pytest
-from kailash.runtime import AsyncLocalRuntime
+import asyncio
 
 @pytest.mark.asyncio
 async def test_async_execution():
@@ -124,7 +124,7 @@ async def test_async_execution():
 ### Parametrized Runtime Testing
 ```python
 import pytest
-from kailash.runtime import LocalRuntime, AsyncLocalRuntime
+import asyncio
 
 @pytest.mark.parametrize("runtime_class", [LocalRuntime, AsyncLocalRuntime])
 def test_both_runtimes(runtime_class):

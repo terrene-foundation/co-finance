@@ -30,7 +30,7 @@ Review and approve the roadmap before building starts. This is your most importa
 
 Reference plans in `workspaces/<project>/02-plans/` and work through every single file.
 
-- **(Backend)** Work with framework specialists (kailash, kaizen, dataflow, nexus). Follow procedural directives. Review and revise plans as required.
+- **(Backend)** Work with finance specialists (market-data-specialist, quantitative-analyst, financial-engineer, regulatory-compliance). Follow procedural directives. Review and revise plans as required.
 - **(Frontend)** Work with frontend agents. Review implementation plans and todos for frontends. Use a consistent set of design principles for all FE interfaces. Use the latest modern UI/UX principles/components/widgets.
 
 ### 2. Codebase locations (project root, not workspace)
@@ -82,11 +82,11 @@ Deploy these agents as a team for todo creation:
 - **requirements-analyst** — Break down requirements, identify missing tasks
 - **deep-analyst** — Identify failure points, dependencies, and gaps
 - **coc-expert** — Ensure todos include context/guardrails/learning work, not just features (COC five-layer completeness)
-- **framework-advisor** — Ensure todos cover the right framework choices (if applicable)
+- **library-advisor** — Ensure todos cover the right finance library choices (if applicable)
 
 For frontend projects, additionally deploy:
 
 - **uiux-designer** — Ensure UI/UX todos cover design system, responsive layouts, accessibility
-- **flutter-specialist** or **react-specialist** — Framework-specific frontend todos
+- **react-specialist** — Framework-specific frontend todos
 
 Red team the todo list with agents until they confirm no gaps remain.

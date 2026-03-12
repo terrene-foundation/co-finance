@@ -2,7 +2,7 @@
  * Shared utility: Workspace detection and phase derivation.
  *
  * Used by session-start.js, user-prompt-rules-reminder.js, and phase commands.
- * Framework-agnostic — works with any Kailash project.
+ * Framework-agnostic — works with any FMI project.
  */
 
 const fs = require("fs");
