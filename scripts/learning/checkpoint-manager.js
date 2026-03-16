@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Checkpoint Manager for FMI Continuous Learning System
+ * Checkpoint Manager for FNCE Continuous Learning System
  *
  * Saves and restores learning state checkpoints.
  * Part of Phase 4: Continuous Learning implementation.
@@ -426,7 +426,7 @@ function main() {
     case "--help":
     default:
       console.log(`
-Checkpoint Manager for FMI Continuous Learning
+Checkpoint Manager for FNCE Continuous Learning
 
 Usage:
   node checkpoint-manager.js --save [--name <name>]   Save checkpoint

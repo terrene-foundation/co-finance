@@ -1,4 +1,4 @@
-# Contributing to FMI COC Claude
+# Contributing to FNCE CO Claude
 
 We welcome contributions! This document provides guidelines for contributing to the project.
 

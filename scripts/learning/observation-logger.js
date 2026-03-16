@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Observation Logger for FMI Continuous Learning System
+ * Observation Logger for FNCE Continuous Learning System
  *
  * Captures tool usage, patterns, and session data for learning.
  * Part of Phase 4: Continuous Learning implementation.
@@ -182,7 +182,7 @@ function getStats(learningDir) {
   };
 }
 
-// Observation types for FMI-specific patterns
+// Observation types for FNCE-specific patterns
 const OBSERVATION_TYPES = {
   TOOL_USE: "tool_use",
   WORKFLOW_PATTERN: "workflow_pattern",
@@ -210,7 +210,7 @@ if (require.main === module) {
   // Handle --help flag
   if (args.includes("--help")) {
     console.log(`
-Observation Logger for FMI Continuous Learning
+Observation Logger for FNCE Continuous Learning
 
 Usage:
   echo '{"type": "...", "data": {...}}' | node observation-logger.js
