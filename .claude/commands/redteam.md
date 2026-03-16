@@ -1,104 +1,110 @@
 ---
-name: redteam
-description: "Load phase 04 (validate) for the current workspace. Red team testing."
+name: challenge
+description: "Stress-test your arguments and analysis from a critical perspective"
 ---
 
-## What This Phase Does (present to user)
+## What This Phase Does (present to student)
 
-Test everything from a real user's perspective — walking through the application, trying edge cases, and looking for anything that doesn't work as expected. Think of it as a dress rehearsal: we use the product the way your users would and report what works and what doesn't.
+Challenge your work the way a tough but fair professor would — testing the strength of your arguments, the quality of your evidence, the soundness of your methodology, and the credibility of your sources. This is academic rigor testing, not proofreading.
 
-## Your Role (communicate to user)
+## Your Role (communicate to student)
 
-Review the test results and confirm they match your expectations. Results will be presented as user stories: "A user tried to do X, and the result was Y." You decide whether Y is acceptable.
+Review the feedback and decide how to respond to it. Not every critique requires a change — sometimes the right response is to acknowledge a limitation. But every critique deserves consideration. You decide what to fix, what to address with a caveat, and what to leave as is.
 
 ## Workspace Resolution
 
 1. If `$ARGUMENTS` specifies a project name, use `workspaces/$ARGUMENTS/`
 2. Otherwise, use the most recently modified directory under `workspaces/` (excluding `instructions/`)
-3. If no workspace exists, ask the user to create one first
-4. Read all files in `workspaces/<project>/briefs/` for user context (this is the user's input surface)
+3. If no workspace exists, ask the student to create one first
+4. Read all files in `workspaces/<project>/briefs/` for student context (assignment requirements, rubric, professor's expectations)
 
 ## Phase Check
 
-- Verify `todos/active/` is empty (all implemented) or note remaining items
-- Read `workspaces/<project>/03-user-flows/` for validation criteria
-- Validation results go into `workspaces/<project>/04-validate/`
-- If gaps are found, document them and feed back to implementation (use `/implement` to fix)
+- Verify that drafts exist in the workspace to review
+- Read `workspaces/<project>/03-structure/` for the intended argument structure
+- Feedback goes into `workspaces/<project>/04-feedback/`
+- If significant gaps are found, document them and suggest revisions (use `/assignment` or `/thesis` to address)
 
 ## Workflow
 
-### 1. End-to-end validation
+### 1. Read all drafts in the workspace
 
-Review implementation with red team agents using playwright mcp (web) and marionette mcp (flutter).
+Review everything the student has produced so far — all sections, data analysis, charts, citations, and supporting materials. Understand the full scope of the work before critiquing individual parts.
 
-- Test all workflows end-to-end:
-  - Using backend API endpoints only
-  - Using frontend API endpoints only
-  - Using browser via Playwright MCP only
+### 2. Challenge each major claim
 
-### 2. User flow validation
+For every significant argument or conclusion in the work:
 
-Ensure red team agents peruse `workspaces/<project>/03-user-flows/` and fully understand the detailed storyboard for each user.
+- **Is the evidence sufficient?** Does the claim rest on enough credible sources, or is it thinly supported?
+- **Are there counterarguments?** Has the student addressed what critics of this position would say?
+- **Is the reasoning valid?** Does the conclusion actually follow from the evidence, or are there logical gaps?
+- **Is the claim appropriately scoped?** Is the student overclaiming (saying more than the evidence supports) or underclaiming (missing implications)?
 
-- Include tests written from user workflow perspectives
-  - Workflows must be extremely detailed
-  - Every step should include: what is seen, what is clicked, what is expected, how to proceed, does it show value
-  - Every transition between steps must be analyzed and evaluated
-- Focus on intent, vision, and user requirements — never naive technical assertions
-- Every action and expectation from user must be evaluated against implementation
+### 3. Check methodology
 
-### 3. Iterate until convergence
+If the work involves data analysis, modeling, or empirical methods:
 
-Continuously engage red team agents:
+- **Is the methodology appropriate** for the research question?
+- **Are assumptions stated** and justified?
+- **Are limitations acknowledged** honestly?
+- **Is the data reliable?** Are sources credible and correctly cited?
+- **Are calculations correct?** Do the numbers add up? Are formulas applied correctly?
+- **Are results interpreted carefully?** Correlation vs. causation, statistical significance vs. practical significance, sample size limitations
 
-- Identify root causes of gaps
-- Implement the most optimal and elegant fix
-- Test and ensure no regressions
-- Keep iterating until red team agents find no more gaps/issues/improvements
+### 4. Verify citations and sources
 
-### 4. Report results (in plain language)
+- **Are sources credible?** Peer-reviewed journals, established textbooks, reputable institutions — not blog posts or Wikipedia
+- **Is attribution correct?** Are ideas properly credited? Are direct quotes marked and cited?
+- **Are sources current?** For empirical claims, is the data recent enough to be relevant?
+- **Is there sufficient breadth?** Does the student rely too heavily on one or two sources?
+- **Is the citation format correct?** Consistent style (APA, Chicago, etc.) as required
 
-Report results as user stories the user can evaluate:
+### 5. Report findings as professor's feedback
 
-- **What was tested**: Describe each flow in narrative form ("A new user visits the site, clicks Sign Up, enters their email and password...")
-- **What worked**: Confirm which user journeys succeed end-to-end
-- **What didn't work**: Describe failures as user experiences ("When a user enters an invalid email, the error message is unclear — it says 'validation error' instead of 'please enter a valid email address'")
-- **What was fixed**: Describe fixes in terms of improved user experience
-- **Overall confidence**: Summarize as "X out of Y user flows work perfectly. The remaining issues are: [plain description]"
+Present findings in the tone of constructive academic feedback. Organize by severity:
 
-### 5. Parity check (if required)
+- **Major concerns** — Issues that significantly weaken the work and should be addressed before submission (weak central argument, missing key evidence, methodological problems)
+- **Moderate suggestions** — Areas that would meaningfully improve the work (underdeveloped sections, missing counterarguments, imprecise language)
+- **Minor refinements** — Polish items that would elevate the quality (better transitions, stronger topic sentences, tighter conclusions)
+- **Strengths** — What the student has done well (always include this — it helps the student know what to preserve)
 
-If parity with an existing system is required:
+For each finding, explain:
 
-- Do not compare codebases using logic
-- Test run the old system via all required workflows and write down the output
-  - Run multiple times to determine if outputs are deterministic (labels, numbers) or natural language based
-- For all natural language based output:
-  - DO NOT test via simple assertions using keywords and regex
-  - Use LLM to evaluate the output and output confidence level + rationale
-  - The LLM keys are in `.env`, use gpt-5.2-nano
+- What the issue is (in plain language)
+- Why it matters (how it affects the argument or grade)
+- How to address it (specific, actionable suggestion)
+
+### 6. Iterate until convergence
+
+If the student revises based on feedback:
+
+- Re-read the revised sections
+- Check whether the revisions actually address the concerns
+- Identify any new issues introduced by the revisions
+- Continue until the work is as strong as it can be
 
 ## Agent Teams
 
-Deploy these agents as a red team for validation:
+Deploy these agents as a challenge team:
 
-**Core red team (always):**
+**Core review team (always):**
 
-- **testing-specialist** — Verify 3-tier test coverage, NO MOCKING compliance
-- **e2e-runner** — Generate and run Playwright E2E tests (web) or Marionette tests (Flutter)
-- **value-auditor** — Evaluate every page/flow from skeptical enterprise buyer perspective
-- **security-reviewer** — Full security audit across the codebase
+- **peer-reviewer** — Evaluate argument strength, evidence quality, logical consistency
+- **deep-analyst** — Identify structural weaknesses, gaps in reasoning, unstated assumptions
+- **citation-specialist** — Verify source credibility, attribution accuracy, citation formatting
 
-**Validation perspectives (deploy selectively based on findings):**
+**Domain specialists (deploy based on the topic):**
 
-- **deep-analyst** — Identify failure points, edge cases, systemic issues
-- **coc-expert** — Check methodological compliance: are guardrails in place? Is institutional knowledge captured? Are the three fault lines addressed?
-- **gold-standards-validator** — Compliance check against project standards
-- **intermediate-reviewer** — Code quality review across all changed files
+- **quantitative-analyst** — Challenge methodology and calculations for quantitative work
+- **financial-engineer** — Challenge valuation models, pricing assumptions, financial modeling
+- **regulatory-compliance** — Check disclaimer requirements for any investment-related content
+- **curriculum-designer** — Evaluate whether the work meets the learning objectives of the course
 
-**Frontend validation (if applicable):**
+**Course-specific tutors (deploy based on subject area):**
 
-- **uiux-designer** — Audit visual hierarchy, responsive behavior, accessibility
-- **ai-ux-designer** — Audit AI interaction patterns (if AI-facing UI)
+- For corporate finance topics — challenge capital structure arguments, valuation assumptions
+- For international finance topics — challenge exchange rate analysis, macro reasoning
+- For portfolio theory topics — challenge optimization assumptions, risk measurement
+- For behavioral finance topics — challenge bias identification, debiasing logic
 
-Run multiple red team rounds. Converge when all agents find no remaining gaps.
+Run multiple review rounds. Converge when all agents find no remaining significant issues.

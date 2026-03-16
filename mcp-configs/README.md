@@ -1,142 +1,47 @@
-# MCP Configurations for FMI Projects
+# MCP Configurations for FNCE Projects
 
-## CRITICAL: Context Impact Warning
+## Context Impact Warning
 
-**Without MCP limits**:
-
-- 200k total context
-- 20+ MCPs enabled
-- Each MCP: ~2-5k tokens
-- Result: ~70k usable (65% loss!)
+MCP servers consume context tokens. Keep the number of active MCPs low.
 
 **Safe Limits**:
 
 - <10 MCPs enabled per project
 - <80 tools active
-- Monitor with `/context` command
 
 ## Available Configurations
 
-| Configuration      | MCPs | Context Cost | Use Case                      |
-| ------------------ | ---- | ------------ | ----------------------------- |
-| `fmi-minimal.json` | 2    | ~10k         | Basic projects, documentation |
-| `fmi-dev.json`     | 3    | ~17k         | Active development            |
-| `fmi-full.json`    | 5    | ~30k         | Full-stack with database      |
-
-## Configuration Selection Guide
-
-### Choose Minimal When:
-
-- Working on documentation
-- Simple code reviews
-- Context efficiency is critical
-- Not using database or deployment
-
-### Choose Development When:
-
-- Active feature development
-- Need filesystem operations
-- Building workflows
-- Standard development work
-
-### Choose Full When:
-
-- Database operations needed
-- Deployment integration required
-- Complex reasoning needed
-- Full-stack development
+| Configuration       | MCPs | Context Cost | Use Case                                  |
+| ------------------- | ---- | ------------ | ----------------------------------------- |
+| `fnce-minimal.json` | 2    | ~10k         | Basic research and writing                |
+| `fnce-dev.json`     | 3    | ~17k         | Active academic projects                  |
+| `fnce-full.json`    | 4    | ~25k         | Full projects with extended reasoning     |
 
 ## Usage
 
-### Option 1: Copy to home directory
+### Copy to home directory
 
 ```bash
-cp mcp-configs/fmi-dev.json ~/.claude.json
+cp mcp-configs/fnce-dev.json ~/.claude.json
 ```
 
-### Option 2: Reference in Claude session
+### Reference in Claude session
 
 ```bash
-claude --mcp-config mcp-configs/fmi-dev.json
-```
-
-### Switch configurations
-
-```bash
-# Switch to minimal (context efficiency)
-cp mcp-configs/fmi-minimal.json ~/.claude.json
-
-# Switch to full (database work)
-cp mcp-configs/fmi-full.json ~/.claude.json
+claude --mcp-config mcp-configs/fnce-dev.json
 ```
 
 ## MCP Categories
 
 ### Essential (Always Needed)
 
-- **github**: PR/issue management (~8k tokens)
+- **github**: Repository management (~8k tokens)
 - **memory**: Session persistence (~2k tokens)
 
-### Development
+### Academic Projects
 
-- **filesystem**: File operations (~4k tokens)
+- **filesystem**: File operations for papers and research (~4k tokens)
 
-### Full-Stack
+### Extended Analysis
 
-- **postgres**: Database operations (~5k tokens)
-- **sequential-thinking**: Extended reasoning (~3k tokens)
-
-## Context Budget Planning
-
-| Configuration | MCP Cost | System | CLAUDE.md | Available |
-| ------------- | -------- | ------ | --------- | --------- |
-| No MCPs       | 0        | ~5k    | ~3k       | ~192k     |
-| Minimal       | ~10k     | ~5k    | ~3k       | ~182k     |
-| Development   | ~17k     | ~5k    | ~3k       | ~175k     |
-| Full          | ~30k     | ~5k    | ~3k       | ~162k     |
-
-## Validation
-
-```bash
-# Verify JSON syntax
-node -e "JSON.parse(require('fs').readFileSync('mcp-configs/fmi-minimal.json'))"
-node -e "JSON.parse(require('fs').readFileSync('mcp-configs/fmi-dev.json'))"
-node -e "JSON.parse(require('fs').readFileSync('mcp-configs/fmi-full.json'))"
-
-# Check context in session
-# /context
-```
-
-## Customization
-
-Start with a tier, add project-specific MCPs:
-
-```json
-{
-  "mcpServers": {
-    // ... base config ...
-    "my-custom-mcp": {
-      "type": "stdio",
-      "command": "my-mcp-server",
-      "args": []
-    }
-  }
-}
-```
-
-## FMI Project Recommendations
-
-### Market Data Projects
-
-- Use `fmi-dev.json` for most data analysis work
-- Add filesystem MCP for data file operations
-
-### Full-Stack Finance Apps
-
-- Use `fmi-full.json` for database-backed applications
-- postgres MCP enables direct DB queries for portfolio storage
-
-### AI-Powered Analysis
-
-- Use `fmi-dev.json` with sequential-thinking
-- Consider adding memory for persistent analysis state
+- **sequential-thinking**: Extended reasoning for complex analysis (~3k tokens)

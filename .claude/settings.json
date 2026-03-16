@@ -1,36 +1,14 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "description": "FMI COC Claude (Python) - Claude Code hooks configuration",
+  "$schema": "https://json-schema.store/claude-code-settings.json",
+  "description": "FNCE CO Claude — Academic Finance Education hooks configuration",
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/validate-bash-command.js\"",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
         "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/validate-workflow.js\"",
-            "timeout": 15
-          },
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/validate-financial-code-style.js\"",
-            "timeout": 10
-          },
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/validate-disclaimer.js\"",
@@ -38,13 +16,8 @@
           },
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/validate-deployment.js\"",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/validate-citations.js\"",
             "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/auto-format.js\"",
-            "timeout": 30
           }
         ]
       }

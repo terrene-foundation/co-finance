@@ -2,7 +2,7 @@
  * Shared utility: Workspace detection and phase derivation.
  *
  * Used by session-start.js, user-prompt-rules-reminder.js, and phase commands.
- * Framework-agnostic — works with any FMI project.
+ * Framework-agnostic — works with any academic finance project.
  */
 
 const fs = require("fs");
@@ -44,58 +44,54 @@ function detectActiveWorkspace(cwd) {
 /**
  * Derive the current phase from workspace filesystem state.
  *
- * Heuristics (evaluated in reverse order — latest phase takes priority):
- * - Has .claude/agents/project/ or .claude/skills/project/ files -> phase 05
- * - Has 04-validate/ with files -> phase 04
- * - Has todos/completed/ with files OR src/ or apps/ with files -> phase 03
- * - Has todos/active/ with files -> phase 02
- * - Has 01-analysis/ or 02-plans/ or 03-user-flows/ -> phase 01
- * - Empty workspace -> not-started
+ * Academic phases (evaluated in reverse order — latest phase takes priority):
+ * - Has 05-final/ with files -> "05-final"
+ * - Has 04-review/ with files -> "04-review"
+ * - Has 03-drafts/ with files OR todos/completed/ with files -> "03-drafting"
+ * - Has todos/active/ with files -> "02-planning"
+ * - Has 01-research/ or 02-outline/ -> "01-research"
+ * - Has sources/ with files -> "01-research"
+ * - Empty workspace -> "not-started"
  *
  * @param {string} workspacePath - Absolute path to workspace directory
- * @param {string} cwd - Project root (for checking .claude/agents/project/)
+ * @param {string} cwd - Project root (for checking global artifacts)
  * @returns {string} Phase identifier
  */
 function derivePhase(workspacePath, cwd) {
-  // Check for phase 05 artifacts
-  if (cwd) {
-    const agentProjectDir = path.join(cwd, ".claude", "agents", "project");
-    const skillProjectDir = path.join(cwd, ".claude", "skills", "project");
-    if (dirHasFiles(agentProjectDir) || dirHasFiles(skillProjectDir)) {
-      return "05-codify";
-    }
+  // Check for phase 05 artifacts (final submission)
+  if (dirHasFiles(path.join(workspacePath, "05-final"))) {
+    return "05-final";
   }
 
-  // Check for phase 04 artifacts
-  if (dirHasFiles(path.join(workspacePath, "04-validate"))) {
-    return "04-validate";
+  // Check for phase 04 artifacts (review/revision)
+  if (dirHasFiles(path.join(workspacePath, "04-review"))) {
+    return "04-review";
   }
 
-  // Check for implementation activity (phase 03)
+  // Check for drafting activity (phase 03)
   const completedCount = countFiles(
     path.join(workspacePath, "todos", "completed"),
   );
   if (
-    completedCount > 0 ||
-    dirHasFiles(path.join(workspacePath, "src")) ||
-    dirHasFiles(path.join(workspacePath, "apps"))
+    dirHasFiles(path.join(workspacePath, "03-drafts")) ||
+    completedCount > 0
   ) {
-    return "03-implement";
+    return "03-drafting";
   }
 
-  // Check for todos (phase 02)
+  // Check for todos (phase 02 — planning/outlining)
   const activeCount = countFiles(path.join(workspacePath, "todos", "active"));
   if (activeCount > 0) {
-    return "02-todos";
+    return "02-planning";
   }
 
-  // Check for analysis artifacts (phase 01)
+  // Check for research artifacts (phase 01)
   if (
-    dirHasFiles(path.join(workspacePath, "01-analysis")) ||
-    dirHasFiles(path.join(workspacePath, "02-plans")) ||
-    dirHasFiles(path.join(workspacePath, "03-user-flows"))
+    dirHasFiles(path.join(workspacePath, "01-research")) ||
+    dirHasFiles(path.join(workspacePath, "02-outline")) ||
+    dirHasFiles(path.join(workspacePath, "sources"))
   ) {
-    return "01-analyze";
+    return "01-research";
   }
 
   return "not-started";

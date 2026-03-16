@@ -1,171 +1,109 @@
-# Security Rules
+# Data Privacy and Academic Ethics
 
 ## Scope
 
-These rules apply to ALL code changes in the repository.
+These rules apply to all academic work and interactions involving financial data, research materials, and collaborative assignments.
 
 ## MUST Rules
 
-### 1. No Hardcoded Secrets
+### 1. Protect Personal Financial Information
 
-All sensitive data MUST use environment variables.
-
-**Detection Patterns**:
-
-```
-❌ api_key = "sk-..."
-❌ password = "admin123"
-❌ AWS_SECRET_ACCESS_KEY = "..."
-❌ DATABASE_URL = "postgres://user:pass@..."
-```
-
-**Correct Pattern**:
-
-```
-✅ api_key = os.environ.get("API_KEY")
-✅ password = os.environ["DB_PASSWORD"]
-✅ from dotenv import load_dotenv; load_dotenv()
-```
-
-**Enforced by**: security-reviewer agent, pre-commit hook
-**Violation**: BLOCK commit
-
-### 2. Parameterized Queries
-
-All database queries MUST use parameterized queries or ORM.
-
-**Detection Patterns**:
-
-```
-❌ f"SELECT * FROM users WHERE id = {user_id}"
-❌ "DELETE FROM users WHERE name = '" + name + "'"
-```
-
-**Correct Pattern**:
-
-```
-✅ "SELECT * FROM users WHERE id = %s", (user_id,)
-✅ cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-✅ User.query.filter_by(id=user_id)  # ORM
-```
-
-**Enforced by**: security-reviewer agent
-**Violation**: BLOCK commit
-
-### 3. Input Validation
-
-All user input MUST be validated before use.
+All assignments involving personal finance topics (budgeting exercises, portfolio simulations, financial planning cases) MUST use hypothetical or anonymized data. Never include real personal financial details — yours or anyone else's.
 
 **Applies to**:
 
-- API endpoints
-- CLI inputs
-- File uploads
-- Form submissions
+- Investment account balances or holdings
+- Bank account information
+- Social Security numbers, tax IDs, or government identifiers
+- Salary, income, or net worth figures of real individuals
+- Credit card numbers or loan account details
 
-**Required Validations**:
+**Correct**: "Assume an investor with a $100,000 portfolio allocated 60% to equities and 40% to bonds."
+**Incorrect**: Including a screenshot of your actual brokerage account in an assignment.
 
-- Type checking
-- Length limits
-- Format validation (email, URL, etc.)
-- Whitelist when possible
+**Enforced by**: peer-reviewer
+**Violation**: Must remove before submission
 
-**Enforced by**: security-reviewer agent
-**Violation**: HIGH priority fix
+### 2. Respect Bloomberg Terminal and Database Licensing
 
-### 4. Output Encoding
+Data obtained from Bloomberg terminals, WRDS, Refinitiv, or other licensed academic databases MUST be used in accordance with the provider's terms of service.
 
-All user-generated content MUST be encoded before display.
+**Key restrictions to observe**:
 
-**Applies to**:
+- **Bloomberg**: Do not redistribute raw Bloomberg data in bulk. You may include limited excerpts (tables, charts) in academic papers with proper attribution. Do not share terminal login credentials.
+- **WRDS / CRSP / Compustat**: Data is licensed to your university. Do not share raw datasets outside your institution. Cite properly in your work.
+- **Refinitiv / Datastream**: Similar institutional license restrictions apply. Do not upload raw data to public repositories.
 
-- HTML templates
-- JSON responses
-- Log output
+**Correct**: Including a summary table of 10 stock returns in your paper, citing "Source: CRSP via WRDS."
+**Incorrect**: Uploading a full CRSP dataset to a public GitHub repository or sharing it via email outside your university.
 
-**Detection Patterns**:
+**Enforced by**: peer-reviewer
+**Violation**: Must fix before submission
 
-```
-❌ element.innerHTML = userContent
-❌ dangerouslySetInnerHTML={{ __html: userContent }}
-```
+### 3. Keep API Keys and Credentials Private
 
-**Correct Pattern**:
+If you use any data APIs (FRED, Yahoo Finance, Polygon, Alpha Vantage), MUST keep API keys and login credentials private.
 
-```
-✅ element.textContent = userContent
-✅ DOMPurify.sanitize(userContent)
-✅ html.escape(userContent)
-```
+- Never include API keys in submitted assignments or shared documents.
+- Never commit API keys to version control (e.g., git repositories).
+- If sharing project files with classmates, remove or redact any credentials first.
 
-**Enforced by**: security-reviewer agent
-**Violation**: HIGH priority fix
+**Enforced by**: peer-reviewer
+**Violation**: Must fix immediately
+
+### 4. Maintain Academic Integrity
+
+All submitted work MUST be your own. This applies to all aspects of academic honesty:
+
+- **Do not submit others' work as your own**: This includes papers, analyses, spreadsheets, or presentations produced by classmates, previous students, or AI tools without proper attribution and in accordance with your institution's AI use policy.
+- **Cite all sources**: Every idea, data point, formula, or argument drawn from another source must be cited. See `disclaimer-compliance.md` and your course's citation requirements.
+- **Disclose collaboration**: If you worked with classmates, note their contributions. If your institution allows AI assistance, disclose it as required.
+- **Do not share your work for others to submit**: Making your assignments available for others to copy is also an integrity violation.
+
+**Enforced by**: citation-specialist, peer-reviewer
+**Violation**: Must fix before submission — academic integrity violations can result in course failure or disciplinary action
+
+### 5. Handle Sensitive Corporate Information Appropriately
+
+If your coursework involves real company data from case studies, internship experience, or guest lectures:
+
+- Do not disclose non-public information obtained through internships or personal connections.
+- Clearly distinguish between publicly available information (SEC filings, press releases) and private information.
+- If in doubt about whether information is public, treat it as confidential.
+
+**Enforced by**: peer-reviewer
+**Violation**: Must fix before submission
 
 ## MUST NOT Rules
 
-### 1. No eval() on User Input
+### 1. No Real Personal Data in Assignments
 
-MUST NOT use eval(), exec(), or similar on user-controlled data.
+MUST NOT include real personal financial information (yours or others') in any submitted academic work.
 
-**Detection Patterns**:
+**Consequence**: Must remove immediately
 
-```
-❌ eval(user_input)
-❌ exec(user_code)
-❌ subprocess.call(user_command, shell=True)
-```
+### 2. No Redistribution of Licensed Databases
 
-**Consequence**: BLOCK commit
+MUST NOT redistribute, publicly share, or upload raw data from subscription databases (Bloomberg, WRDS, Refinitiv) beyond what the license permits.
 
-### 2. No Secrets in Logs
+**Consequence**: Must remove and may trigger institutional review
 
-MUST NOT log sensitive data (passwords, tokens, PII).
+### 3. No Sharing of Credentials
 
-**Detection Patterns**:
+MUST NOT share Bloomberg terminal logins, WRDS credentials, API keys, or other access credentials with unauthorized individuals.
 
-```
-❌ logger.info(f"User logged in with password: {password}")
-❌ print(f"API key: {api_key}")
-```
+**Consequence**: Must change credentials immediately
 
-**Consequence**: CRITICAL fix required
+### 4. No Submission of Others' Work
 
-### 3. No .env in Git
+MUST NOT submit work produced by others (classmates, previous students, online sources, AI tools) as your own without proper attribution and compliance with your institution's academic honesty policy.
 
-MUST NOT commit .env files to version control.
-
-**Required**:
-
-- .env in .gitignore
-- .env.example for templates (no real values)
-
-**Consequence**: History rewrite required if committed
-
-## Finance-Specific Security
-
-### Market Data APIs
-
-- Never expose API keys in client-side code
-- Cache API responses to avoid rate limit exposure
-- Validate data freshness before serving to users
-
-### Financial Calculations
-
-- Use Decimal for all currency operations to prevent floating-point errors
-- Validate inputs (prices, quantities, dates) before calculations
-- Never expose internal account or portfolio IDs directly
-
-### AI-Generated Financial Content
-
-- Prompt injection protection on financial analysis prompts
-- Sensitive data filtering (account numbers, SSNs) in prompts
-- Output validation for financial accuracy
+**Consequence**: Academic integrity violation — may result in course failure or disciplinary proceedings
 
 ## Exceptions
 
-Security exceptions require:
+Exceptions to these rules may apply when:
 
-1. Written justification
-2. Approval from security-reviewer
-3. Documentation in security review
-4. Time-limited (must be remediated)
+1. An instructor explicitly requires the use of real personal data in a controlled exercise (e.g., a personal budgeting assignment with privacy protections in place)
+2. The institution has a specific data-sharing agreement that permits broader use of licensed data
+3. The course policy explicitly permits certain forms of collaboration or AI assistance — follow the policy as stated

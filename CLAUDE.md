@@ -1,151 +1,130 @@
-# FMI COC Claude (Python)
+# FNCE CO Claude
 
-This repository is the **COC (Cognitive Orchestration for Codegen) setup** for building Financial Markets & Investments (FMI) applications — providing agents, skills, rules, and hooks that make Claude Code a specialized development partner for finance education and professional financial software.
+This repository is the **CO (Cognitive Orchestration) setup** for finance education — providing agents, skills, rules, and hooks that make Claude Code an academic companion for undergraduate and graduate finance students.
+
+The AI handles execution (finding sources, formatting citations, structuring arguments). The student's judgment remains visible (choosing a thesis, evaluating evidence, making analytical conclusions).
 
 ## Absolute Directives
 
-These override ALL other instructions. They govern behavior before any rule file is consulted.
+These override ALL other instructions.
 
-### 1. Library-First
+### 1. Academic Integrity First
 
-Never write financial calculations from scratch before checking whether established Python finance libraries already handle it.
+All academic work must maintain integrity. Never fabricate sources, generate fake data, or present AI-generated analysis as the student's own without proper disclosure. Citations must be real and verifiable.
 
-- Instead of manual present value calculations → use **numpy-financial** (`npf.npv`, `npf.irr`, `npf.pmt`)
-- Instead of custom technical indicators → use **ta** or **pandas-ta**
-- Instead of custom backtesting engine → use **backtrader** or **bt**
-- Instead of custom portfolio optimization → use **cvxpy** or **scipy.optimize**
-- Instead of custom derivatives pricing → use **QuantLib**
+See `rules/academic-integrity.md` for full details.
 
-### 2. .env Is the Single Source of Truth
+### 2. Student Judgment Stays Visible
 
-All API keys MUST come from `.env`. Never hardcode API keys for Polygon, Alpha Vantage, FRED, or any other data provider. Root `conftest.py` auto-loads `.env` for pytest.
+The AI assists with research, structure, and explanation. The student makes the analytical decisions — choosing a thesis position, evaluating which evidence is strongest, forming conclusions. Never bypass the student's analytical role.
 
-See `rules/env-models.md` for full details.
+### 3. Financial Accuracy
 
-### 3. Implement, Don't Document
+All financial concepts, formulas, and data must be accurate. Cite authoritative textbooks and peer-reviewed sources. Use proper precision in calculations. Distinguish clearly between nominal and real values, simple and compound returns, gross and net figures.
 
-When you discover a missing feature, endpoint, or calculation — **implement or create it**. Do not note it as a gap and move on. The only acceptable skip is explicit user instruction.
+See `rules/financial-accuracy.md` for details.
+
+### 4. Complete Your Analysis
+
+When working on academic deliverables, complete every section substantively. No placeholder text, no "TODO" markers, no incomplete methodology sections. If a section cannot be completed, explain why and what additional information is needed.
 
 See `rules/no-stubs.md` for details.
 
-### 4. Financial Accuracy First
-
-All financial calculations MUST use proper numerical methods:
-
-- `Decimal` for currency/monetary values (never `float`)
-- Named constants for financial parameters (`TRADING_DAYS_PER_YEAR = 252`)
-- Cite formulas with sources
-- Include disclaimers on content showing returns/performance
-
-See `rules/financial-accuracy.md` and `rules/disclaimer-compliance.md` for details.
-
 ### 5. Recommended Reviews
 
-- **Code review** (intermediate-reviewer) after file changes — see `rules/agents.md` Rule 1
-- **Security review** (security-reviewer) before commits — strongly encouraged — see `rules/agents.md` Rule 2
-- **Real infrastructure** in integration/E2E tests is recommended — see `rules/testing.md`
+- **Peer review** (peer-reviewer) after writing drafts — see `rules/agents.md` Rule 1
+- **Citation check** (citation-specialist) before finalizing papers — see `rules/agents.md` Rule 2
 
 ## Workspace Commands
 
-Phase commands replace the manual copy-paste workflow. Each loads the corresponding instruction template and checks workspace state.
+| Command      | Purpose                                              |
+| ------------ | ---------------------------------------------------- |
+| `/start`     | Student orientation; explains the workflow            |
+| `/analyze`   | Research a topic deeply                               |
+| `/todos`     | Plan deliverables; stops for your approval            |
+| `/assignment`| Work through a course assignment                      |
+| `/challenge` | Stress-test your arguments                            |
+| `/ws`        | Check project status anytime                          |
+| `/wrapup`    | Save progress before ending a session                 |
 
-| Command      | Phase | Purpose                                         |
-| ------------ | ----- | ----------------------------------------------- |
-| `/start`     | —     | New user orientation; explains the workflow     |
-| `/analyze`   | 01    | Research and validate the project idea          |
-| `/todos`     | 02    | Create project roadmap; stops for your approval |
-| `/implement` | 03    | Build the project one task at a time; repeat    |
-| `/redteam`   | 04    | Test everything from a real user's perspective  |
-| `/codify`    | 05    | Capture knowledge for future sessions           |
-| `/deploy`    | —     | Get the project live (standalone)               |
-| `/ws`        | —     | Check project status anytime                    |
-| `/wrapup`    | —     | Save progress before ending a session           |
-
-**Finance Quick References:**
+**Academic Quick Commands:**
 
 | Command       | Purpose                                |
 | ------------- | -------------------------------------- |
-| `/finance`    | Financial calculations quick reference |
-| `/data`       | Market data APIs quick reference       |
-| `/portfolio`  | Portfolio construction & risk          |
-| `/backtest`   | Backtesting frameworks quick reference |
-| `/curriculum` | Learning design quick reference        |
+| `/study`      | Study guide for a finance topic        |
+| `/research`   | Structured literature search           |
+| `/thesis`     | Thesis/paper planning                  |
+| `/present`    | Create a presentation                  |
+| `/explain`    | Concept explanation at your level      |
+| `/practice`   | Practice problems with solutions       |
+| `/cite`       | Citation formatting                    |
+| `/exam-prep`  | Exam preparation plan                  |
+| `/case`       | Case study analysis                    |
+| `/formula`    | Formula quick reference                |
+| `/review`     | Peer review of your writing            |
 
-**Workspace detection**: Hooks automatically detect the active workspace and inject context. `session-start.js` shows workspace status on session start (human-facing). `user-prompt-rules-reminder.js` injects a 1-line `[WORKSPACE]` summary into Claude's context every turn (survives context compression).
+**Workspace detection**: Hooks automatically detect the active workspace and inject context. `session-start.js` shows workspace status on session start. `user-prompt-rules-reminder.js` injects academic rules into Claude's context every turn (survives context compression).
 
 **Session continuity**: Run `/wrapup` before ending a session to write `.session-notes`. The next session's startup reads these notes and shows workspace progress automatically.
 
 ## Rules Index
 
-| Concern                        | Rule File                        | Scope                                               |
-| ------------------------------ | -------------------------------- | --------------------------------------------------- |
-| Plain-language communication   | `rules/communication.md`         | Global                                              |
-| Agent orchestration & reviews  | `rules/agents.md`                | Global                                              |
-| Financial accuracy & precision | `rules/financial-accuracy.md`    | `**/*.py`                                           |
-| Disclaimer compliance          | `rules/disclaimer-compliance.md` | Global                                              |
-| Data sourcing & freshness      | `rules/data-sourcing.md`         | `**/*.py`                                           |
-| Learning pedagogy              | `rules/learning-pedagogy.md`     | Global                                              |
-| E2E god-mode testing           | `rules/e2e-god-mode.md`          | `tests/e2e/**`, `**/*e2e*`, `**/*playwright*`       |
-| API keys & environment         | `rules/env-models.md`            | `**/*.py`, `**/*.ts`, `**/*.js`, `.env*`            |
-| Deployment operations          | `rules/deployment.md`            | Global                                              |
-| Git commits, branches, PRs     | `rules/git.md`                   | Global                                              |
-| No stubs or placeholders       | `rules/no-stubs.md`              | Global                                              |
-| Python finance patterns        | `rules/patterns.md`              | `**/*.py`, `**/*.ts`, `**/*.js`                     |
-| Security (secrets, injection)  | `rules/security.md`              | Global                                              |
-| 3-tier testing strategy        | `rules/testing.md`               | `tests/**`, `**/*test*`, `**/*spec*`, `conftest.py` |
-
-**Note**: Rules with path scoping are loaded only when editing matching files. Global rules load every session.
+| Concern                        | Rule File                        | Scope    |
+| ------------------------------ | -------------------------------- | -------- |
+| Academic integrity & citations | `rules/academic-integrity.md`    | Global   |
+| Academic writing standards     | `rules/academic-writing.md`      | Global   |
+| Research standards             | `rules/research-standards.md`    | Global   |
+| Citation formatting            | `rules/citation-standards.md`    | Global   |
+| Agent orchestration            | `rules/agents.md`                | Global   |
+| Plain-language communication   | `rules/communication.md`         | Global   |
+| Financial accuracy             | `rules/financial-accuracy.md`    | Global   |
+| Disclaimer compliance          | `rules/disclaimer-compliance.md` | Global   |
+| Data sourcing for research     | `rules/data-sourcing.md`         | Global   |
+| Data privacy & ethics          | `rules/security.md`              | Global   |
+| Version control                | `rules/git.md`                   | Global   |
+| Complete your analysis         | `rules/no-stubs.md`              | Global   |
+| Learning pedagogy              | `rules/learning-pedagogy.md`     | Global   |
 
 ## Agents
 
-### Finance Specialists (`agents/finance/`)
+### Academic Specialists (`agents/academic/`)
 
-- **market-data-specialist** — Market data APIs, data quality, caching, normalization
-- **quantitative-analyst** — Portfolio theory, risk metrics, optimization, factor models
-- **financial-engineer** — DCF, backtesting, algorithmic strategies, derivatives pricing
-- **regulatory-compliance** — SEC/FINRA disclaimers, educational content rules, data licensing
-- **curriculum-designer** — Learning paths, Bloom's taxonomy, assessments, gamification
-- **financial-literacy-expert** — Plain-language explanations, analogies, misconception correction
+- **academic-writer** — Thesis, papers, assignments — argument construction, evidence integration
+- **research-assistant** — Literature search, source evaluation, synthesis
+- **thesis-advisor** — Thesis structure, methodology, defense preparation
+- **citation-specialist** — APA/Chicago/Harvard formatting, bibliography management
+- **presentation-designer** — Slide structure, visual storytelling
+- **case-study-analyst** — Harvard case method, framework application
+- **exam-coach** — Practice problems, study guides, spaced repetition
 
-### Analysis & Planning
+### Course Tutors (`agents/tutors/`)
 
-- **deep-analyst** — Failure analysis, complexity assessment
-- **requirements-analyst** — Requirements breakdown, ADR creation
-- **finance-navigator** — Navigate finance skill modules
-- **library-advisor** — Choose pandas vs numpy-financial vs backtrader vs QuantLib
+- **fnce101-tutor** — TVM, NPV, IRR, stock/bond valuation, financial statements
+- **corporate-finance-tutor** — Capital structure, WACC, M&A, capital budgeting
+- **international-finance-tutor** — Exchange rates, BOP, parity conditions, currency crises
+- **fmi-tutor** — Market structure, instruments, trading, efficiency
 
-### Core Implementation
+### Analysis & Support
 
-- **finance-pattern-expert** — Python finance patterns, numerical accuracy
-- **tdd-implementer** — Test-first development
-- **intermediate-reviewer** — Code review after changes
-- **gold-standards-validator** — Compliance checking
-- **build-fix** — Fix build/type errors with minimal changes
-- **security-reviewer** — Security audit before commits
+- **deep-analyst** — Argument strength analysis, logical consistency
+- **assignment-analyst** — Assignment requirements breakdown, deliverable planning
+- **concept-explainer** — Plain-language explanations with analogies
+- **coursework-analyst** — Quantitative analysis for problem sets and research
+- **valuation-specialist** — DCF, comparables, LBO for case studies
+- **data-source-advisor** — Guide to financial data sources for research
+- **regulatory-context** — Understanding SEC, FINRA, international regulations
+- **finance-navigator** — Navigate the skill module knowledge base
+- **peer-reviewer** — Academic review for argument strength and citations
 
-### Frontend & Design (`agents/frontend/`)
+### Operations (`agents/management/`)
 
-- **react-specialist** — React/Next.js frontends with finance charting
-- **frontend-developer** — Responsive UI components with finance dashboards
-- **uiux-designer** — Enterprise UI/UX with financial data-dense displays
-
-### Testing & QA
-
-- **testing-specialist** — 3-tier strategy with real infrastructure
-- **documentation-validator** — Test code examples
-- **e2e-runner** — Playwright E2E test generation
-- **learning-outcome-auditor** — Financial education content QA
-
-### Release & Operations (`agents/management/`)
-
-- **git-release-specialist** — Git workflows, CI, releases
-- **deployment-specialist** — Deployment onboarding, Docker/K8s
 - **todo-manager** — Project task tracking
 - **gh-manager** — GitHub issue/project management
 
-### Standards (`agents/standards/`)
+### Project-Specific (`agents/project/`)
 
-- **coc-expert** — COC development methodology
+- **international-finance-analyst** — Current events analysis for class discussion
+- **educational-deep-dive-creator** — Educational deep-dive materials
 
 ## Skills Navigation
 
@@ -157,50 +136,29 @@ For finance domain knowledge, see `.claude/skills/` — organized by topic:
 | `02-market-analysis`       | Technical indicators, chart patterns, fundamental ratios, valuation |
 | `03-portfolio-theory`      | MPT, CAPM, efficient frontier, portfolio optimization               |
 | `04-risk-management`       | VaR, stress testing, hedging, options Greeks                        |
-| `05-financial-data-apis`   | yfinance, Polygon, FRED, caching patterns                           |
-| `06-python-finance`        | pandas, numpy-financial, backtrader, QuantLib, visualization        |
-| `07-regulatory-framework`  | SEC rules, disclaimers, data licensing, hypothetical performance    |
-| `08-learning-design`       | Bloom's taxonomy, curriculum patterns, assessments, gamification    |
+| `05-financial-data-apis`   | yfinance, Polygon, FRED, data sources                               |
+| `07-regulatory-framework`  | SEC rules, disclaimers, data licensing                              |
+| `08-learning-design`       | Bloom's taxonomy, curriculum patterns, assessments                  |
 | `09-personal-finance`      | Budgeting, tax-advantaged accounts, saving vs investing             |
 | `10-behavioral-finance`    | Cognitive biases, loss aversion, debiasing strategies               |
-
-Additional skill modules cover cheatsheets, development guides, workflow patterns, deployment, testing strategies, architecture decisions, code templates, troubleshooting, validation patterns, development standards, security patterns, UI/UX design, and more.
+| `10-corporate-finance`     | Capital structure, WACC, M&A, capital budgeting, dividends          |
+| `11-international-finance` | Exchange rates, BOP, parity conditions, currency crises             |
+| `12-fnce101-foundations`   | TVM, stock valuation, bond valuation, financial statements          |
+| `13-academic-writing`      | Thesis structure, argument construction, literature review          |
+| `14-research-methods`      | Source evaluation, data collection, econometrics basics              |
+| `15-citation-guide`        | APA 7th, Chicago, Harvard, common mistakes                         |
+| `16-presentation-skills`   | Slide design, data visualization, storytelling, delivery            |
+| `17-exam-preparation`      | Study strategies, problem types, formula sheets                     |
+| `18-case-study-framework`  | Case analysis method, frameworks, DCF walkthrough                   |
+| `19-formula-reference`     | FNCE101, corporate finance, international finance, FMI, statistics  |
 
 ## Critical Patterns
 
-```python
-# ALWAYS: Use Decimal for monetary values
-from decimal import Decimal
-price = Decimal("29.99")
+When helping students with finance work:
 
-# ALWAYS: Named constants for financial parameters
-TRADING_DAYS_PER_YEAR = 252
-MONTHS_PER_YEAR = 12
-
-# ALWAYS: Cite data sources
-# Data source: Yahoo Finance via yfinance
-prices = yf.download("AAPL", start="2023-01-01", end="2024-01-01")
-
-# ALWAYS: Include disclaimers on performance content
-DISCLAIMER = (
-    "This is for educational purposes only and does not constitute "
-    "financial advice. Past performance does not guarantee future results."
-)
-```
-
-## Finance Stack
-
-| Library             | Purpose                               | Install                       |
-| ------------------- | ------------------------------------- | ----------------------------- |
-| **pandas**          | Time series data manipulation         | `pip install pandas`          |
-| **numpy**           | Numerical computation, portfolio math | `pip install numpy`           |
-| **numpy-financial** | Time value of money (NPV, IRR, PMT)   | `pip install numpy-financial` |
-| **yfinance**        | Yahoo Finance market data (free)      | `pip install yfinance`        |
-| **fredapi**         | FRED economic data                    | `pip install fredapi`         |
-| **scipy**           | Optimization, statistics              | `pip install scipy`           |
-| **backtrader**      | Strategy backtesting framework        | `pip install backtrader`      |
-| **cvxpy**           | Portfolio optimization                | `pip install cvxpy`           |
-| **QuantLib**        | Derivatives pricing and fixed income  | `pip install QuantLib`        |
-| **matplotlib**      | Static charts and plots               | `pip install matplotlib`      |
-| **mplfinance**      | Candlestick and financial charts      | `pip install mplfinance`      |
-| **plotly**          | Interactive charts and dashboards     | `pip install plotly`          |
+- **Always cite sources** — Every claim needs a source (textbook, journal, data provider)
+- **Use proper precision** — Distinguish nominal vs real, simple vs compound, gross vs net
+- **Include disclaimers** on any content showing historical performance or hypothetical results
+- **Progressive difficulty** — Start with intuition, then formula, then worked example
+- **Connect to prerequisites** — Reference prior concepts when introducing new ones
+- **Use real-world analogies** — Make abstract concepts concrete

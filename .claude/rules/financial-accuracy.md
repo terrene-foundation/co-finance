@@ -1,209 +1,182 @@
-# Financial Accuracy Rules
+# Financial Accuracy in Coursework and Research
 
 ## Scope
 
-These rules apply to all Python files containing financial calculations (`**/*.py` matching financial computations, pricing, returns, risk metrics, or portfolio analytics).
+These rules apply to all academic work involving financial calculations, data analysis, valuation, risk metrics, or portfolio analytics — including problem sets, essays, research papers, thesis chapters, and presentations.
 
 ## MUST Rules
 
-### 1. Use Decimal for Currency Amounts
+### 1. Use Appropriate Precision for Financial Values
 
-All monetary values MUST use `decimal.Decimal` for storage and arithmetic. IEEE 754 floating-point introduces rounding errors that compound across transactions.
+All monetary values and financial calculations in coursework MUST use appropriate precision. Rounding errors can compound and distort results, especially in multi-step calculations.
 
 **Correct**:
 
-```python
-from decimal import Decimal, ROUND_HALF_UP
-
-price = Decimal("149.99")
-quantity = Decimal("100")
-total = price * quantity  # Decimal("14999.00")
-
-# Rounding to cents
-result = total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-```
+- Carry at least 4 decimal places through intermediate calculations, then round the final answer as appropriate.
+- Report currency values to 2 decimal places (e.g., $1,249.37).
+- Report percentages to 2 decimal places unless the context demands more (e.g., 7.25%).
+- Be consistent within a single paper or assignment — do not mix rounding conventions.
 
 **Incorrect**:
 
-```
-price = 149.99        # float — rounding errors accumulate
-total = 0.1 + 0.2      # = 0.30000000000000004, not 0.3
-```
+- Rounding intermediate steps aggressively (e.g., rounding a discount factor to 2 decimal places before multiplying by cash flows).
+- Reporting a bond yield as "about 5%" when the precise figure matters for the analysis.
 
-**Enforced by**: intermediate-reviewer, security-reviewer
-**Violation**: BLOCK commit for any float-based currency arithmetic
+**Enforced by**: peer-reviewer
+**Violation**: HIGH priority fix
 
 ### 2. Cite Formulas with Sources
 
-All financial formulas MUST include a docstring or comment citing the source (textbook, paper, or standard).
+All financial formulas used in coursework MUST include a citation to the source — textbook, academic paper, or authoritative standard.
 
 **Correct**:
 
-```python
-def sharpe_ratio(returns, risk_free_rate):
-    """
-    Sharpe Ratio = (Rp - Rf) / sigma_p
+> The Sharpe Ratio is defined as (Rp - Rf) / sigma_p, where Rp is the portfolio return, Rf is the risk-free rate, and sigma_p is the standard deviation of portfolio returns (Sharpe, 1966).
 
-    Source: Sharpe, W.F. (1966). "Mutual Fund Performance."
-    Journal of Business, 39(1), 119-138.
-    """
-    excess_returns = returns - risk_free_rate
-    return excess_returns.mean() / excess_returns.std()
-```
+> The Black-Scholes call option price is given by C = S * N(d1) - K * e^(-rT) * N(d2) (Black & Scholes, 1973; see also Hull, 2022, Ch. 15).
 
 **Incorrect**:
 
-```
-def sharpe_ratio(returns, risk_free_rate):
-    return (returns - risk_free_rate).mean() / returns.std()  # No source, no docs
-```
+> The Sharpe Ratio is (return minus risk-free rate) divided by standard deviation.
 
-**Enforced by**: intermediate-reviewer
+(No attribution — the reader cannot verify the formula or consult the original source.)
+
+**Enforced by**: peer-reviewer, citation-specialist
 **Violation**: HIGH priority fix
 
-### 3. Validate Against Known Benchmarks
+### 3. Validate Calculations Against Known Benchmarks
 
-Financial calculations MUST include unit tests that validate output against independently verified benchmarks (e.g., textbook examples, Bloomberg terminal values, or published datasets).
+When performing financial calculations, you MUST cross-check results against independently verified benchmarks — textbook examples, published datasets, or values from Bloomberg/WRDS.
 
 **Correct**:
 
-```python
-def test_black_scholes_call():
-    """Validate against Hull, Options, Futures, and Other Derivatives, 11th ed., Example 15.6."""
-    price = black_scholes_call(S=42, K=40, T=0.5, r=0.10, sigma=0.20)
-    assert abs(price - Decimal("4.76")) < Decimal("0.01")
-```
-
-**Enforced by**: testing-specialist
-**Violation**: HIGH priority fix
-
-### 4. Handle Edge Cases Explicitly
-
-Financial functions MUST handle and document behavior for:
-
-- Division by zero (e.g., zero standard deviation in Sharpe ratio)
-- Negative prices or quantities
-- Zero-length return series
-- NaN or missing values in time series
-
-**Correct**:
-
-```python
-def sharpe_ratio(returns, risk_free_rate):
-    if len(returns) == 0:
-        raise ValueError("Cannot compute Sharpe ratio on empty return series")
-    std = returns.std()
-    if std == 0:
-        return Decimal("0")  # Or raise, depending on business rule — document the choice
-    return (returns.mean() - risk_free_rate) / std
-```
+- "Using the inputs from Hull (2022), Example 15.6 (S=42, K=40, T=0.5, r=10%, sigma=20%), the Black-Scholes call price should be approximately $4.76. My calculation yields $4.76, confirming the formula is applied correctly."
 
 **Incorrect**:
 
-```
-def sharpe_ratio(returns, risk_free_rate):
-    return (returns.mean() - risk_free_rate) / returns.std()  # ZeroDivisionError if flat returns
-```
+- Presenting a calculated value with no sanity check against a known reference.
 
-**Enforced by**: intermediate-reviewer
-**Violation**: BLOCK commit
+**Enforced by**: peer-reviewer
+**Violation**: HIGH priority fix
 
-### 5. Use Named Constants for Annualization Factors
+### 4. Address Edge Cases and Limitations
 
-Annualization factors MUST be defined as named constants, not inline magic numbers. Document the assumption behind each.
+Financial analysis MUST acknowledge and handle edge cases and limitations:
 
-**Required Constants**:
+- What happens to the Sharpe Ratio when returns have zero volatility? (Division by zero — the ratio is undefined.)
+- What if the sample period is too short to be statistically meaningful?
+- What if the data contains missing values, survivorship bias, or look-ahead bias?
+- Are there outliers that distort the analysis?
 
-```python
-# Annualization factors — document the convention used
-TRADING_DAYS_PER_YEAR = 252      # NYSE/NASDAQ convention (excludes weekends + ~10 holidays)
-MONTHS_PER_YEAR = 12
-WEEKS_PER_YEAR = 52
-CALENDAR_DAYS_PER_YEAR = 365
-```
+Always state assumptions explicitly and note where results may be sensitive to those assumptions.
+
+**Enforced by**: peer-reviewer
+**Violation**: HIGH priority fix
+
+### 5. Use Standard Financial Parameters with Definitions
+
+When using standard financial parameters, MUST define them clearly and use consistent conventions throughout the work.
+
+**Common parameters to define on first use**:
+
+- **Trading days per year**: 252 (NYSE/NASDAQ convention, excluding weekends and approximately 10 holidays)
+- **Months per year**: 12
+- **Weeks per year**: 52
+- **Day-count convention**: Specify whether using Actual/360, Actual/365, 30/360, etc.
 
 **Correct**:
 
-```python
-annualized_return = daily_return * TRADING_DAYS_PER_YEAR
-annualized_vol = daily_vol * (TRADING_DAYS_PER_YEAR ** 0.5)
-```
+> "Daily returns are annualized using 252 trading days per year, the standard convention for U.S. equity markets (see Bodie, Kane, & Marcus, 2021, Ch. 5)."
 
 **Incorrect**:
 
-```
-annualized_return = daily_return * 252      # Magic number
-annualized_vol = daily_vol * 15.8745        # What is this?
-```
+> "We multiply by 252" (without explaining what 252 represents or why it was chosen).
+> "We annualize using 365 days" (incorrect for equity markets — this is a calendar day count, not a trading day count).
 
-**Enforced by**: intermediate-reviewer
+**Enforced by**: peer-reviewer
 **Violation**: HIGH priority fix
 
-### 6. Disclose Methodology for Calculated Returns
+### 6. Disclose Methodology for Return Calculations
 
-Any function that computes returns MUST document whether it uses:
+Any return calculation presented in coursework or research MUST disclose the methodology, including:
 
-- Simple vs. log returns
-- Arithmetic vs. geometric mean
-- Gross vs. net of fees
-- The compounding convention
+- **Simple vs. log (continuously compounded) returns**: Which was used and why?
+- **Arithmetic vs. geometric mean**: Arithmetic mean overstates compounded growth; geometric mean reflects actual compounding.
+- **Gross vs. net of fees/costs**: Are transaction costs, management fees, or taxes included?
+- **Compounding convention**: Daily, monthly, or annual compounding?
+- **Nominal vs. real returns**: Has inflation been accounted for?
 
 **Correct**:
 
-```python
-def annualized_return(prices):
-    """
-    Compute annualized return using geometric (compound) method.
+> "We compute annualized returns using the geometric mean of monthly simple returns over 60 months, gross of transaction costs. Returns are nominal (not adjusted for inflation)."
 
-    Method: geometric mean of daily simple returns, annualized over 252 trading days.
-    Returns are gross of fees.
-    Formula: ((1 + R_total)^(252/n)) - 1
-    """
-```
+**Incorrect**:
 
-**Enforced by**: intermediate-reviewer
+> "The portfolio returned 12% per year." (Simple or compound? Over what period? Gross or net? Nominal or real?)
+
+**Enforced by**: peer-reviewer
+**Violation**: HIGH priority fix
+
+### 7. Distinguish Between Nominal and Real Values
+
+When presenting financial data or calculations, MUST clearly state whether values are nominal (current dollars) or real (inflation-adjusted), and which price index was used for adjustment.
+
+**Correct**:
+
+> "GDP figures are reported in real 2020 U.S. dollars, adjusted using the CPI-U index (Bureau of Labor Statistics)."
+
+> "Bond yields are quoted in nominal terms. The real yield can be approximated by subtracting the expected inflation rate (Fisher equation)."
+
+**Incorrect**:
+
+> "GDP was $21 trillion." (Nominal or real? Which year's dollars?)
+
+**Enforced by**: peer-reviewer
 **Violation**: HIGH priority fix
 
 ## MUST NOT Rules
 
-### 1. No Float for Currency Amounts
+### 1. No Unexplained Numbers in Calculations
 
-MUST NOT use Python `float` for any value representing money, price, or notional amount.
+MUST NOT use numbers in financial formulas or analysis without explaining what they represent.
 
-**Detection Patterns**:
+**Incorrect**:
 
-```
-price = 99.99
-balance = float(input_value)
-total_cost = quantity * 10.50
-```
+- "We multiply the daily return by 252." (What is 252?)
+- "The discount rate is 0.08." (Why 8%? What does it represent? Where did it come from?)
 
-**Consequence**: BLOCK commit
+**Correct**:
 
-### 2. No Magic Numbers Without Named Constants
-
-MUST NOT use numeric literals in financial formulas without a named constant explaining the value.
-
-**Detection Patterns**:
-
-```
-volatility * 15.87        # What is 15.87?
-returns * 252              # Should be TRADING_DAYS_PER_YEAR
-rate / 360                 # Should be DAYS_ACT_360 or similar
-```
+- "We annualize the daily return by multiplying by 252, the number of trading days per year on U.S. exchanges."
+- "We use a discount rate of 8%, reflecting the company's estimated weighted average cost of capital (see Section 3.2 for the WACC calculation)."
 
 **Consequence**: HIGH priority fix
 
-### 3. No Returns Without Methodology Disclosure
+### 2. No Performance Figures Without Methodology Disclosure
 
-MUST NOT present or return calculated performance figures without documenting the methodology used.
+MUST NOT present return figures, risk metrics, or performance comparisons without stating the methodology.
 
-**Detection Patterns**:
+**Incorrect**:
 
-```
-def get_performance(portfolio):
-    return portfolio.value_now / portfolio.value_then - 1  # Simple or compound? Gross or net?
-```
+- "Portfolio A outperformed Portfolio B by 3%." (Over what period? Using what return measure? Before or after fees?)
+
+**Correct**:
+
+- "Over the 2019-2024 sample period, Portfolio A achieved an annualized geometric return of 11.2% versus 8.2% for Portfolio B, both gross of fees and in nominal terms."
+
+**Consequence**: HIGH priority fix
+
+### 3. No Unverified Data Presented as Fact
+
+MUST NOT present financial data without verifying it against a reputable source and citing that source.
+
+**Incorrect**:
+
+- "Apple's stock price is $150." (When? From where?)
+
+**Correct**:
+
+- "As of March 14, 2026, Apple's closing price was $189.42 (Yahoo Finance)."
 
 **Consequence**: HIGH priority fix
 
@@ -211,6 +184,6 @@ def get_performance(portfolio):
 
 Financial accuracy exceptions require:
 
-1. Explicit justification (e.g., float acceptable for non-monetary quantities like ratios displayed to 2 decimal places)
-2. Documentation in code comments
-3. Approval from intermediate-reviewer
+1. Explicit justification (e.g., approximate figures acceptable in a conceptual discussion where precision is not the point)
+2. Documentation in the text (e.g., "For simplicity, we round to the nearest whole number")
+3. Approval from peer-reviewer

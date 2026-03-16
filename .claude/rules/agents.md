@@ -1,65 +1,66 @@
-# Agent Orchestration Rules
+# Academic Agent Orchestration Rules
 
 ## Scope
 
-These rules govern when and how specialized agents are used.
+These rules govern when and how specialized academic agents are used to support finance students in their studies, research, and writing.
 
 ## RECOMMENDED Delegations
 
-### Rule 1: Code Review After Changes
+### Rule 1: Peer Review After Writing
 
-After completing file modifications (Edit, Write), you SHOULD:
+After completing or significantly revising academic writing (essays, reports, paper sections), you SHOULD:
 
-1. Delegate to **intermediate-reviewer** for code review
+1. Delegate to **peer-reviewer** for academic writing review
 2. Wait for review completion before proceeding
-3. Address any findings before moving to next task
+3. Address any findings (clarity, argument structure, evidence gaps) before moving to the next section
 
-**Exception**: User explicitly says "skip review"
+**Exception**: Student explicitly says "skip review"
 
-### Rule 2: Security Review Before Commits
+### Rule 2: Citation Check Before Submission
 
-Before executing git commit commands, you SHOULD:
+Before finalizing any paper, thesis chapter, or assignment for submission, you SHOULD:
 
-1. Delegate to **security-reviewer** for security audit
-2. Address all CRITICAL findings
-3. Document any HIGH findings for tracking
+1. Delegate to **citation-specialist** for citation and reference audit
+2. Verify all in-text citations have corresponding reference list entries
+3. Confirm citation format consistency (APA, Chicago, or as required by the course)
+4. Flag any claims that lack supporting references
 
-**Exception**: User may skip security review for trivial changes
+**Exception**: Student may skip citation check for informal drafts or personal notes
 
-### Rule 3: Finance Specialist for Domain Work
+### Rule 3: Course Tutor for Domain Work
 
-When working with financial calculations or data, you SHOULD consult:
+When working on subject-specific questions, calculations, or analysis, you SHOULD consult the appropriate tutor:
 
-- **quantitative-analyst**: For portfolio theory, risk metrics, optimization
-- **financial-engineer**: For DCF models, backtesting, derivatives pricing
-- **market-data-specialist**: For data APIs, data quality, caching
-- **regulatory-compliance**: For disclaimers, educational content rules
-
-**Applies when**:
-
-- Implementing financial calculations
-- Building market data pipelines
-- Creating educational financial content
-- Developing portfolio analysis tools
-
-### Rule 4: Analysis Chain for Complex Features
-
-For features requiring design decisions, follow this chain:
-
-1. **deep-analyst** → Identify failure points
-2. **requirements-analyst** → Break down requirements
-3. **library-advisor** → Choose implementation approach
-4. Then appropriate specialist for implementation
+- **fnce101-tutor**: For introductory finance concepts (time value of money, basic valuation, financial statements)
+- **corporate-finance-tutor**: For capital budgeting, capital structure, dividend policy, M&A
+- **international-finance-tutor**: For exchange rates, international capital markets, sovereign risk, trade finance
+- **fmi-tutor**: For financial markets and investments (portfolio theory, asset pricing, derivatives, fixed income)
 
 **Applies when**:
 
-- New feature spanning multiple files
-- Unclear requirements
-- Multiple valid approaches exist
+- Answering conceptual finance questions
+- Working through problem sets or calculations
+- Explaining theory for essays or research papers
+- Analyzing case studies
+
+### Rule 4: Analysis Chain for Complex Assignments
+
+For assignments requiring multi-step analysis or research design, follow this chain:
+
+1. **deep-analyst** → Understand the full scope of the assignment and identify potential pitfalls
+2. **assignment-analyst** → Break down requirements, identify deliverables, and plan the structure
+3. Then the appropriate tutor for subject-matter guidance
+
+**Applies when**:
+
+- Research papers or thesis chapters requiring original analysis
+- Multi-part assignments spanning several finance topics
+- Case studies with ambiguous or open-ended questions
+- Group projects requiring a division of work
 
 ### Rule 5: Parallel Execution for Independent Operations
 
-When multiple independent operations are needed, you SHOULD:
+When multiple independent research tasks are needed, you SHOULD:
 
 1. Launch agents in parallel using Task tool
 2. Wait for all to complete
@@ -67,70 +68,71 @@ When multiple independent operations are needed, you SHOULD:
 
 **Example independent operations**:
 
-- Reading multiple unrelated files
-- Running multiple search queries
-- Validating separate components
+- Searching multiple academic databases simultaneously
+- Reviewing several source documents at once
+- Checking citations across different sections of a paper
 
 ## Examples
 
 ### Correct: Sequential with Review
 
 ```
-User asks for code change
-   → Agent implements change
-   → Agent delegates to intermediate-reviewer
-   → Agent addresses review findings
-   → Only then moves to next task
+Student asks for help drafting a literature review
+   → Agent helps draft the section
+   → Agent delegates to peer-reviewer for writing quality
+   → Agent addresses review findings (argument flow, missing sources)
+   → Agent delegates to citation-specialist for reference check
+   → Only then moves to next section
 ```
 
 ### Suboptimal: Skipping Review
 
 ```
-User asks for code change
-   → Agent implements change
-   → Agent moves to next task (skipped review)
+Student asks for help drafting a literature review
+   → Agent helps draft the section
+   → Agent moves to next section (skipped peer review and citation check)
 ```
 
 ## RECOMMENDED Practices
 
-### Code Review
+### Peer Review
 
-Code review after changes is strongly recommended for catching issues early.
+Peer review after writing is strongly recommended for catching unclear arguments, weak evidence, and structural issues early.
 
-### Security Review Before Commit
+### Citation Check Before Submission
 
-Security review before commits is strongly recommended, especially for security-sensitive code.
+Citation review before finalizing is strongly recommended to avoid accidental plagiarism, missing references, or inconsistent formatting.
 
-### Finance Specialist Consultation
+### Tutor Consultation
 
-When established Python finance libraries exist for a task, prefer using them over building from scratch.
+When a well-established concept, formula, or framework exists in the finance literature, refer students to the authoritative source rather than improvising an explanation.
 
 ### Parallel When Possible
 
-If operations are independent, run them in parallel for efficiency.
+If research tasks are independent, run them in parallel for efficiency.
 
 ## Quality Gates
 
 ### Checkpoint 1: After Planning
 
-- [ ] Requirements understood
-- [ ] Approach validated
-- [ ] Framework selected
+- [ ] Assignment requirements understood
+- [ ] Research question or thesis articulated
+- [ ] Outline or structure approved
 
-### Checkpoint 2: After Implementation
+### Checkpoint 2: After Drafting
 
-- [ ] Code review completed
-- [ ] Tests written
-- [ ] Patterns validated
+- [ ] Peer review completed
+- [ ] Arguments supported by evidence
+- [ ] Appropriate use of financial terminology
 
-### Checkpoint 3: Before Commit
+### Checkpoint 3: Before Submission
 
-- [ ] Security review passed
-- [ ] All tests pass
-- [ ] Documentation updated
+- [ ] Citation check passed
+- [ ] All references properly formatted
+- [ ] Disclaimers included where required (see `disclaimer-compliance.md`)
 
-### Checkpoint 4: Before Push
+### Checkpoint 4: Final Review
 
-- [ ] PR description complete
-- [ ] CI checks configured
-- [ ] Ready for human review
+- [ ] Paper reads coherently from introduction to conclusion
+- [ ] All assignment requirements addressed
+- [ ] Ready for instructor submission

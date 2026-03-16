@@ -1,116 +1,111 @@
 ---
 name: analyze
-description: "Load phase 01 (analyze) for the current workspace"
+description: "Load phase 01 (analyze) — research and analyze a topic before writing begins"
 ---
 
-## What This Phase Does (present to user)
+## What This Phase Does (present to student)
 
-Research and validate the project idea before building begins. We study the market, evaluate the concept, identify who it's for, and create a clear picture of what to build. Nothing gets coded until this research is done.
+Research and analyze your topic in depth before any writing begins. We find relevant sources, identify key theories and debates, map out the literature, and build a clear picture of the intellectual landscape. Nothing gets drafted until this research is solid.
 
-## Your Role (communicate to user)
+## Your Role (communicate to student)
 
-Review our research findings and confirm we understood your vision. You'll see an analysis of your idea's strengths, who your users are, how they'll use the product, and a plan for building it. Tell us if anything is off or missing.
+Review our research findings and confirm the direction. You will see an overview of what the literature says, the key arguments and debates, where the gaps are, and a proposed structure for your work. Tell us if anything is off, missing, or if you want to take a different angle.
 
 ## Workspace Resolution
 
 1. If `$ARGUMENTS` specifies a project name, use `workspaces/$ARGUMENTS/`
 2. Otherwise, use the most recently modified directory under `workspaces/` (excluding `instructions/`)
-3. If no workspace exists, ask the user to create one first
-4. Read all files in `workspaces/<project>/briefs/` for user context (this is the user's input surface)
+3. If no workspace exists, ask the student to create one first
+4. Read all files in `workspaces/<project>/briefs/` for student context (this is the student's input surface — assignment description, research question, professor's requirements)
 
 ## Phase Check
 
-- Output goes into `workspaces/<project>/01-analysis/`, `workspaces/<project>/02-plans/`, and `workspaces/<project>/03-user-flows/`
+- Output goes into `workspaces/<project>/01-analysis/`, `workspaces/<project>/02-plans/`, and `workspaces/<project>/03-structure/`
 
 ## Workflow
 
-### 1. Be explicit about objectives and expectations
+### 1. Understand the assignment or research question
 
-Understand the product idea before diving into research.
+Before diving into research, clarify:
 
-### 2. Perform Deep Research
+- What exactly is the assignment asking? (essay, case study, thesis, presentation, problem set)
+- What is the research question or topic?
+- What course is this for, and what level? (introductory, intermediate, advanced, graduate)
+- Are there specific requirements from the professor? (length, sources, format, methodology)
+- What is the deadline?
 
-Document in detail in `workspaces/<project>/01-analysis/01-research`.
+### 2. Deep research: find relevant sources, theories, and data
 
-- Use as many subdirectories and files as required
-- Name them sequentially as 01-, 02-, etc, for easy referencing
-
-### 3. Ensure strong product focus
-
-**Note**: The frameworks below (platform model, AAA, network effects) are internal analysis tools. Present findings to the user using the plain-language format in step 6 — never use these framework names directly unless the user is familiar with them.
-
-Keep this soft rule in mind for everything:
-
-- 80% of the codebase/features/efforts can be reused (agnostic)
-- 15% of client specific requirements goes into consideration for self-service functionalities that can be reused (agnostic)
-- 5% customization
-
-Steps:
-
-1. Research thoroughly and distill value propositions and UNIQUE SELLING POINTS
-   - Scrutinize and critique the intent and vision, focusing on perfect product-market fit
-   - Research competing products, gaps, painpoints, and any other information that helps build solid value propositions
-   - Define unique selling points (not the same as value propositions) — be extremely critical and scrutinize them
-2. Evaluate using platform model thinking
-   - Seamless direct transactions between users (producers, consumers, partners)
-     - Producers: Users who offer/deliver a product or service
-     - Consumers: Users who consume a product or service
-     - Partners: To facilitate the transaction between producers and consumers
-3. Evaluate using the AAA framework
-   - Automate: Reduce operational costs
-   - Augment: Reduce decision-making costs
-   - Amplify: Reduce expertise costs (for scaling)
-4. Features must cover network behaviors for strong network effects
-   - Accessibility: Easy for users to complete a transaction (activity between producer and consumer, not necessarily monetary)
-   - Engagement: Information useful to users for completing a transaction
-   - Personalization: Information curated for an intended use
-   - Connection: Information sources connected to the platform (one or two-way)
-   - Collaboration: Producers and consumers can jointly work seamlessly
-
-### 4. Document everything
-
-Document analysis in `workspaces/<project>/01-analysis/`, plans in `workspaces/<project>/02-plans/`, and user flows in `workspaces/<project>/03-user-flows/`.
+Document findings in detail in `workspaces/<project>/01-analysis/01-research`.
 
 - Use as many subdirectories and files as required
 - Name them sequentially as 01-, 02-, etc, for easy referencing
+- Identify seminal papers, textbooks, and key authors in the field
+- Find relevant empirical data, case studies, and real-world examples
+- Note competing theories, schools of thought, and ongoing debates
+- Locate relevant financial data sources (FRED, World Bank, Bloomberg, etc.)
 
-### 5. Red team (internal quality check — present results in plain language)
+### 3. Organize: identify key themes, debates, and gaps
 
-Work with red team agents to scrutinize analysis, plans and user flows.
+Analyze the research to find structure:
 
-- Identify any gaps, regardless how small
-- Always go back to first principles, identify the roots, and plan the most optimal and elegant implementations
-- Analysis, user flows must flow into plans
+- What are the major themes and arguments in the literature?
+- Where do scholars agree, and where do they disagree?
+- What gaps exist in the current research?
+- What theoretical frameworks are most relevant?
+- What evidence is strongest for different positions?
+- What counterarguments must be addressed?
 
-### 6. Present findings to the user
+### 4. Create outline: structure the argument or analysis
 
-Summarize the analysis in plain language. Cover:
+Build a proposed structure for the student's work:
 
-- **What we're building** — one paragraph describing the product
-- **Who it's for** — the users and their needs
-- **What makes it unique** — why someone would choose this over alternatives
-- **How users will experience it** — walk through the key user journeys in narrative form
-- **Risks and considerations** — anything the user should know, explained with business impact
+- Thesis statement or central argument (for essays and papers)
+- Logical flow of sections — each building on the previous
+- Which evidence and sources support each section
+- Where data analysis or calculations are needed
+- How counterarguments will be addressed
+- Proposed conclusion and implications
 
-Ask the user: "Does this match your vision? Anything we got wrong, missed, or should rethink?"
+Document the outline in `workspaces/<project>/02-plans/` and the detailed section structure in `workspaces/<project>/03-structure/`.
+
+### 5. Red team: check for gaps in research
+
+Review the analysis critically:
+
+- Are there gaps in the research — important perspectives or sources we missed?
+- Is the proposed argument logically sound?
+- Are there weak points a professor would challenge?
+- Is the evidence sufficient for each major claim?
+- Does the structure flow logically from introduction to conclusion?
+- Are the sources credible and appropriately academic?
+
+### 6. Present findings to the student
+
+Summarize the research in plain language. Cover:
+
+- **Your topic** — one paragraph restating the research question and why it matters
+- **What the literature says** — the major arguments, theories, and findings
+- **Key debates** — where scholars disagree and what the evidence supports
+- **Proposed approach** — how we suggest structuring your paper or project, and why
+- **Sources collected** — an overview of the key sources found and their relevance
+- **Gaps and considerations** — anything that needs more research or where you will need to make judgment calls
+
+Ask the student: "Does this cover your topic? Is the direction right? Anything we should add, remove, or rethink?"
 
 ## Agent Teams
 
 Deploy these agents as a team for analysis:
 
-- **deep-analyst** — Failure analysis, complexity assessment, identify risks
-- **requirements-analyst** — Break down requirements, create ADRs, define scope
-- **coc-expert** — Ground analysis in COC methodology; identify institutional knowledge gaps and guard against the three fault lines (amnesia, convention drift, security blindness)
-- **framework-advisor** — Choose implementation approach (if applicable)
-- **sdk-navigator** — Find existing patterns and documentation before designing from scratch (if applicable)
+- **research-assistant** — Find sources, evaluate credibility, organize literature
+- **deep-analyst** — Identify gaps in arguments, assess complexity, spot weak reasoning
+- **assignment-analyst** — Break down assignment requirements, ensure all rubric criteria are addressed
+- **concept-explainer** — Explain complex finance theories and concepts the student encounters during research
 
-For product/market analysis, additionally deploy:
+For finance-specific analysis, additionally deploy as needed:
 
-- **value-auditor** — Evaluate from enterprise buyer perspective, critique value propositions
+- **quantitative-analyst** — For topics involving portfolio theory, risk metrics, or optimization
+- **financial-engineer** — For topics involving valuation, derivatives, or financial modeling
+- **curriculum-designer** — For understanding the pedagogical context and learning objectives
 
-For frontend projects, additionally deploy:
-
-- **uiux-designer** — Information architecture, visual hierarchy, design system planning
-- **ai-ux-designer** — AI interaction patterns (if the project involves AI interfaces)
-
-Red team the analysis with agents until they confirm no gaps remain in research, plans, and user flows.
+Red team the analysis with agents until they confirm no gaps remain in research, structure, and source coverage.

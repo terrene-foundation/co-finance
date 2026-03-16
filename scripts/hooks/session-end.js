@@ -75,8 +75,9 @@ function saveSession(data) {
       "session_summary",
       {
         file_counts: sessionData.stats,
-        framework: detectFramework(cwd),
+        projectType: detectProjectType(cwd),
         duration_estimate: estimateSessionDuration(session_id, sessionDir),
+        identity: "fnce-co-claude",
       },
       {
         session_id,
@@ -106,25 +107,29 @@ function saveSession(data) {
 function collectSessionStats(cwd) {
   try {
     const stats = {
-      pythonFiles: 0,
-      testFiles: 0,
-      analysisFiles: 0,
+      markdownFiles: 0,
+      draftFiles: 0,
+      sourceFiles: 0,
     };
 
-    const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".py"));
-    stats.pythonFiles = files.length;
+    // Count .md files
+    const files = fs.readdirSync(cwd);
+    const mdFiles = files.filter((f) => f.endsWith(".md"));
+    stats.markdownFiles = mdFiles.length;
 
-    for (const file of files) {
-      if (/_test\.py$|test_.*\.py$/.test(file)) {
-        stats.testFiles++;
+    // Count files with "draft" in the name
+    for (const file of mdFiles) {
+      if (file.toLowerCase().includes("draft")) {
+        stats.draftFiles++;
       }
-      try {
-        const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/import pandas|import numpy|import yfinance/.test(content)) {
-          stats.analysisFiles++;
-        }
-      } catch {}
     }
+
+    // Count files in sources/ directory
+    const sourcesDir = path.join(cwd, "sources");
+    try {
+      const sourceEntries = fs.readdirSync(sourcesDir);
+      stats.sourceFiles = sourceEntries.filter((e) => !e.startsWith(".")).length;
+    } catch {}
 
     return stats;
   } catch {
@@ -132,27 +137,31 @@ function collectSessionStats(cwd) {
   }
 }
 
-// Scans top-level cwd only (not subdirectories) for performance in hooks.
-function detectFramework(cwd) {
+/**
+ * Detect the academic project type by checking for characteristic files.
+ *
+ * @param {string} cwd - Project root directory
+ * @returns {string} Project type identifier
+ */
+function detectProjectType(cwd) {
   try {
-    const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".py"));
-    for (const file of files.slice(0, 10)) {
-      try {
-        const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/import pandas/.test(content) || /import yfinance/.test(content))
-          return "market-data";
-        if (/import numpy/.test(content) || /import scipy/.test(content))
-          return "quantitative";
-        if (
-          /import backtrader/.test(content) ||
-          /import QuantLib/.test(content)
-        )
-          return "backtesting";
-        if (/import matplotlib/.test(content) || /import plotly/.test(content))
-          return "visualization";
-      } catch {}
+    const files = fs.readdirSync(cwd).map((f) => f.toLowerCase());
+
+    for (const file of files) {
+      if (file.includes("thesis")) return "thesis";
+      if (file.includes("paper") && file.endsWith(".md")) return "paper";
+      if (file.includes("assignment")) return "assignment";
+      if (file.includes("case-study") || file.includes("casestudy"))
+        return "case-study";
+      if (file.includes("presentation") || file.endsWith(".pptx"))
+        return "presentation";
     }
-    return "financial";
+
+    const hasSourcesDir = fs.existsSync(path.join(cwd, "sources"));
+    const hasResearchDir = fs.existsSync(path.join(cwd, "01-research"));
+    if (hasSourcesDir || hasResearchDir) return "research";
+
+    return "academic";
   } catch {
     return "unknown";
   }

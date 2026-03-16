@@ -61,17 +61,17 @@ function ensureLearningDir(cwd) {
   if (!fs.existsSync(identityFile)) {
     try {
       const identity = {
-        system: "fmi-coc-claude-py",
-        version: "2.0.0",
+        system: "fnce-co-claude",
+        version: "3.0.0",
         created_at: new Date().toISOString(),
         learning_enabled: true,
         per_project: true,
         focus_areas: [
-          "workflow-patterns",
-          "error-fixes",
-          "market-data-patterns",
-          "testing-patterns",
-          "framework-selection",
+          "academic-writing-patterns",
+          "research-methods",
+          "citation-accuracy",
+          "study-effectiveness",
+          "argument-construction",
         ],
       };
       fs.writeFileSync(identityFile, JSON.stringify(identity, null, 2));

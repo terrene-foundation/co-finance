@@ -1,193 +1,163 @@
-# Git Workflow Rules
+# Version Control for Academic Work
 
 ## Scope
 
-These rules apply to all git operations.
+These rules apply to students using git to manage research papers, assignments, thesis drafts, and project files. Version control helps you track changes, recover earlier drafts, and collaborate with classmates on group projects.
 
 ## MUST Rules
 
-### 1. Conventional Commits
+### 1. Meaningful Commit Messages
 
-Commit messages MUST follow conventional commits format.
+Commit messages MUST describe what changed in terms that make sense when you look back later.
 
-**Format**:
-
-```
-type(scope): description
-
-[optional body]
-
-[optional footer]
-```
+**Format**: `type: brief description of what changed`
 
 **Types**:
 
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation
-- `style`: Formatting, no code change
-- `refactor`: Code restructure
-- `test`: Adding tests
-- `chore`: Maintenance
+- `draft`: Writing or revising content
+- `data`: Adding or updating datasets
+- `analysis`: Adding or updating calculations and analysis
+- `refs`: Adding or updating references and citations
+- `slides`: Working on presentation files
+- `fix`: Correcting errors or addressing feedback
 
 **Examples**:
 
 ```
-feat(auth): add OAuth2 support
-fix(api): resolve rate limiting issue
-docs(readme): update installation guide
-refactor(portfolio): simplify optimization logic
-test(market-data): add integration tests for API caching
+draft: add literature review section on EMH
+draft: revise methodology to address advisor feedback
+data: add monthly returns dataset from WRDS
+analysis: complete portfolio optimization calculations
+refs: add missing citations from Chapter 3
+slides: update final presentation with new charts
+fix: correct annualization formula in Section 4.2
 ```
-
-**Enforced by**: Pre-commit hook (future)
-**Violation**: Commit message rejection
-
-### 2. Security Review Before Commit
-
-> See `agents.md` Rule 2. Security review before commits is strongly recommended.
-
-**Violation**: Potential security issues
-
-### 3. Branch Naming
-
-Feature branches MUST follow naming convention.
-
-**Format**: `type/description`
-
-**Examples**:
-
-- `feat/add-auth`
-- `fix/api-timeout`
-- `docs/update-readme`
-- `refactor/workflow-builder`
-- `test/market-data-integration`
-
-### 4. PR Description
-
-Pull requests MUST include:
-
-- Summary of changes (what and why)
-- Test plan (how to verify)
-- Related issues (links)
-
-**Template**:
-
-```markdown
-## Summary
-
-[1-3 bullet points]
-
-## Test plan
-
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-- [ ] Manual testing completed
-
-## Related issues
-
-Fixes #123
-```
-
-### 5. Atomic Commits
-
-Each commit MUST be self-contained.
-
-**Correct**:
-
-- One commit per logical change
-- Tests and implementation together
-- Each commit builds and passes tests
 
 **Incorrect**:
 
 ```
-❌ "WIP"
-❌ "fix stuff"
-❌ "update files"
-❌ Multiple unrelated changes
+"update"
+"changes"
+"stuff"
+"final version" (there is never a final version)
+"FINAL final v2 REAL"
 ```
 
-## MUST NOT Rules
+### 2. Don't Commit Sensitive Data
 
-### 1. No Direct Push to Main
+MUST NOT include sensitive information in your repository:
 
-MUST NOT push directly to main/master branch.
+- API keys or passwords
+- Personal financial data (real account balances, SSNs, etc.)
+- Licensed data that cannot be redistributed (raw Bloomberg or WRDS downloads)
+- `.env` files containing credentials
 
-**Enforced by**: Branch protection
-**Consequence**: Push rejected
+**What to do instead**:
 
-### 2. No Force Push to Main
+- Add `.env` to your `.gitignore` file
+- Keep licensed datasets in a separate folder excluded from version control
+- Use a `.gitignore` file to prevent accidental inclusion of data files (e.g., `*.csv`, `*.xlsx` if they contain licensed data)
 
-MUST NOT force push to main/master.
+### 3. Use Descriptive File Names
 
-**Enforced by**: Branch protection
-**Consequence**: Team notification, potential rollback
+Academic files MUST follow a clear naming convention so you (and collaborators) can find things easily.
 
-### 3. No Secrets in Commits
+**Recommended naming patterns**:
 
-MUST NOT commit secrets, even in history.
+```
+thesis/
+  ch01-introduction.tex
+  ch02-literature-review.tex
+  ch03-methodology.tex
+  ch04-results.tex
+  ch05-conclusion.tex
+  references.bib
 
-**Detection**: Pre-commit secret scanning
-**Consequence**: History rewrite required
+assignments/
+  ps01-time-value-of-money.pdf
+  ps02-bond-valuation.pdf
+  case-study-apple-dcf.docx
 
-**Check for**:
+data/
+  README.md  (describes data sources, not the actual licensed data)
 
-- API keys
-- Passwords
-- Tokens
-- Private keys
-- .env files
+presentations/
+  midterm-presentation.pptx
+  final-defense.pptx
+```
 
-### 4. No Large Binaries
+**Incorrect**:
 
-MUST NOT commit large binary files.
+```
+Document1.docx
+Untitled.xlsx
+final.pdf
+final_final.pdf
+final_REAL.pdf
+```
 
-**Limits**:
+### 4. Commit Regularly
 
-- Single file: <10MB
-- Total repo: <1GB
+Commit your work frequently — at least at the end of each working session. This gives you a safety net to recover earlier versions if something goes wrong.
 
-**Alternatives**:
+**Good commit rhythm**:
 
-- Git LFS for large files
-- External storage for assets
+- After completing a section or subsection
+- After making significant revisions
+- Before and after receiving feedback
+- At the end of each work session
+
+## RECOMMENDED Practices
+
+### Use Branches for Major Revisions
+
+If you are about to make a large structural change to your paper (e.g., reorganizing chapters, rewriting the methodology), consider creating a branch first. This lets you experiment without risking your stable draft.
+
+**Example**:
+
+```
+git branch revision/restructure-methodology
+git checkout revision/restructure-methodology
+```
+
+If the revision works out, merge it back. If not, you can return to your original version.
+
+### Keep a Clean Main Branch
+
+Your main branch should always contain your best current draft — the version you would be comfortable submitting if asked.
+
+### Use .gitignore for Large and Licensed Files
+
+Create a `.gitignore` file to exclude files that should not be tracked:
+
+```
+# Licensed data (do not redistribute)
+data/raw/*.csv
+data/raw/*.xlsx
+
+# Credentials
+.env
+
+# Temporary files
+*.tmp
+*~
+.DS_Store
+
+# Compiled LaTeX output (regenerate from source)
+*.aux
+*.log
+*.out
+*.synctex.gz
+```
 
 ## Pre-Commit Checklist
 
-Before every commit:
+Before each commit, quickly verify:
 
-- [ ] Code review completed (intermediate-reviewer)
-- [ ] Security review completed (security-reviewer)
-- [ ] Tests pass
-- [ ] Linting passes
-- [ ] No secrets in changes
-- [ ] Commit message follows convention
-
-## Branching Strategy
-
-### Main
-
-- Always deployable
-- Protected branch
-- Requires PR with reviews
-
-### Feature Branches
-
-- Branch from main
-- PR back to main
-- Delete after merge
-
-### Hotfix Branches
-
-- Branch from main
-- Fix critical issues
-- Fast-track review process
+- [ ] No sensitive data (API keys, personal financial info, licensed datasets) is included
+- [ ] Commit message clearly describes what changed
+- [ ] Files are named descriptively
 
 ## Exceptions
 
-Git exceptions require:
-
-1. Explicit user approval
-2. Documentation in PR
-3. Team notification for force operations
+These guidelines are intentionally simple. If you are working on a collaborative research project with more complex needs (multiple contributors, continuous integration for LaTeX builds, etc.), adapt the workflow accordingly — but the principles of meaningful messages, no sensitive data, and regular commits always apply.

@@ -1,303 +1,165 @@
-# Data Sourcing Rules
+# Data Sourcing for Research Papers and Coursework
 
 ## Scope
 
-These rules apply to all code that fetches, processes, or stores market data, financial time series, economic indicators, or pricing information (`**/*.py`, `**/*.ts`, `**/*.js`).
+These rules apply to all academic work that uses financial data, market data, economic indicators, or statistical datasets — including research papers, thesis chapters, problem sets, case studies, and presentations.
 
 ## MUST Rules
 
-### 1. Cite Data Provider
+### 1. Cite the Data Provider
 
-All data-fetching code MUST document the data provider and any licensing constraints.
+All financial data used in academic work MUST identify the data provider, the specific dataset, and any licensing or access constraints.
 
 **Correct**:
 
-```python
-def fetch_prices(ticker: str, start: str, end: str):
-    """
-    Fetch adjusted close prices from Yahoo Finance via yfinance.
+> "Daily adjusted closing prices for S&P 500 constituents were obtained from the Center for Research in Security Prices (CRSP) database, accessed via Wharton Research Data Services (WRDS), for the period January 2010 through December 2024."
 
-    Data provider: Yahoo Finance (yfinance library)
-    License: Yahoo Finance terms of service — free for personal/educational use
-    Limitations: 15-minute delay for real-time quotes; adjusted for splits and dividends
-    """
-    import yfinance as yf
-    data = yf.download(ticker, start=start, end=end)
-    return data["Adj Close"]
-```
+> "U.S. Consumer Price Index (CPI-U) data were obtained from the Federal Reserve Economic Data (FRED) database, Federal Reserve Bank of St. Louis, Series ID: CPIAUCSL."
 
 **Incorrect**:
 
-```
-def fetch_prices(ticker, start, end):
-    import yfinance as yf
-    return yf.download(ticker, start=start, end=end)["Adj Close"]  # No attribution
-```
+> "We downloaded stock prices for our analysis." (From where? Which dataset? What time period?)
 
-**Common Providers** (document which you use):
+**Reputable Data Sources for Academic Work**:
 
-- **Yahoo Finance** (`yfinance`) — Free, educational use, 15-min delayed quotes
-- **FRED** (`fredapi`) — Free, public domain economic data from Federal Reserve
-- **Polygon.io** — Paid tiers, real-time and historical equities/options/crypto
-- **Alpha Vantage** — Free tier with rate limits, requires API key
-- **IEX Cloud** — Paid, real-time and historical US equities
-- **Quandl/Nasdaq Data Link** — Various free and paid datasets
+| Source | Data Type | Access | Notes |
+|--------|-----------|--------|-------|
+| **WRDS / CRSP** | U.S. equity prices, returns, indices | University subscription | Gold standard for academic equity research |
+| **Compustat** (via WRDS) | Financial statements, fundamentals | University subscription | Standard for accounting/corporate finance research |
+| **FRED** (Federal Reserve) | Economic indicators, interest rates, inflation | Free, public | Authoritative source for U.S. macroeconomic data |
+| **World Bank Open Data** | Global development indicators, GDP, trade | Free, public | Cross-country comparisons and development economics |
+| **IMF Data** | Balance of payments, exchange rates, WEO | Free, public | International macroeconomic and financial data |
+| **Bloomberg Terminal** | Real-time and historical market data | University terminal | Comprehensive but access may be restricted; note licensing |
+| **Refinitiv / Datastream** | Global equities, fixed income, economics | University subscription | Wide international coverage |
+| **Yahoo Finance** | Stock prices, basic financials | Free | Acceptable for coursework; less rigorous for thesis research |
+| **Ken French Data Library** | Factor returns (Fama-French) | Free, public | Standard source for asset pricing factor data |
+| **SEC EDGAR** | Company filings (10-K, 10-Q, proxy statements) | Free, public | Primary source for U.S. public company disclosures |
 
-**Enforced by**: intermediate-reviewer
+**Enforced by**: peer-reviewer, citation-specialist
 **Violation**: HIGH priority fix
 
-### 2. Specify Data Freshness and Staleness
+### 2. Specify Data Characteristics
 
-All data responses MUST include metadata indicating when the data was fetched and its expected freshness.
+All data used in analysis MUST include metadata describing its characteristics:
+
+- **Date range**: Start and end dates of the sample period
+- **Frequency**: Daily, weekly, monthly, quarterly, or annual
+- **Adjustments**: Whether prices are adjusted for splits, dividends, or inflation
+- **Currency**: The currency denomination of financial data
+- **Access date**: When the data was retrieved (important because databases are updated retroactively)
 
 **Correct**:
 
-```python
-from datetime import datetime, timezone
-
-def get_market_data(ticker: str):
-    data = fetch_from_provider(ticker)
-    return {
-        "ticker": ticker,
-        "price": data.price,
-        "fetched_at": datetime.now(timezone.utc).isoformat(),
-        "data_delay": "15 minutes",  # Provider-specific delay
-        "market_status": "closed" if is_market_closed() else "open",
-        "source": "Yahoo Finance",
-    }
-```
+> "We use monthly total returns (including dividends) for 500 U.S. large-cap stocks from CRSP, January 2000 through December 2024, denominated in U.S. dollars. Data were accessed on January 15, 2026."
 
 **Incorrect**:
 
-```
-def get_market_data(ticker):
-    return {"ticker": ticker, "price": fetch_price(ticker)}  # When? How stale?
-```
+> "We collected return data for U.S. stocks." (What frequency? Adjusted how? Over what period?)
 
-**Enforced by**: intermediate-reviewer
+**Enforced by**: peer-reviewer
 **Violation**: HIGH priority fix
 
-### 3. Handle Market Holidays and Data Gaps
+### 3. Acknowledge Market Holidays and Data Gaps
 
-Code processing time-series data MUST account for:
+When working with time-series financial data, MUST acknowledge and explain how market holidays, weekends, and data gaps are handled.
 
-- Market holidays (no trading data on those days)
-- Weekends (no data for Saturday/Sunday)
-- Half-day trading sessions
-- Data gaps from provider outages
+**Key considerations**:
+
+- **Weekends and holidays**: U.S. equity markets are closed on weekends and approximately 10 federal holidays per year. There is no trading data for these days.
+- **Half-day sessions**: Some trading days have shortened hours (e.g., day before Thanksgiving, Christmas Eve).
+- **Cross-market alignment**: If comparing data from multiple exchanges (e.g., NYSE and Tokyo Stock Exchange), trading calendars differ. Explain how you aligned the data.
+- **Missing data**: If your dataset has gaps beyond normal closures, explain how you handled them (e.g., forward-fill, interpolation, exclusion).
 
 **Correct**:
 
-```python
-import pandas as pd
-from pandas.tseries.holiday import USFederalHolidayCalendar
-
-def fill_market_gaps(prices: pd.Series) -> pd.Series:
-    """
-    Forward-fill missing values caused by market holidays and weekends.
-    Uses business day frequency aligned to NYSE trading calendar.
-
-    Missing data handling:
-    - Weekends/holidays: forward-fill from last trading day
-    - Provider gaps (>3 consecutive missing days): raise DataQualityError
-    """
-    # Detect suspicious gaps (more than a long weekend)
-    max_gap = prices.isna().astype(int).groupby(prices.notna().cumsum()).sum().max()
-    if max_gap > 3:
-        raise DataQualityError(f"Suspicious gap of {max_gap} consecutive missing values")
-
-    return prices.ffill()
-```
+> "Missing values due to market holidays were forward-filled using the last available trading day's price. No gaps exceeding three consecutive business days were observed in the sample."
 
 **Incorrect**:
 
-```
-prices = prices.dropna()  # Silently removes holidays — changes return calculations
-prices = prices.fillna(0)  # Zero price is worse than missing
-```
+> Presenting return calculations without acknowledging that the dataset skips weekends and holidays, potentially leading a reader to assume continuous data.
 
-**Enforced by**: intermediate-reviewer
+**Enforced by**: peer-reviewer
 **Violation**: HIGH priority fix
 
 ### 4. Validate Data Quality
 
-All ingested market data MUST be validated for:
+Before using financial data in analysis, MUST perform basic quality checks and document the results:
 
-- **Missing values**: Detect and handle NaN/None
-- **Outliers**: Flag price changes exceeding reasonable thresholds (e.g., >50% single-day move)
-- **Stock splits**: Verify that adjusted prices are used or splits are handled
-- **Negative or zero prices**: Reject unless the instrument allows it (e.g., oil futures)
-- **Duplicate timestamps**: Detect and deduplicate
+- **Missing values**: How many observations are missing? Is the missing rate acceptable?
+- **Outliers**: Are there any extreme values that could distort results (e.g., a 90% single-day return suggesting a data error or unadjusted stock split)?
+- **Survivorship bias**: Does the dataset include only firms that survived to the end of the sample, or does it include delisted firms?
+- **Look-ahead bias**: Does the analysis use information that would not have been available at the time of the decision being modeled?
+- **Duplicate observations**: Are there repeated entries for the same date/security?
 
 **Correct**:
 
-```python
-def validate_price_series(prices: pd.Series, ticker: str) -> pd.Series:
-    """Validate price data quality before use in calculations."""
+> "We screened the sample for data quality. Three stocks were excluded due to more than 20% missing daily returns. Observations with single-day absolute returns exceeding 50% were flagged and verified against corporate action records (splits, mergers). The final sample consists of 487 stocks with complete monthly return data."
 
-    # Check for missing values
-    missing_pct = prices.isna().mean()
-    if missing_pct > 0.05:
-        raise DataQualityError(f"{ticker}: {missing_pct:.1%} missing values exceeds 5% threshold")
+**Incorrect**:
 
-    # Check for suspicious single-day moves (potential split not adjusted)
-    returns = prices.pct_change().dropna()
-    extreme_moves = returns[returns.abs() > 0.50]
-    if not extreme_moves.empty:
-        logger.warning(f"{ticker}: {len(extreme_moves)} days with >50% moves — verify split adjustment: {extreme_moves.index.tolist()}")
+> Using raw downloaded data without any quality checks, potentially basing conclusions on erroneous data.
 
-    # Check for non-positive prices
-    if (prices <= 0).any():
-        raise DataQualityError(f"{ticker}: Non-positive prices detected")
-
-    # Check for duplicate timestamps
-    if prices.index.duplicated().any():
-        logger.warning(f"{ticker}: Duplicate timestamps detected — keeping last")
-        prices = prices[~prices.index.duplicated(keep="last")]
-
-    return prices
-```
-
-**Enforced by**: intermediate-reviewer, testing-specialist
+**Enforced by**: peer-reviewer
 **Violation**: HIGH priority fix
 
-### 5. Cache Data Appropriately
+### 5. Cite Data in the Reference List
 
-Market data requests MUST implement caching to:
+All data sources MUST appear in the reference list or bibliography, not just in the body text. Follow your required citation style.
 
-- Avoid redundant API calls (respect rate limits)
-- Speed up repeated analyses
-- Reduce costs for paid data providers
+**APA Example**:
 
-**Correct**:
+> Federal Reserve Bank of St. Louis. (2026). *10-Year Treasury Constant Maturity Rate* [Data set]. FRED Economic Data. https://fred.stlouisfed.org/series/DGS10
 
-```python
-import hashlib
-import json
-from pathlib import Path
-from datetime import datetime, timedelta
+> Center for Research in Security Prices. (2026). *CRSP US Stock Database* [Data set]. Wharton Research Data Services. https://wrds-www.wharton.upenn.edu/
 
-CACHE_DIR = Path(".cache/market_data")
-CACHE_TTL = timedelta(hours=1)  # For intraday data
-HISTORICAL_CACHE_TTL = timedelta(days=7)  # For historical data that won't change
+**Chicago Example**:
 
-def fetch_with_cache(ticker: str, start: str, end: str):
-    """Fetch prices with file-based caching. Historical data cached longer than intraday."""
-    cache_key = hashlib.md5(f"{ticker}_{start}_{end}".encode()).hexdigest()
-    cache_path = CACHE_DIR / f"{cache_key}.json"
+> Federal Reserve Bank of St. Louis. "10-Year Treasury Constant Maturity Rate." FRED Economic Data. Accessed March 1, 2026. https://fred.stlouisfed.org/series/DGS10.
 
-    if cache_path.exists():
-        cached = json.loads(cache_path.read_text())
-        cached_at = datetime.fromisoformat(cached["fetched_at"])
-        ttl = HISTORICAL_CACHE_TTL if end < datetime.now().strftime("%Y-%m-%d") else CACHE_TTL
-        if datetime.now() - cached_at < ttl:
-            return cached["data"]
-
-    data = fetch_from_provider(ticker, start, end)
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    cache_path.write_text(json.dumps({
-        "data": data,
-        "fetched_at": datetime.now().isoformat(),
-        "source": "Yahoo Finance",
-    }))
-    return data
-```
-
-**Enforced by**: intermediate-reviewer
+**Enforced by**: citation-specialist
 **Violation**: HIGH priority fix
 
 ## MUST NOT Rules
 
-### 1. No Hardcoded Price Data in Production
+### 1. No Unattributed Data
 
-MUST NOT use hardcoded price data in production code. Prices change constantly; hardcoded values become stale immediately.
+MUST NOT present financial data in papers, tables, or charts without stating where it came from. Every number should be traceable to a source.
 
-**Detection Patterns**:
+**Incorrect**:
 
-```
-AAPL_PRICE = 150.00
-prices = {"AAPL": 189.50, "GOOGL": 141.80}  # Hardcoded — will be wrong tomorrow
-DEFAULT_RISK_FREE_RATE = 0.05  # Hardcoded — changes with Fed policy
-```
-
-**Correct Alternative**:
-
-```python
-# Fetch current risk-free rate from FRED
-def get_risk_free_rate():
-    """Fetch 3-month Treasury bill rate from FRED as risk-free rate proxy."""
-    import fredapi
-    fred = fredapi.Fred(api_key=os.environ["FRED_API_KEY"])
-    return fred.get_series("DTB3").iloc[-1] / 100  # Convert percentage to decimal
-```
-
-**Exception**: Hardcoded data is acceptable in test files for deterministic testing.
-
-**Consequence**: BLOCK commit
-
-### 2. No Assumption of Continuous Trading Hours
-
-MUST NOT write code that assumes markets trade 24/7 or ignores trading session boundaries.
-
-**Detection Patterns**:
-
-```
-# Assumes data exists for every calendar day
-expected_days = (end_date - start_date).days
-if len(prices) != expected_days:
-    raise Error("Missing data")  # Will always fire — weekends exist
-
-# Assumes 365 trading days
-annualized = daily_return * 365  # Wrong — use 252 for equities
-```
-
-**Correct Alternative**:
-
-```python
-from pandas.tseries.offsets import BDay
-
-expected_business_days = len(pd.bdate_range(start_date, end_date))
-# Or use exchange-specific calendar for accuracy
-```
+- A table of stock returns with no source note.
+- A chart of GDP growth with no data attribution.
+- "The risk-free rate is 5%." (From where? As of when?)
 
 **Consequence**: HIGH priority fix
 
-### 3. No Ignoring Timezone Differences
+### 2. No Assumptions of Continuous Markets
 
-MUST NOT process market data without explicit timezone handling. Different exchanges operate in different timezones, and conflating them corrupts multi-market analyses.
+MUST NOT treat financial time series as continuous (available every calendar day). Equity markets are open approximately 252 days per year, not 365. Assuming otherwise leads to incorrect annualization and return calculations.
 
-**Detection Patterns**:
+**Incorrect**:
 
-```
-timestamp = datetime.now()  # Naive datetime — which timezone?
-prices_ny = fetch("AAPL")
-prices_tokyo = fetch("7203.T")
-combined = pd.concat([prices_ny, prices_tokyo])  # Timezone mismatch
-```
+- "We annualize daily returns by multiplying by 365." (Should be 252 for equities.)
+- "The dataset should have 1,825 observations over 5 years." (That assumes every calendar day has data.)
 
-**Correct Alternative**:
+**Consequence**: HIGH priority fix
 
-```python
-from datetime import timezone
-import pytz
+### 3. No Mixing of Incompatible Data Without Disclosure
 
-# Always use timezone-aware datetimes
-now_utc = datetime.now(timezone.utc)
-now_eastern = datetime.now(pytz.timezone("US/Eastern"))
+MUST NOT combine data from different sources, frequencies, or time zones without explicitly disclosing and justifying the approach.
 
-# Normalize to UTC before combining cross-market data
-prices_ny.index = prices_ny.index.tz_localize("US/Eastern").tz_convert("UTC")
-prices_tokyo.index = prices_tokyo.index.tz_localize("Asia/Tokyo").tz_convert("UTC")
-combined = pd.concat([prices_ny, prices_tokyo])
-```
+**Incorrect**:
+
+- Merging daily U.S. equity data with monthly European bond data without explaining the alignment method.
+- Combining Yahoo Finance data with Bloomberg data without noting potential differences in adjustment methodology.
 
 **Consequence**: HIGH priority fix
 
 ## Exceptions
 
-Data sourcing exceptions require:
+Data sourcing exceptions may apply when:
 
-1. Documentation of why the exception is needed (e.g., offline demo mode)
-2. Clear labeling when hardcoded/sample data is used
-3. Approval from intermediate-reviewer
-4. A tracked follow-up to replace with live data
+1. The assignment explicitly uses hypothetical or textbook data (clearly label it as such)
+2. The instructor provides a specific dataset for the assignment
+3. The analysis is purely theoretical with no empirical component
+4. Sample or illustrative data is used in a methodology section, clearly labeled as "for illustration only"

@@ -1,55 +1,70 @@
 ---
 name: start
-description: "New user orientation — explains the COC workflow and how to get started"
+description: "Student orientation — explains the FNCE CO workflow and how to get started"
 ---
 
-Present this orientation to the user in a warm, clear, jargon-free way. Adapt tone based on context — if they seem technical, be concise; if they seem new, take more time.
+Present this orientation to the student in a warm, clear, and encouraging way. Adapt tone based on context — if they seem experienced with academic research, be concise; if they seem new to university-level work, take more time.
 
-## What is COC?
+## What is FNCE CO?
 
-COC is a structured workflow for building financial education and analysis tools. YOU direct an AI to build the software — you don't need to write code. Your job is to:
+FNCE CO is an AI-powered academic companion for finance students. It helps you research, write, study, prepare presentations, and get ready for exams — while you stay in charge of the academic thinking.
 
-1. **Describe what you want** (in your own words, as detailed as you like)
-2. **Make decisions** when choices come up (we'll always explain the options clearly)
-3. **Approve the plan** before building starts
-4. **Review the results** to make sure they match your vision
+**Your job:**
 
-The AI handles all the technical work — writing code, testing, security checks, and deployment.
+1. **Choose your topic or thesis** — decide what you want to argue, analyze, or explore
+2. **Evaluate arguments** — the AI surfaces evidence and counterarguments, but you decide what's convincing
+3. **Form your own analysis** — your judgment and critical thinking are what earn the grade
+4. **Approve the direction** before major work begins
 
-## The 5 Phases
+**The AI helps with:**
 
-| Step         | Command      | What Happens                                          | Your Role                               |
-| ------------ | ------------ | ----------------------------------------------------- | --------------------------------------- |
-| 1. Research  | `/analyze`   | Study your idea — market fit, user needs, competition | Confirm we understood your vision       |
-| 2. Planning  | `/todos`     | Create a complete project roadmap                     | Approve the plan before building starts |
-| 3. Building  | `/implement` | Build the project one task at a time                  | Answer questions when choices come up   |
-| 4. Testing   | `/redteam`   | Test everything from a real user's perspective        | Review results                          |
-| 5. Knowledge | `/codify`    | Capture what we learned for future sessions           | Confirm the knowledge is accurate       |
+- Finding and organizing sources
+- Structuring papers and presentations
+- Explaining difficult finance concepts in plain language
+- Generating practice problems for exam prep
+- Formatting citations and references
+- Checking your arguments for logical gaps
 
-Plus **`/deploy`** when you're ready to launch, and **`/ws`** anytime to check progress.
+## The Academic Workflow
+
+| Step        | Command        | What Happens                                            | Your Role                                     |
+| ----------- | -------------- | ------------------------------------------------------- | --------------------------------------------- |
+| 1. Research | `/analyze`     | Deep research on your topic — sources, theories, data   | Confirm the research direction is right        |
+| 2. Planning | `/todos`       | Plan your deliverables — outline, sections, timeline    | Approve the plan before drafting starts        |
+| 3. Drafting | `/assignment` or `/thesis` | Work through the project section by section | Make the analytical decisions as you go        |
+| 4. Review   | `/challenge`   | Stress-test your arguments like a tough professor would | Review the feedback and strengthen weak points |
+| 5. Save     | `/wrapup`      | Save progress so the next session picks up where you left off | Confirm the summary is accurate          |
+
+Plus **`/ws`** anytime to check your project status.
 
 ## Getting Started
 
-Walk the user through these steps:
+Walk the student through these steps:
 
-1. **Create a workspace**: Ask the AI to set up a workspace for your project (e.g., "create a workspace called my-project"), or manually create a folder `workspaces/my-project/briefs/`
-2. **Write a brief**: Create a file in the briefs folder describing what financial tool or learning experience you want to build — in your own words, as detailed as you like. Include who it's for (beginners learning investing? advisors analyzing portfolios?), what problem it solves, and what success looks like. You can also just tell the AI what you want and ask it to write the brief for you.
+1. **Create a workspace**: Ask the AI to set up a workspace for your project (e.g., "create a workspace called macro-policy-paper"), or manually create a folder `workspaces/my-project/briefs/`
+2. **Describe your assignment**: Create a file in the briefs folder describing the assignment, research question, or topic you want to work on — in your own words. Include what course it is for, what the deliverable is (essay, presentation, problem set, thesis), any requirements from your professor, and the deadline. You can also just tell the AI what you need and ask it to write the brief for you.
 3. **Run `/analyze`**: This kicks off the research phase
 
-If the user already has a workspace, show them their current status with `/ws` instead.
+If the student already has a workspace, show them their current status with `/ws` instead.
 
 ## Helpful Commands
 
+- **`/study`** — Generate a structured study guide for a finance topic
+- **`/explain`** — Get a plain-language explanation of a concept
+- **`/practice`** — Generate practice problems for exam prep
+- **`/cite`** — Help with citations and references
+- **`/formula`** — Quick reference for financial formulas
+- **`/research`** — Find academic sources on a topic
 - **`/ws`** — Check project status at any time
-- **`/wrapup`** — Save your progress before ending a session (the AI picks up where you left off next time)
-- **Ask anything** — You can always just type a question in plain language
+- **`/wrapup`** — Save your progress before ending a session
 
-## Tips for Non-Coders
+## Tips for Students
 
 Present these naturally, not as a lecture:
 
-- **You don't need to understand code.** When the AI mentions technical things, ask it to explain in plain language.
-- **Your knowledge is the most valuable input.** You know your users, your market, and your vision better than any AI.
-- **"I don't understand" is always valid.** The AI will rephrase — no judgment.
-- **Approval gates protect you.** Never approve something you don't fully understand. Ask questions first.
+- **Your analysis and judgment matter most.** The AI is a research assistant, not a replacement for your thinking. Professors grade your reasoning, not the AI's.
+- **You set the direction.** Choose your thesis, pick your framework, decide which evidence is strongest. The AI helps you execute — you make the calls.
+- **"I don't understand" is always valid.** Ask the AI to explain anything differently — no judgment, ever.
+- **Approval gates protect you.** Before major work begins, you review and approve. Never approve a direction you are not comfortable with. Ask questions first.
 - **The AI remembers across sessions.** Run `/wrapup` before leaving, and your next session starts right where you left off.
+- **Academic integrity is your responsibility.** Use this tool to support your learning and research process. The final work you submit must reflect your own understanding and analysis.

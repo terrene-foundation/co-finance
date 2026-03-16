@@ -2,11 +2,11 @@
 /**
  * Hook: user-prompt-rules-reminder
  * Event: UserPromptSubmit
- * Purpose: Inject critical rules into conversation on EVERY user message.
+ * Purpose: Inject critical academic rules into conversation on EVERY user message.
  *          This is the PRIMARY mechanism that survives context compression,
  *          because it runs fresh on every turn (independent of memory).
  *
- * Framework-agnostic — works with any FMI project.
+ * Framework-agnostic — works with any academic finance project.
  *
  * Exit Codes:
  *   0 = success (continue)
@@ -16,7 +16,7 @@ const fs = require("fs");
 const path = require("path");
 const {
   parseEnvFile,
-  discoverModelsAndKeys,
+  checkApiKeys,
   buildCompactSummary,
   ensureEnvFile,
 } = require("./lib/env-utils");
@@ -51,13 +51,18 @@ function buildReminder(data) {
   // ── Always inject env summary (brief, 1-2 lines) ─────────────────
   const envPath = path.join(cwd, ".env");
   let envSummary = "No .env found";
-  let failures = [];
 
   if (fs.existsSync(envPath)) {
     const env = parseEnvFile(envPath);
-    const discovery = discoverModelsAndKeys(env);
+    const apiKeyStatus = checkApiKeys(env);
+    const discovery = { validations: [] };
+    for (const entry of apiKeyStatus.configured) {
+      discovery.validations.push({ ...entry, status: "ok" });
+    }
+    for (const entry of apiKeyStatus.missing) {
+      discovery.validations.push({ ...entry, status: "MISSING_KEY" });
+    }
     envSummary = buildCompactSummary(env, discovery);
-    failures = discovery.validations.filter((v) => v.status === "MISSING_KEY");
   } else {
     // Try to create .env
     ensureEnvFile(cwd);
@@ -66,26 +71,17 @@ function buildReminder(data) {
   // ── Build the reminder lines ──────────────────────────────────────
   const lines = [];
 
-  // Line 1: Always show model/key status (compressed, 1 line)
-  lines.push(`[ENV] ${envSummary}`);
+  // Line 1: Always show data API key status (compressed, 1 line)
+  lines.push(`[DATA] ${envSummary}`);
 
-  // Line 2: If there are failures, highlight them
-  if (failures.length > 0) {
-    lines.push(
-      `[ENV] CRITICAL: ${failures.length} model(s) missing API keys — LLM calls will fail!`,
-    );
-  }
-
-  // Line 3: Core behavioral rules (always present, survives compression)
+  // Line 2: Core academic rules (always present, survives compression)
   lines.push(
-    "[RULES] Never hardcode models/keys. " +
-      "Create missing records (god-mode). " +
-      "Implement gaps, don't document them. " +
-      "Follow up on failures. " +
-      "No stubs/TODOs/simulated data in production code.",
+    "[RULES] Cite all sources. Complete all analysis (no placeholders). " +
+      "Verify data accuracy. Follow assignment formatting requirements. " +
+      "Disclose AI assistance per institutional policy.",
   );
 
-  // Line 4: Workspace context (survives compaction — primary anti-amnesia mechanism)
+  // Line 3: Workspace context (survives compaction — primary anti-amnesia mechanism)
   try {
     const wsSummary = buildWorkspaceSummary(cwd);
     if (wsSummary) {
@@ -94,45 +90,61 @@ function buildReminder(data) {
   } catch {}
 
   // ── Contextual reminders based on user message content ────────────
-  const llmKeywords = [
-    "model",
-    "llm",
-    "agent",
-    "gpt",
-    "claude",
-    "gemini",
-    "openai",
-    "anthropic",
-    "api key",
-    "shadow agent",
-    "objective",
+  const citationKeywords = [
+    "cite",
+    "citation",
+    "reference",
+    "bibliography",
+    "apa",
+    "chicago",
+    "harvard",
+    "source",
   ];
-  const e2eKeywords = [
-    "e2e",
+  const writingKeywords = [
+    "thesis",
+    "paper",
+    "essay",
+    "draft",
+    "write",
+    "argument",
+    "evidence",
+  ];
+  const examKeywords = [
+    "exam",
     "test",
-    "playwright",
-    "validate",
-    "red-team",
-    "persona",
-    "rbac",
-    "login",
+    "quiz",
+    "study",
+    "practice",
+    "formula",
   ];
 
-  const mentionsLLM = llmKeywords.some((kw) => userMessage.includes(kw));
-  const mentionsE2E = e2eKeywords.some((kw) => userMessage.includes(kw));
+  const mentionsCitation = citationKeywords.some((kw) =>
+    userMessage.includes(kw),
+  );
+  const mentionsWriting = writingKeywords.some((kw) =>
+    userMessage.includes(kw),
+  );
+  const mentionsExam = examKeywords.some((kw) => userMessage.includes(kw));
 
-  if (mentionsLLM) {
+  if (mentionsCitation) {
     lines.push(
-      "[REMINDER] Read model name from .env (OPENAI_PROD_MODEL or equivalent). " +
-        "Read API key from .env. NEVER hardcode.",
+      "[REMINDER] Use proper citation format (APA 7th, Chicago, or as specified). " +
+        "Include all required fields: author, year, title, source. Verify DOIs and URLs.",
     );
   }
 
-  if (mentionsE2E) {
+  if (mentionsWriting) {
     lines.push(
-      "[REMINDER] God-mode E2E: Create ALL missing records. " +
-        "Adapt to data changes. Assume correct role. " +
-        "If endpoint missing, implement it.",
+      "[REMINDER] Follow academic writing standards: clear thesis statement, " +
+        "evidence-based arguments, proper structure (intro, body, conclusion). " +
+        "Cite all claims. Disclose AI assistance.",
+    );
+  }
+
+  if (mentionsExam) {
+    lines.push(
+      "[REMINDER] Focus on understanding concepts, not memorizing answers. " +
+        "Show work for calculations. Use proper financial notation and units.",
     );
   }
 

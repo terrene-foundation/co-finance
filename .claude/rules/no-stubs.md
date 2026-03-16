@@ -1,59 +1,99 @@
-# No Stubs, TODOs, or Simulated Data
+# Academic Completeness
 
 ## Scope
 
-These rules apply to production code (non-test files).
+These rules apply to all academic work submitted for evaluation — research papers, thesis chapters, essays, case study analyses, problem sets, and presentations.
 
 ## RECOMMENDED Rules
 
-### 1. Avoid Stubs or Placeholders
+### 1. No Incomplete Analysis Sections
 
-Production code SHOULD NOT contain:
+Academic work SHOULD NOT contain sections that are started but not finished. Every section in your paper should be substantive and contribute to the argument.
 
-- `raise NotImplementedError` (implement the method)
-- `pass # placeholder` or `pass # stub`
-- `return None # not implemented`
-- Empty function/method bodies that should have logic
+**Incomplete (avoid)**:
 
-**Note**: `TODO` and `FIXME` markers are acceptable during development but should be tracked and resolved before release.
+- "This section will discuss the implications of our findings." (But then says nothing else.)
+- A methodology section that describes the approach but never explains the specific steps taken.
+- A results section with tables but no interpretation of what the numbers mean.
 
-### 2. Avoid Simulated or Fake Data
+**Complete**:
 
-Production code SHOULD NOT contain:
+- Every section has a clear purpose, presents content, and connects to the sections around it.
+- If a section is not yet ready, remove it from the submitted draft rather than leaving a skeleton.
 
-- `simulated_data`, `fake_response`, `dummy_value`
-- Hardcoded mock responses pretending to be real API calls
-- `return {"status": "ok"}` as a placeholder for real logic
-- Test fixtures masquerading as production defaults
+### 2. No Claims Without Evidence
 
-### 3. Avoid Silent Fallbacks
+Academic work SHOULD NOT make assertions without supporting evidence — whether from data, cited sources, or logical argument.
 
-Production code SHOULD NOT silently swallow errors:
+**Unsupported (avoid)**:
 
-- `except: pass` (bare except with pass)
-- `catch(e) {}` (empty catch block)
-- `except Exception: return None` without logging
+- "Diversification reduces risk." (True, but needs a citation or explanation.)
+- "The CAPM is widely criticized." (By whom? For what reasons? Cite specific critiques.)
+- "Our results clearly show that the strategy outperforms." (Show the numbers and the statistical test.)
 
-**Acceptable**: `except: pass` in hooks/cleanup code where failure is expected.
+**Supported**:
 
-### 4. Prefer Complete Implementation
+- "Diversification reduces portfolio risk by combining assets whose returns are not perfectly correlated (Markowitz, 1952)."
+- "The CAPM has been criticized for its reliance on a single risk factor, with Fama and French (1993) demonstrating that size and value factors explain significant cross-sectional variation in returns."
+- "Over the sample period, the strategy achieved an annualized return of 11.2% versus 8.4% for the benchmark (t-statistic = 2.31, p < 0.05), suggesting statistically significant outperformance."
 
-When implementing a feature:
+### 3. No Skipped Methodology
 
-- Implement methods fully, not just the happy path
-- If an endpoint exists, it should return real data
-- If a service is referenced, it should be functional
+Academic work SHOULD NOT omit the methodology section or leave it vague. The methodology is what allows a reader (or grader) to evaluate whether your conclusions are valid.
 
-**Note**: Iterative development is fine — incomplete implementations are acceptable when tracked as follow-up work.
+**Vague (avoid)**:
+
+- "We analyzed the data using standard methods."
+- "Returns were calculated and compared."
+- "We used Excel to do the analysis."
+
+**Specific**:
+
+- "We computed monthly simple returns from adjusted closing prices, then annualized using the geometric mean. Risk was measured as the annualized standard deviation of monthly returns. Portfolio optimization was performed using mean-variance optimization with a constraint of no short selling, following Markowitz (1952)."
+
+### 4. No Placeholder Text
+
+Academic work SHOULD NOT contain placeholder text that was meant to be replaced before submission.
+
+**Placeholders to catch before submitting**:
+
+- "TODO: add data here"
+- "[insert table]"
+- "[citation needed]"
+- "TBD"
+- "Lorem ipsum" or any filler text
+- "[Author, Year]" without the actual reference
+- "XX%" or "$XXX" where a real number should appear
+
+Every placeholder represents an incomplete thought. Either fill it in or remove the containing sentence.
+
+### 5. No Conclusions Without Analysis
+
+Academic work SHOULD NOT jump to conclusions that are not supported by the preceding analysis.
+
+**Unsupported conclusion (avoid)**:
+
+- Stating that a strategy is "optimal" without showing the optimization process or comparison to alternatives.
+- Recommending an investment without discussing the risks, assumptions, and limitations.
+- Claiming statistical significance without reporting test statistics or p-values.
+
+**Supported conclusion**:
+
+- Every conclusion traces back to a specific finding in the results section.
+- Limitations are acknowledged.
+- Alternative interpretations are considered.
 
 ## Why This Matters
 
-Stubs and TODOs accumulate silently. Each one is a potential failure point:
+Incomplete academic work undermines your credibility and your grade:
 
-- Users encounter `NotImplementedError` in production
-- Silent fallbacks mask real bugs
-- Simulated data gives false confidence in demos
+- Instructors look for completeness as a baseline requirement. Gaps in analysis signal that the work was rushed or not fully thought through.
+- Unsupported claims weaken your argument and may be flagged as speculation rather than analysis.
+- Placeholder text left in a submission signals carelessness.
+- In a thesis or dissertation, incomplete sections may require a full revision cycle, delaying your progress.
 
 ## Exceptions
 
-Test files (`test_*`, `*_test.*`, `*.test.*`, `*.spec.*`, `__tests__/`) are excluded.
+- **Early drafts shared with advisors**: Work-in-progress drafts shared for feedback may contain TODOs and incomplete sections — this is normal. Label them clearly so your advisor knows what is finished and what is not.
+- **Timed assignments**: Under time pressure (exams, timed case studies), partial analysis is acceptable. Focus on demonstrating your reasoning process even if you cannot complete every calculation.
+- **Outline submissions**: If the assignment is to submit an outline or proposal, placeholder structure is expected.

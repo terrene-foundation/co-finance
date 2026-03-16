@@ -59,10 +59,10 @@ function savePreCompactState(data) {
     compactedAt: new Date().toISOString(),
     preservedContext: {
       // Critical items to preserve
-      frameworkInUse: detectFramework(cwd),
-      activeWorkflows: findActiveWorkflows(cwd),
+      projectType: detectProjectType(cwd),
+      activeDocuments: findActiveDocuments(cwd),
       recentlyModified: findRecentlyModified(cwd),
-      criticalPatterns: extractCriticalPatterns(cwd),
+      academicPatterns: extractAcademicPatterns(cwd),
     },
   };
 
@@ -79,9 +79,9 @@ function savePreCompactState(data) {
       cwd,
       "connection_pattern",
       {
-        framework: checkpoint.preservedContext.frameworkInUse,
-        active_workflows: checkpoint.preservedContext.activeWorkflows,
-        critical_patterns: checkpoint.preservedContext.criticalPatterns,
+        projectType: checkpoint.preservedContext.projectType,
+        active_documents: checkpoint.preservedContext.activeDocuments,
+        academic_patterns: checkpoint.preservedContext.academicPatterns,
         recently_modified_count:
           checkpoint.preservedContext.recentlyModified.length,
       },
@@ -120,66 +120,96 @@ function savePreCompactState(data) {
   }
 }
 
-function detectFramework(cwd) {
+/**
+ * Detect the academic project type by checking for characteristic files.
+ *
+ * @param {string} cwd - Project root directory
+ * @returns {string} Project type identifier
+ */
+function detectProjectType(cwd) {
   try {
-    const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".py"));
+    const files = fs.readdirSync(cwd).map((f) => f.toLowerCase());
 
-    for (const file of files.slice(0, 10)) {
-      try {
-        const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/import pandas/.test(content) || /import yfinance/.test(content))
-          return "market-data";
-        if (/import numpy/.test(content) || /import scipy/.test(content))
-          return "quantitative";
-        if (
-          /import backtrader/.test(content) ||
-          /import QuantLib/.test(content)
-        )
-          return "backtesting";
-        if (/import matplotlib/.test(content) || /import plotly/.test(content))
-          return "visualization";
-      } catch {}
+    for (const file of files) {
+      if (file.includes("thesis")) return "thesis";
+      if (file.includes("paper") && file.endsWith(".md")) return "paper";
+      if (file.includes("assignment")) return "assignment";
+      if (file.includes("case-study") || file.includes("casestudy"))
+        return "case-study";
+      if (file.includes("presentation") || file.endsWith(".pptx"))
+        return "presentation";
     }
 
-    return "financial";
+    const hasSourcesDir = fs.existsSync(path.join(cwd, "sources"));
+    const hasResearchDir = fs.existsSync(path.join(cwd, "01-research"));
+    if (hasSourcesDir || hasResearchDir) return "research";
+
+    return "academic";
   } catch {
     return "unknown";
   }
 }
 
-function findActiveWorkflows(cwd) {
+/**
+ * Scan .md files for academic document structures.
+ *
+ * @param {string} cwd - Project root directory
+ * @returns {Array} Active document descriptors
+ */
+function findActiveDocuments(cwd) {
   try {
-    const workflows = [];
-    const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".py"));
+    const documents = [];
+    const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".md"));
 
-    for (const file of files.slice(0, 10)) {
+    for (const file of files.slice(0, 15)) {
       try {
         const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/import pandas|import yfinance|import backtrader/.test(content)) {
-          // Extract analysis pipeline name if possible
-          const match = content.match(/(?:def|class)\s+(\w+)/);
-          workflows.push({
-            file,
-            name: match ? match[1] : "unnamed",
-          });
+        const type = classifyDocument(content, file);
+        if (type) {
+          documents.push({ file, type });
         }
       } catch {}
     }
 
-    return workflows;
+    return documents;
   } catch {
     return [];
   }
 }
 
+/**
+ * Classify a markdown document by its content and filename.
+ */
+function classifyDocument(content, filename) {
+  const lower = content.toLowerCase();
+  const lowerName = filename.toLowerCase();
+
+  if (lowerName.includes("thesis") || /\babstract\b/.test(lower) && /\bliterature review\b/.test(lower))
+    return "thesis";
+  if (lowerName.includes("paper") || /\babstract\b/.test(lower) && /\bmethodology\b/.test(lower))
+    return "paper";
+  if (lowerName.includes("assignment") || lowerName.includes("homework"))
+    return "assignment";
+  if (lowerName.includes("case-study") || lowerName.includes("casestudy"))
+    return "case-study";
+  if (/\bliterature review\b/.test(lower)) return "literature-review";
+  if (/\banalysis\b/.test(lower) || /\bresults\b/.test(lower)) return "analysis";
+
+  return null;
+}
+
+/**
+ * Find recently modified .md files (within last hour).
+ *
+ * @param {string} cwd - Project root directory
+ * @returns {Array<string>} Recently modified filenames
+ */
 function findRecentlyModified(cwd) {
   try {
     const oneHourAgo = Date.now() - 60 * 60 * 1000;
     const recentFiles = [];
 
-    const files = fs
-      .readdirSync(cwd)
-      .filter((f) => f.endsWith(".py") || f.endsWith(".md"));
+    const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".md"));
 
     for (const file of files) {
       try {
@@ -196,31 +226,39 @@ function findRecentlyModified(cwd) {
   }
 }
 
-function extractCriticalPatterns(cwd) {
+/**
+ * Extract academic patterns from workspace markdown files.
+ *
+ * @param {string} cwd - Project root directory
+ * @returns {Object} Detected academic patterns
+ */
+function extractAcademicPatterns(cwd) {
   const patterns = {
-    hasMarketDataPipeline: false,
-    hasPortfolioAnalysis: false,
-    hasBacktesting: false,
-    hasVisualization: false,
-    hasRiskMetrics: false,
+    hasLiteratureReview: false,
+    hasMethodology: false,
+    hasDataAnalysis: false,
+    hasCitations: false,
+    hasDraft: false,
   };
 
   try {
-    const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".py"));
+    const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".md"));
 
-    for (const file of files.slice(0, 10)) {
+    for (const file of files.slice(0, 15)) {
       try {
         const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/import yfinance|import pandas_datareader/.test(content))
-          patterns.hasMarketDataPipeline = true;
-        if (/import cvxpy|portfolio.*optim/.test(content))
-          patterns.hasPortfolioAnalysis = true;
-        if (/import backtrader|import QuantLib/.test(content))
-          patterns.hasBacktesting = true;
-        if (/import matplotlib|import plotly|import mplfinance/.test(content))
-          patterns.hasVisualization = true;
-        if (/sharpe|volatility|var.*confidence/.test(content))
-          patterns.hasRiskMetrics = true;
+        const lower = content.toLowerCase();
+
+        if (/literature review/.test(lower)) patterns.hasLiteratureReview = true;
+        if (/methodology/.test(lower)) patterns.hasMethodology = true;
+        if (/\banalysis\b/.test(lower) || /\bresults\b/.test(lower))
+          patterns.hasDataAnalysis = true;
+        // Detect citation patterns like (Author, Year) or (Author Year)
+        if (/\([A-Z][a-z]+,?\s+\d{4}\)/.test(content))
+          patterns.hasCitations = true;
+
+        // Check for "draft" in filename
+        if (file.toLowerCase().includes("draft")) patterns.hasDraft = true;
       } catch {}
     }
   } catch {}

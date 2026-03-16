@@ -1,48 +1,45 @@
 # Workspaces Scope
 
-Workspaces are session/run records. The `briefs/` directory is the **only place users write** — everything else is agent output. The actual codebase (`src/`, `apps/`, `docs/`) lives at the **project root**, not inside workspaces.
+Workspaces are project records for academic work. The `briefs/` directory is the **only place students write** — everything else is agent output.
 
-Read `.claude/` freely but never write to it except `.claude/agents/project/` and `.claude/skills/project/` during phase 05.
+Read `.claude/` freely but never write to it except `.claude/agents/project/` and `.claude/skills/project/`.
 
 ## Phase Contract
 
 Follow phases in order using slash commands. Each command is self-contained — it includes workspace detection, workflow steps, and agent teams.
 
-Each phase has a human gate — do not proceed without approval.
+Each phase has a human gate — do not proceed without student approval.
 
-| Phase | Command      | Workspace Output                              | Project Root Output                                  | Gate              |
-| ----- | ------------ | --------------------------------------------- | ---------------------------------------------------- | ----------------- |
-| 01    | `/analyze`   | `01-analysis/`, `02-plans/`, `03-user-flows/` |                                                      | Human review      |
-| 02    | `/todos`     | `todos/active/`                               |                                                      | Human approval    |
-| 03    | `/implement` | `todos/active/` -> `todos/completed/`         | `src/`, `apps/`, `docs/`                             | All tests passing |
-| 04    | `/redteam`   | `04-validate/`                                |                                                      | Red team sign-off |
-| 05    | `/codify`    |                                               | `.claude/agents/project/`, `.claude/skills/project/` | Human review      |
+| Phase | Command      | Workspace Output                           | Gate              |
+| ----- | ------------ | ------------------------------------------ | ----------------- |
+| 01    | `/analyze`   | `01-research/`, `02-outline/`, `sources/`  | Student review    |
+| 02    | `/todos`     | `todos/active/`                            | Student approval  |
+| 03    | `/assignment`| `03-drafts/`, `todos/completed/`           | Draft review      |
+| 04    | `/challenge` | `04-review/`                               | Student review    |
+| 05    | Final        | `05-final/`                                | Student sign-off  |
 
 Additional: `/ws` (status dashboard), `/wrapup` (save session notes before ending).
 
-## User Input Surface
+## Student Input Surface
 
-`briefs/` is the only directory users write to. All commands read it for context. Users add numbered files over time:
+`briefs/` is the only directory students write to. All commands read it for context. Students add numbered files over time:
 
-- `01-product-brief.md` — initial vision, tech stack, constraints, users
-- `02-add-payments.md` — new feature request
-- `03-gap-feedback.md` — corrections or feedback on agent output
+- `01-assignment-brief.md` — assignment description, requirements, due date
+- `02-additional-notes.md` — professor feedback, additional requirements
+- `03-sources-found.md` — sources the student has already identified
 - etc.
 
 Copy `workspaces/_template/` to start a new workspace.
 
 ## What Lives Where
 
-**Workspace** (`workspaces/<name>/`) — session record:
+**Workspace** (`workspaces/<name>/`) — project record:
 
-- `briefs/` — user input (the ONLY place users write)
-- `01-analysis/`, `02-plans/`, `03-user-flows/` — agent research output
-- `04-validate/` — red team results
-- `todos/` — task tracking
-
-**Project root** — the actual solution:
-
-- `src/` — backend codebase
-- `apps/web/`, `apps/mobile/` — frontend codebases
-- `docs/`, `docs/00-authority/` — project documentation
-- `.claude/agents/project/`, `.claude/skills/project/` — codified knowledge
+- `briefs/` — student input (the ONLY place students write)
+- `01-research/` — research findings, literature summaries
+- `02-outline/` — paper/project outline and structure
+- `03-drafts/` — working drafts of sections
+- `04-review/` — peer review feedback, argument analysis
+- `05-final/` — final polished deliverables
+- `sources/` — collected source materials and references
+- `todos/` — task tracking (sections to write, sources to find)

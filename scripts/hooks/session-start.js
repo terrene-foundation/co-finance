@@ -2,10 +2,11 @@
 /**
  * Hook: session-start
  * Event: SessionStart
- * Purpose: Discover env config, validate model-key pairings, create .env if
- *          missing, output model configuration prominently.
+ * Purpose: FNCE CO Claude — Academic Finance Education
+ *          Discover env config, validate data API keys, create .env if
+ *          missing, detect academic project type.
  *
- * Framework-agnostic — works with any FMI project.
+ * Framework-agnostic — works with any academic finance project.
  *
  * Exit Codes:
  *   0 = success (continue)
@@ -17,9 +18,9 @@ const fs = require("fs");
 const path = require("path");
 const {
   parseEnvFile,
-  discoverModelsAndKeys,
   ensureEnvFile,
   buildCompactSummary,
+  checkApiKeys,
 } = require("./lib/env-utils");
 const {
   resolveLearningDir,
@@ -71,7 +72,7 @@ function initializeSession(data) {
   const envResult = ensureEnvFile(cwd);
   if (envResult.created) {
     console.error(
-      `[ENV] Created .env from ${envResult.source}. Please fill in your API keys.`,
+      `[SETUP] Created .env from ${envResult.source}. Add your data API keys if needed (e.g., FRED_API_KEY).`,
     );
   }
 
@@ -79,17 +80,17 @@ function initializeSession(data) {
   const envPath = path.join(cwd, ".env");
   const envExists = fs.existsSync(envPath);
   let env = {};
-  let discovery = { models: {}, keys: {}, validations: [] };
+  let apiKeyStatus = { configured: [], missing: [] };
 
   if (envExists) {
     env = parseEnvFile(envPath);
-    discovery = discoverModelsAndKeys(env);
+    apiKeyStatus = checkApiKeys(env);
   }
 
-  // ── Detect framework ──────────────────────────────────────────────────
-  const framework = detectFramework(cwd);
+  // ── Detect academic project type ────────────────────────────────────
+  const projectType = detectProjectType(cwd);
 
-  // ── Log observation ───────────────────────────────────────────────────
+  // ── Log observation ─────────────────────────────────────────────────
   try {
     const observationsFile = path.join(learningDir, "observations.jsonl");
     fs.appendFileSync(
@@ -100,12 +101,8 @@ function initializeSession(data) {
         cwd,
         timestamp: new Date().toISOString(),
         envExists,
-        framework,
-        models: discovery.models,
-        keyCount: Object.keys(discovery.keys).length,
-        validationFailures: discovery.validations
-          .filter((v) => v.status === "MISSING_KEY")
-          .map((v) => v.message),
+        projectType,
+        keyCount: apiKeyStatus.configured.length,
       }) + "\n",
     );
   } catch {}
@@ -138,54 +135,60 @@ function initializeSession(data) {
     }
   } catch {}
 
-  // ── Output model/key summary ──────────────────────────────────────────
+  // ── Output API key summary ──────────────────────────────────────────
   if (envExists) {
-    const summary = buildCompactSummary(env, discovery);
-    console.error(`[ENV] ${summary}`);
-
-    // Detail each model-key validation
-    for (const v of discovery.validations) {
-      const icon = v.status === "ok" ? "✓" : "✗";
-      console.error(`[ENV]   ${icon} ${v.message}`);
+    const discovery = { validations: [] };
+    for (const entry of apiKeyStatus.configured) {
+      discovery.validations.push({ ...entry, status: "ok" });
     }
+    for (const entry of apiKeyStatus.missing) {
+      discovery.validations.push({ ...entry, status: "MISSING_KEY" });
+    }
+    const summary = buildCompactSummary(env, discovery);
+    console.error(`[DATA] ${summary}`);
 
-    // Prominent warnings for missing keys
-    const failures = discovery.validations.filter(
-      (v) => v.status === "MISSING_KEY",
-    );
-    if (failures.length > 0) {
-      console.error(
-        `[ENV] WARNING: ${failures.length} model(s) configured without API keys!`,
-      );
-      console.error(
-        "[ENV] LLM operations WILL FAIL. Add missing keys to .env.",
-      );
+    // Detail each API key status
+    for (const entry of apiKeyStatus.configured) {
+      console.error(`[DATA]   ✓ ${entry.provider} key configured (${entry.key})`);
+    }
+    for (const entry of apiKeyStatus.missing) {
+      console.error(`[DATA]   ✗ ${entry.provider} key not set (${entry.key})`);
     }
   } else {
     console.error(
-      "[ENV] No .env file found. API keys and models not configured.",
+      "[DATA] No .env file found. Data API keys not configured.",
     );
   }
 }
 
-function detectFramework(cwd) {
+/**
+ * Detect the academic project type by checking for characteristic files
+ * in the workspace.
+ *
+ * @param {string} cwd - Project root directory
+ * @returns {string} Project type identifier
+ */
+function detectProjectType(cwd) {
   try {
-    const files = fs.readdirSync(cwd);
-    for (const file of files.filter((f) => f.endsWith(".py")).slice(0, 10)) {
-      try {
-        const content = fs.readFileSync(path.join(cwd, file), "utf8");
-        if (/import pandas/.test(content) || /import yfinance/.test(content))
-          return "market-data";
-        if (/import numpy/.test(content) || /import scipy/.test(content))
-          return "quantitative";
-        if (
-          /import backtrader/.test(content) ||
-          /import QuantLib/.test(content)
-        )
-          return "backtesting";
-      } catch {}
+    const files = fs.readdirSync(cwd).map((f) => f.toLowerCase());
+
+    // Check for specific academic document types
+    for (const file of files) {
+      if (file.includes("thesis")) return "thesis";
+      if (file.includes("paper") && file.endsWith(".md")) return "paper";
+      if (file.includes("assignment")) return "assignment";
+      if (file.includes("case-study") || file.includes("casestudy"))
+        return "case-study";
+      if (file.includes("presentation") || file.endsWith(".pptx"))
+        return "presentation";
     }
-    return "financial";
+
+    // Check for research indicators
+    const hasSourcesDir = fs.existsSync(path.join(cwd, "sources"));
+    const hasResearchDir = fs.existsSync(path.join(cwd, "01-research"));
+    if (hasSourcesDir || hasResearchDir) return "research";
+
+    return "academic";
   } catch {
     return "unknown";
   }
