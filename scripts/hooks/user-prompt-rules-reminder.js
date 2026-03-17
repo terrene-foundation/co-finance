@@ -74,7 +74,8 @@ function buildReminder(data) {
   // Line 1: Always show data API key status (compressed, 1 line)
   lines.push(`[DATA] ${envSummary}`);
 
-  // Line 2: Core academic rules (always present, survives compression)
+  // Line 2: COF identity + core academic rules (always present, survives compression)
+  lines.push("[COF] CO for Finance — academic integrity mode active.");
   lines.push(
     "[RULES] Cite all sources. Complete all analysis (no placeholders). " +
       "Verify data accuracy. Follow assignment formatting requirements. " +

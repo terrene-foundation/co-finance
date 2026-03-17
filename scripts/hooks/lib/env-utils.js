@@ -137,9 +137,9 @@ function ensureEnvFile(cwd) {
     }
   }
 
-  // Generate minimal template for FNCE academic project
+  // Generate minimal template for COF academic project
   const template = [
-    "# Auto-generated .env template for FNCE (Academic Finance Education)",
+    "# Auto-generated .env template for COF (CO for Finance — Academic Finance Education)",
     "# Fill in API keys below if your research requires data access",
     "",
     "# ── Economic Data (FRED) ─────────────────────────────────────",

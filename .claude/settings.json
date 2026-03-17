@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "description": "FNCE CO Claude — Academic Finance Education hooks configuration",
+  "description": "CO for Finance (COF) — Academic Finance Education hooks configuration",
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },

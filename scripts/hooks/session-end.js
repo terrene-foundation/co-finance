@@ -77,7 +77,7 @@ function saveSession(data) {
         file_counts: sessionData.stats,
         projectType: detectProjectType(cwd),
         duration_estimate: estimateSessionDuration(session_id, sessionDir),
-        identity: "fnce-co-claude",
+        identity: "co-finance",
       },
       {
         session_id,

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Minimal MCP configuration for FNCE academic projects. Context cost: ~10k tokens.",
+  "description": "Minimal MCP configuration for COF academic projects. Context cost: ~10k tokens.",
   "mcpServers": {
     "github": {
       "type": "http",

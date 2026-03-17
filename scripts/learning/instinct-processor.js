@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Instinct Processor for FNCE Continuous Learning System
+ * Instinct Processor for COF Continuous Learning System
  *
  * Processes observations to detect patterns and create instincts.
  * Part of Phase 4: Continuous Learning implementation.
@@ -358,7 +358,7 @@ function main() {
     case "--help":
     default:
       console.log(`
-Instinct Processor for FNCE Continuous Learning
+Instinct Processor for COF Continuous Learning
 
 Usage:
   node instinct-processor.js --analyze   Analyze observations for patterns

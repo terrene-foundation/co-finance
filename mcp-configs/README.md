@@ -1,4 +1,4 @@
-# MCP Configurations for FNCE Projects
+# MCP Configurations for COF Projects
 
 ## Context Impact Warning
 

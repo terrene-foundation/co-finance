@@ -1,5 +1,5 @@
 /**
- * Instinct Renderer for FNCE Continuous Learning System
+ * Instinct Renderer for COF Continuous Learning System
  *
  * Reads instincts from per-project directory and renders them as concise
  * markdown for injection into `.claude/rules/learned-instincts.md`.

@@ -13,21 +13,21 @@ const os = require("os");
  * Resolve the learning directory for a given project.
  *
  * Priority:
- *   1. FNCE_LEARNING_DIR env var (for testing)
+ *   1. COF_LEARNING_DIR env var (for testing; FNCE_LEARNING_DIR also accepted)
  *   2. <cwd>/.claude/learning/ (per-project)
- *   3. ~/.claude/fnce-learning/ (legacy fallback)
+ *   3. ~/.claude/cof-learning/ (legacy fallback)
  *
  * @param {string} [cwd] - Project working directory
  * @returns {string} Absolute path to the learning directory
  */
 function resolveLearningDir(cwd) {
-  if (process.env.FNCE_LEARNING_DIR) {
-    return process.env.FNCE_LEARNING_DIR;
+  if (process.env.COF_LEARNING_DIR || process.env.FNCE_LEARNING_DIR) {
+    return process.env.COF_LEARNING_DIR || process.env.FNCE_LEARNING_DIR;
   }
   if (cwd) {
     return path.join(cwd, ".claude", "learning");
   }
-  return path.join(os.homedir(), ".claude", "fnce-learning");
+  return path.join(os.homedir(), ".claude", "cof-learning");
 }
 
 /**
@@ -61,7 +61,7 @@ function ensureLearningDir(cwd) {
   if (!fs.existsSync(identityFile)) {
     try {
       const identity = {
-        system: "fnce-co-claude",
+        system: "co-finance",
         version: "3.0.0",
         created_at: new Date().toISOString(),
         learning_enabled: true,

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Instinct Evolver for FNCE Continuous Learning System
+ * Instinct Evolver for COF Continuous Learning System
  *
  * Evolves learned instincts into skills, commands, and agents.
  * Part of Phase 4: Continuous Learning implementation.
@@ -451,7 +451,7 @@ function main() {
     case "--help":
     default:
       console.log(`
-Instinct Evolver for FNCE Continuous Learning
+Instinct Evolver for COF Continuous Learning
 
 Usage:
   node instinct-evolver.js --candidates          List evolution candidates

@@ -212,6 +212,17 @@ MUST NOT list authors who did not contribute to the work, and MUST NOT omit auth
 
 **Consequence**: HIGH priority fix — correct the author list
 
+## AI Assistance Disclosure (CO Principle 8)
+
+Students MUST disclose AI assistance according to their institution's academic integrity policy. CO for Finance is designed for responsible human-AI collaboration where:
+
+- The student makes all analytical decisions (thesis positions, evidence evaluation, conclusions)
+- The AI assists with research, structure, and explanation
+- The workspace progression creates an auditable trail of genuine student engagement
+- Disclosure is a requirement, not an option
+
+This is not about concealing AI involvement. It is about ensuring the student's intellectual contribution is genuine and demonstrable.
+
 ## Exceptions
 
 Academic integrity exceptions are narrow:

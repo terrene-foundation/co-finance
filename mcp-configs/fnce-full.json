@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Full MCP configuration for FNCE academic projects with Canva integration. Context cost: ~25k tokens.",
+  "description": "Full MCP configuration for COF academic projects with Canva integration. Context cost: ~25k tokens.",
   "mcpServers": {
     "github": {
       "type": "http",

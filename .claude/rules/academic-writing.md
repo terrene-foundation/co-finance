@@ -4,6 +4,12 @@
 
 These rules apply to all written academic work, including essays, research papers, thesis chapters, literature reviews, case study analyses, discussion posts, executive summaries, and any prose intended for academic evaluation. They apply to both undergraduate and postgraduate work across all finance topics.
 
+## Authentic Voice Preservation (CO Principle 8)
+
+These writing rules exist to produce high-quality academic prose that reflects the student's genuine intellectual engagement. They are not designed to conceal AI involvement. The goal is authentic voice: writing that demonstrates the student's own analytical thinking, supported by proper evidence and clear structure.
+
+Students must disclose AI assistance per institutional policy (see `rules/academic-integrity.md`). The workspace progression (research -> analysis -> drafting -> review) creates an auditable trail of the student's engagement with the material.
+
 ## MUST Rules
 
 ### 1. Use Formal Academic Tone

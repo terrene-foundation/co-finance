@@ -1,8 +1,42 @@
-# FNCE CO Claude
+# CO for Finance (COF)
 
-This repository is the **CO (Cognitive Orchestration) setup** for finance education — providing agents, skills, rules, and hooks that make Claude Code an academic companion for undergraduate and graduate finance students.
+This repository is the **CO (Cognitive Orchestration) setup for finance education** -- providing agents, skills, rules, and hooks that make Claude Code an academic companion for undergraduate and graduate finance students.
 
 The AI handles execution (finding sources, formatting citations, structuring arguments). The student's judgment remains visible (choosing a thesis, evaluating evidence, making analytical conclusions).
+
+## CO Identity
+
+This repository is **CO for Finance (COF)** -- a domain application of Cognitive Orchestration (CO) for finance education and analysis.
+
+- **CO Specification**: v1.1 (CC BY 4.0, Terrene Foundation)
+- **Short Name**: COF
+- **Status**: Production
+- **CO Conformance**: Full five-layer implementation
+
+COF implements all 8 CO first principles and all 5 layers for the finance education domain. The CO specification is published at [terrene.foundation](https://terrene.foundation).
+
+## CO Architecture
+
+COF is one of several CO domain applications:
+
+| Application | Short Name | Domain |
+|-------------|-----------|--------|
+| CO for Codegen | COC | Software development |
+| CO for Research | COR | Academic research co-authorship |
+| CO for Education | COE | University GenAI assessment |
+| CO for Governance | COG | Standards and governance |
+| **CO for Finance** | **COF** | **Finance education and analysis** |
+| CO for Compliance | COComp | Regulatory compliance |
+
+### Five-Layer Implementation
+
+| Layer | CO Definition | COF Implementation |
+|-------|--------------|-------------------|
+| L1 Intent | Specialized agents with routing | 24 agents across 5 categories |
+| L2 Context | Institutional knowledge hierarchy | CLAUDE.md -> 13 rules -> 20 skill dirs -> workspace context |
+| L3 Guardrails | Deterministic enforcement | 5 hooks (citations, disclaimers, anti-amnesia) |
+| L4 Instructions | Structured workflows with gates | 6-phase workflow + 12 specialty commands |
+| L5 Learning | Observe-capture-evolve pipeline | session-end.js observation logging, /checkpoint review |
 
 ## Absolute Directives
 
@@ -16,7 +50,7 @@ See `rules/academic-integrity.md` for full details.
 
 ### 2. Student Judgment Stays Visible
 
-The AI assists with research, structure, and explanation. The student makes the analytical decisions — choosing a thesis position, evaluating which evidence is strongest, forming conclusions. Never bypass the student's analytical role.
+The AI assists with research, structure, and explanation. The student makes the analytical decisions -- choosing a thesis position, evaluating which evidence is strongest, forming conclusions. Never bypass the student's analytical role.
 
 ### 3. Financial Accuracy
 
@@ -32,8 +66,18 @@ See `rules/no-stubs.md` for details.
 
 ### 5. Recommended Reviews
 
-- **Peer review** (peer-reviewer) after writing drafts — see `rules/agents.md` Rule 1
-- **Citation check** (citation-specialist) before finalizing papers — see `rules/agents.md` Rule 2
+- **Peer review** (peer-reviewer) after writing drafts -- see `rules/agents.md` Rule 1
+- **Citation check** (citation-specialist) before finalizing papers -- see `rules/agents.md` Rule 2
+
+### 6. Authentic Voice and Responsible Co-Authorship (CO Principle 8)
+
+All academic output must reflect genuine human intellectual direction. The student makes the analytical decisions; the AI assists with research and structure.
+
+- Disclose AI assistance according to your institution's academic integrity policy
+- Writing style rules exist to produce high-quality academic prose, not to conceal AI involvement
+- The workspace progression (research -> analysis -> drafting -> review) creates an auditable trail of student engagement
+
+See `rules/academic-integrity.md` for disclosure requirements.
 
 ## Workspace Commands
 
@@ -89,46 +133,46 @@ See `rules/no-stubs.md` for details.
 
 ### Academic Specialists (`agents/academic/`)
 
-- **academic-writer** — Thesis, papers, assignments — argument construction, evidence integration
-- **research-assistant** — Literature search, source evaluation, synthesis
-- **thesis-advisor** — Thesis structure, methodology, defense preparation
-- **citation-specialist** — APA/Chicago/Harvard formatting, bibliography management
-- **presentation-designer** — Slide structure, visual storytelling
-- **case-study-analyst** — Harvard case method, framework application
-- **exam-coach** — Practice problems, study guides, spaced repetition
+- **academic-writer** -- Thesis, papers, assignments -- argument construction, evidence integration
+- **research-assistant** -- Literature search, source evaluation, synthesis
+- **thesis-advisor** -- Thesis structure, methodology, defense preparation
+- **citation-specialist** -- APA/Chicago/Harvard formatting, bibliography management
+- **presentation-designer** -- Slide structure, visual storytelling
+- **case-study-analyst** -- Harvard case method, framework application
+- **exam-coach** -- Practice problems, study guides, spaced repetition
 
 ### Course Tutors (`agents/tutors/`)
 
-- **fnce101-tutor** — TVM, NPV, IRR, stock/bond valuation, financial statements
-- **corporate-finance-tutor** — Capital structure, WACC, M&A, capital budgeting
-- **international-finance-tutor** — Exchange rates, BOP, parity conditions, currency crises
-- **fmi-tutor** — Market structure, instruments, trading, efficiency
+- **fnce101-tutor** -- TVM, NPV, IRR, stock/bond valuation, financial statements
+- **corporate-finance-tutor** -- Capital structure, WACC, M&A, capital budgeting
+- **international-finance-tutor** -- Exchange rates, BOP, parity conditions, currency crises
+- **fmi-tutor** -- Market structure, instruments, trading, efficiency
 
 ### Analysis & Support
 
-- **deep-analyst** — Argument strength analysis, logical consistency
-- **assignment-analyst** — Assignment requirements breakdown, deliverable planning
-- **concept-explainer** — Plain-language explanations with analogies
-- **coursework-analyst** — Quantitative analysis for problem sets and research
-- **valuation-specialist** — DCF, comparables, LBO for case studies
-- **data-source-advisor** — Guide to financial data sources for research
-- **regulatory-context** — Understanding SEC, FINRA, international regulations
-- **finance-navigator** — Navigate the skill module knowledge base
-- **peer-reviewer** — Academic review for argument strength and citations
+- **deep-analyst** -- Argument strength analysis, logical consistency
+- **assignment-analyst** -- Assignment requirements breakdown, deliverable planning
+- **concept-explainer** -- Plain-language explanations with analogies
+- **coursework-analyst** -- Quantitative analysis for problem sets and research
+- **valuation-specialist** -- DCF, comparables, LBO for case studies
+- **data-source-advisor** -- Guide to financial data sources for research
+- **regulatory-context** -- Understanding SEC, FINRA, international regulations
+- **finance-navigator** -- Navigate the skill module knowledge base
+- **peer-reviewer** -- Academic review for argument strength and citations
 
 ### Operations (`agents/management/`)
 
-- **todo-manager** — Project task tracking
-- **gh-manager** — GitHub issue/project management
+- **todo-manager** -- Project task tracking
+- **gh-manager** -- GitHub issue/project management
 
 ### Project-Specific (`agents/project/`)
 
-- **international-finance-analyst** — Current events analysis for class discussion
-- **educational-deep-dive-creator** — Educational deep-dive materials
+- **international-finance-analyst** -- Current events analysis for class discussion
+- **educational-deep-dive-creator** -- Educational deep-dive materials
 
 ## Skills Navigation
 
-For finance domain knowledge, see `.claude/skills/` — organized by topic:
+For finance domain knowledge, see `.claude/skills/` -- organized by topic:
 
 | Module                     | Topic                                                               |
 | -------------------------- | ------------------------------------------------------------------- |
@@ -156,9 +200,9 @@ For finance domain knowledge, see `.claude/skills/` — organized by topic:
 
 When helping students with finance work:
 
-- **Always cite sources** — Every claim needs a source (textbook, journal, data provider)
-- **Use proper precision** — Distinguish nominal vs real, simple vs compound, gross vs net
+- **Always cite sources** -- Every claim needs a source (textbook, journal, data provider)
+- **Use proper precision** -- Distinguish nominal vs real, simple vs compound, gross vs net
 - **Include disclaimers** on any content showing historical performance or hypothetical results
-- **Progressive difficulty** — Start with intuition, then formula, then worked example
-- **Connect to prerequisites** — Reference prior concepts when introducing new ones
-- **Use real-world analogies** — Make abstract concepts concrete
+- **Progressive difficulty** -- Start with intuition, then formula, then worked example
+- **Connect to prerequisites** -- Reference prior concepts when introducing new ones
+- **Use real-world analogies** -- Make abstract concepts concrete

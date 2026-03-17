@@ -2,7 +2,7 @@
 /**
  * Hook: session-start
  * Event: SessionStart
- * Purpose: FNCE CO Claude — Academic Finance Education
+ * Purpose: CO for Finance (COF) — Academic Finance Education
  *          Discover env config, validate data API keys, create .env if
  *          missing, detect academic project type.
  *

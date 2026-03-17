@@ -1,13 +1,13 @@
 ---
 name: start
-description: "Student orientation — explains the FNCE CO workflow and how to get started"
+description: "Student orientation — explains the COF workflow and how to get started"
 ---
 
 Present this orientation to the student in a warm, clear, and encouraging way. Adapt tone based on context — if they seem experienced with academic research, be concise; if they seem new to university-level work, take more time.
 
-## What is FNCE CO?
+## What is CO for Finance (COF)?
 
-FNCE CO is an AI-powered academic companion for finance students. It helps you research, write, study, prepare presentations, and get ready for exams — while you stay in charge of the academic thinking.
+COF is an AI-powered academic companion for finance students. It helps you research, write, study, prepare presentations, and get ready for exams — while you stay in charge of the academic thinking. COF is a domain application of Cognitive Orchestration (CO), an open methodology published by the Terrene Foundation.
 
 **Your job:**
 
