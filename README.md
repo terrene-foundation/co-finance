@@ -118,16 +118,32 @@ Your Question or Assignment
 
 ## Quick Start
 
-```bash
-# Clone
-git clone <your-repo-url>
-cd co-finance
+### Option A: Claude Code (CLI)
 
-# Go
+For technical users. Full CO enforcement via hooks.
+
+```bash
+git clone https://github.com/terrene-foundation/co-finance.git
+cd co-finance
 claude
 ```
 
-Then type `/start` to see how it works, or just describe what you need help with.
+Then type `/start`. COF introduces itself, explains the workflow, and asks about your course.
+
+### Option B: Claude Desktop Cowork (Plugin)
+
+For students who prefer a desktop interface. Same methodology, broader accessibility.
+
+1. Clone the template (you need the workspace structure):
+   ```bash
+   git clone https://github.com/terrene-foundation/co-finance.git
+   ```
+2. Install the COF plugin in Claude Desktop: open Cowork, click "Customize", install `co-finance` (or load from the `plugin/` folder in this repo)
+3. Open the cloned folder in Cowork and type `/co-finance:start`
+
+All skills are available as `/co-finance:study`, `/co-finance:explain`, `/co-finance:case`, etc.
+
+**What's different from CLI**: Hooks (automated validation) are advisory in Cowork, not enforced. All other functionality (skills, agents, tutors) works identically.
 
 ---
 
