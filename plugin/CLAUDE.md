@@ -1,5 +1,7 @@
 # COF Plugin -- CO for Finance
 
+> **New here?** Type `/co-finance:start` to begin. Have an assignment due? Type `/co-finance:assignment`. Need to study? Type `/co-finance:study`.
+
 This plugin implements **COF** (Cognitive Orchestration for Finance): AI-assisted finance education and analysis. COF applies the five-layer CO architecture to finance coursework: maintaining academic integrity, ensuring financial accuracy, preserving the student's analytical judgment, and producing work that meets university standards.
 
 ## Absolute Directives

@@ -132,18 +132,66 @@ Then type `/start`. COF introduces itself, explains the workflow, and asks about
 
 ### Option B: Claude Desktop Cowork (Plugin)
 
-For students who prefer a desktop interface. Same methodology, broader accessibility.
+For students who prefer a desktop interface. No coding experience needed.
 
-1. Clone the template (you need the workspace structure):
-   ```bash
-   git clone https://github.com/terrene-foundation/co-finance.git
-   ```
-2. Install the COF plugin in Claude Desktop: open Cowork, click "Customize", install `co-finance` (or load from the `plugin/` folder in this repo)
-3. Open the cloned folder in Cowork and type `/co-finance:start`
+**What you need before starting:**
+- Claude Desktop installed (version with Cowork support; your university may provide this)
+- A Claude Pro, Max, or Team subscription
+- About 10 minutes for one-time setup
 
-All skills are available as `/co-finance:study`, `/co-finance:explain`, `/co-finance:case`, etc.
+> **Note:** Your professor or teaching assistant may have already set up a shared workspace for your course. Check with them before starting from scratch.
 
-**What's different from CLI**: Hooks (automated validation) are advisory in Cowork, not enforced. All other functionality (skills, agents, tutors) works identically.
+**Step 1: Download the workspace files**
+
+You need a copy of the COF workspace on your computer. Choose one method:
+
+**Method A (recommended for most students):** Go to [github.com/terrene-foundation/co-finance](https://github.com/terrene-foundation/co-finance). Click the green **"Code"** button, then click **"Download ZIP"**. Unzip the downloaded file and move the folder to your Documents.
+
+**Method B (if you know git):**
+```bash
+git clone https://github.com/terrene-foundation/co-finance.git
+```
+
+**Step 2: Install the COF plugin in Claude Desktop**
+
+1. Open Claude Desktop
+2. Switch to the **"Cowork"** tab (at the top of the window)
+3. In the left sidebar, click **"Customize"**
+4. Click **"Browse plugins"**
+5. Search for `co-finance` and click **"Install"**
+
+If `co-finance` does not appear in the plugin browser, install it manually: click **"Load from folder"** and navigate to the `plugin` folder inside the folder you downloaded in Step 1.
+
+**Step 3: Open your workspace and start**
+
+1. In the Cowork tab, click **"Open folder"** (or drag the downloaded folder into the Cowork window)
+2. Type `/co-finance:start` in the chat
+3. COF will introduce itself, ask about your course, and suggest what to do first
+
+**Quick entry points** (type these after setup):
+- Have an assignment due? `/co-finance:assignment`
+- Need to study a topic? `/co-finance:study`
+- Preparing for an exam? `/co-finance:exam-prep`
+
+**Troubleshooting:**
+- **"Plugin not found" in the browser**: Use the manual "Load from folder" method in Step 2
+- **The folder won't open in Cowork**: Make sure you are in the Cowork tab, not the regular Chat tab
+- **Commands don't work**: Type the full name with prefix, e.g., `/co-finance:study` (not just `/study`)
+
+### Limitations of the Cowork plugin (compared to CLI)
+
+The Cowork plugin provides the same methodology and agents as the CLI version, with these differences:
+
+| Feature | CLI (Claude Code) | Cowork Plugin |
+|---------|-------------------|---------------|
+| **Guardrail enforcement** | Hooks automatically enforce citation verification, disclaimer requirements, and academic integrity checks | Rules are advisory. COF follows them but cannot programmatically enforce them. Run `/co-finance:review` and `/co-finance:cite` manually before submitting work. |
+| **Session memory** | `.session-notes` is read automatically on the next session start | Run `/co-finance:wrapup` before ending a session. The next session does not auto-read notes; tell COF to "read .session-notes" or run `/co-finance:start` which checks for them. |
+| **Skill names** | `/study`, `/explain`, `/case`, etc. | `/co-finance:study`, `/co-finance:explain`, `/co-finance:case`, etc. (plugin prefix required) |
+| **Agent permissions** | Agents can enforce permission modes and use hooks | Plugin agents cannot use hooks or override permission settings (Cowork security restriction). |
+| **File system access** | Full access | Access limited to the folder you opened in Cowork. |
+| **Course-specific tutors** | Pre-configured for specific courses (FNCE101, FNCE102, etc.) | Same tutors are available. If your course is not listed, COF still works using the general finance specialists. |
+
+These limitations do not affect the core methodology. Study guides, practice problems, case analysis, research support, and academic writing assistance all work identically.
 
 ---
 
