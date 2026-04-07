@@ -38,7 +38,7 @@ Rules are Markdown files that Claude reads and follows:
 │   ┌───────────────┐  ┌───────────────┐  ┌───────────────┐   │
 │   │  agents.md    │  │  testing.md   │  │  security.md  │   │
 │   │               │  │               │  │               │   │
-│   │ MUST delegate │  │ NO MOCKING    │  │ OWASP checks  │   │
+│   │ Should delegate │  │ Real infrastructure recommended    │  │ OWASP checks  │   │
 │   │ MUST review   │  │ Test-first    │  │ Secret mgmt   │   │
 │   └───────────────┘  └───────────────┘  └───────────────┘   │
 │                                                               │
@@ -69,17 +69,16 @@ Rules are Markdown files that Claude reads and follows:
 
 ### All 9 Rule Files
 
-| File                   | Domain                | Key Rules                                  |
-| ---------------------- | --------------------- | ------------------------------------------ |
-| `agents.md`            | Agent orchestration   | Mandatory delegations, review requirements |
-| `e2e-god-mode.md`      | E2E testing           | Implement everything, no placeholders      |
-| `env-models.md`        | API keys & models     | .env is single source of truth             |
-| `git.md`               | Git workflow          | Branch strategy, commit rules              |
-| `learned-instincts.md` | Auto-generated        | Workflow patterns from usage               |
-| `no-stubs.md`          | No stubs/TODOs        | No placeholders in production code         |
-| `patterns.md`          | SDK patterns          | Correct API usage, imports                 |
-| `security.md`          | Security requirements | OWASP, secrets, input validation           |
-| `testing.md`           | Testing policies      | NO MOCKING, test-first, coverage           |
+| File                | Domain                | Key Rules                                             |
+| ------------------- | --------------------- | ----------------------------------------------------- |
+| `agents.md`         | Agent orchestration   | Mandatory delegations, review requirements            |
+| `e2e-god-mode.md`   | E2E testing           | Implement everything, no placeholders                 |
+| `env-models.md`     | API keys & models     | .env is single source of truth                        |
+| `git.md`            | Git workflow          | Branch strategy, commit rules                         |
+| `zero-tolerance.md` | No stubs/TODOs        | No placeholders in production code                    |
+| `patterns.md`       | SDK patterns          | Correct API usage, imports                            |
+| `security.md`       | Security requirements | OWASP, secrets, input validation                      |
+| `testing.md`        | Testing policies      | Real infrastructure recommended, test-first, coverage |
 
 ---
 
@@ -95,7 +94,7 @@ Defines when and how specialized agents MUST be used.
 
 ```
 After completing ANY file modification (Edit, Write), you MUST:
-1. Delegate to intermediate-reviewer for code review
+1. Delegate to reviewer for code review
 2. Wait for review completion before proceeding
 3. Address any findings before moving to next task
 
@@ -127,9 +126,9 @@ When working with Kailash frameworks, you MUST consult:
 
 ```
 For features requiring design decisions:
-1. deep-analyst → Identify failure points
-2. requirements-analyst → Break down requirements
-3. framework-advisor → Choose implementation approach
+1. analyst → Identify failure points
+2. analyst → Break down requirements
+3. `decide-framework` skill → Choose implementation approach
 4. Appropriate specialist → Implementation
 ```
 
@@ -146,7 +145,7 @@ For features requiring design decisions:
 
 ### Purpose
 
-Defines testing requirements, especially the NO MOCKING policy.
+Defines testing requirements, especially the Real infrastructure recommended policy.
 
 ### MUST Rules
 
@@ -183,19 +182,19 @@ Tier 1 (Unit Tests):
 - Fast execution (<1s per test)
 
 Tier 2 (Integration Tests):
-- NO MOCKING - use real database
+- Real infrastructure recommended - use real database
 - Test component interactions
 - Real API calls (use test server)
 
 Tier 3 (E2E Tests):
-- NO MOCKING - real everything
+- Real infrastructure recommended - real everything
 - Test full user journeys
 - Real browser, real database
 ```
 
 ### MUST NOT Rules (CRITICAL)
 
-#### NO MOCKING in Tier 2-3
+#### Real infrastructure recommended in Tier 2-3
 
 ```
 MUST NOT use mocking in integration or E2E tests.
@@ -498,7 +497,7 @@ MUST NOT [prohibited action].
 
 1. **Rules are mandatory instructions** - Claude reads and follows them
 
-2. **9 rule files cover all domains** - agents, e2e, env-models, git, instincts, no-stubs, patterns, security, testing
+2. **8 rule files cover all domains** - agents, e2e, env-models, git, zero-tolerance, patterns, security, testing
 
 3. **MUST rules define requirements** - What Claude must do
 
@@ -510,13 +509,13 @@ MUST NOT [prohibited action].
 
 ### Quick Reference
 
-| Domain       | Key Rules                                           |
-| ------------ | --------------------------------------------------- |
-| **Agents**   | Review after changes, security review before commit |
-| **Testing**  | NO MOCKING in Tier 2-3, test-first                  |
-| **Security** | Validate input, manage secrets, OWASP               |
-| **Patterns** | runtime.execute(), absolute imports                 |
-| **Git**      | Branch strategy, pre-commit checks                  |
+| Domain       | Key Rules                                               |
+| ------------ | ------------------------------------------------------- |
+| **Agents**   | Review after changes, security review before commit     |
+| **Testing**  | Real infrastructure recommended in Tier 2-3, test-first |
+| **Security** | Validate input, manage secrets, OWASP                   |
+| **Patterns** | runtime.execute(), absolute imports                     |
+| **Git**      | Branch strategy, pre-commit checks                      |
 
 ### Rule Priority
 

@@ -34,7 +34,7 @@ Claude might:
 
 - The exact patterns for workflows, DataFlow, Nexus, and Kaizen
 - When to use which framework
-- How to test properly (NO MOCKING in integration tests)
+- How to test properly (Real infrastructure recommended in integration tests)
 - Security best practices specific to your stack
 - How to deploy correctly
 
@@ -124,9 +124,8 @@ Claude: [Uses DataFlow patterns from skills]
 │                                                              │
 │  dataflow-specialist   nexus-specialist   kaizen-specialist │
 │  pattern-expert        testing-specialist  security-reviewer │
-│  tdd-implementer       deep-analyst       requirements-analyst│
-│  framework-advisor     intermediate-reviewer                 │
-│  gold-standards-validator  sdk-navigator  deployment-specialist│
+│  tdd-implementer       analyst       analyst│
+│  `decide-framework` skill     reviewer                 │
 │                                                              │
 │  Purpose: Handle complex specialized tasks                   │
 │  Effect: Deep expertise when simple patterns aren't enough   │
@@ -154,17 +153,16 @@ Claude: [Uses DataFlow patterns from skills]
                              ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                          RULES                               │
-│            9 files of mandatory constraints                  │
+│            8 files of mandatory constraints                  │
 │                                                              │
 │  agents.md           → Agent orchestration rules              │
 │  e2e-god-mode.md     → E2E testing requirements              │
 │  env-models.md       → API keys & model names                │
 │  git.md              → Git workflow requirements              │
-│  learned-instincts.md → Auto-generated instincts             │
-│  no-stubs.md         → No stubs/TODOs/placeholders           │
+│  zero-tolerance.md         → No stubs/TODOs/placeholders           │
 │  patterns.md         → Kailash pattern enforcement            │
 │  security.md         → Security requirements                  │
-│  testing.md          → Testing policies (NO MOCKING)          │
+│  testing.md          → Testing policies (Real infrastructure recommended)          │
 │                                                              │
 │  Purpose: Define what Claude MUST and MUST NOT do            │
 │  Effect: Consistent behavior regardless of request phrasing  │
@@ -196,7 +194,7 @@ Request: "Create a user API with DataFlow"
 
 5. TESTING PHASE
    └── Claude writes tests
-   └── RULE APPLIED: testing.md says NO MOCKING in Tier 2-3
+   └── RULE APPLIED: testing.md says Real infrastructure recommended in Tier 2-3
    └── Claude uses real SQLite database
 
 6. COMMIT PHASE
@@ -290,15 +288,15 @@ You don't have to remember all the rules. The setup enforces them:
 
 When you need deep knowledge, agents provide it:
 
-| Task                | Specialist Agent        |
-| ------------------- | ----------------------- |
-| Database operations | `dataflow-specialist`   |
-| API deployment      | `nexus-specialist`      |
-| AI/ML features      | `kaizen-specialist`     |
-| Complex planning    | `deep-analyst`          |
-| Test architecture   | `testing-specialist`    |
-| Security audit      | `security-reviewer`     |
-| Code review         | `intermediate-reviewer` |
+| Task                | Specialist Agent      |
+| ------------------- | --------------------- |
+| Database operations | `dataflow-specialist` |
+| API deployment      | `nexus-specialist`    |
+| AI/ML features      | `kaizen-specialist`   |
+| Complex planning    | `analyst`             |
+| Test architecture   | `testing-specialist`  |
+| Security audit      | `security-reviewer`   |
+| Code review         | `reviewer`            |
 
 ### Quick Access to Patterns
 
@@ -324,9 +322,9 @@ Commands load relevant skills instantly:
 
 The setup gets smarter over time:
 
-1. **Observations** - Logged during sessions
-2. **Instincts** - Patterns extracted from observations
-3. **Evolution** - High-confidence instincts become skills
+1. **Observations** - Captured during sessions (user corrections, rule violations, accomplishments)
+2. **Learning digest** - `digest-builder.js` aggregates observations into a structured summary
+3. **Codification** - `/codify` analyzes the digest with LLM reasoning and produces real artifacts (skills, rules)
 
 ---
 
@@ -393,7 +391,7 @@ When you make a request:
 | Skills    | 28    | Domain knowledge                |
 | Agents    | 30    | Specialized processing          |
 | Hooks     | 9     | Automatic enforcement           |
-| Rules     | 9     | Behavioral constraints          |
+| Rules     | 8     | Behavioral constraints          |
 
 ---
 
