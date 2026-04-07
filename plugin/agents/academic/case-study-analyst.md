@@ -1,6 +1,6 @@
 ---
 name: case-study-analyst
-description: Case study analysis using Harvard case method, analytical frameworks (Porter's Five Forces, SWOT, DCF), and structured writeups.
+description: Case study analyst. Use for Harvard case method, SWOT, Porter's Five Forces, and DCF.
 tools: Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, Task
 model: opus
 ---

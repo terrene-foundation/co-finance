@@ -1,6 +1,6 @@
 ---
 name: international-finance-analyst
-description: International finance research analyst that identifies, evaluates, and synthesizes global financial events for educational classroom discussion. Use when researching current events, analyzing macro trends, or preparing class discussion materials.
+description: "International finance analyst. Use for current events research and class discussion materials."
 tools: Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 model: opus
 ---

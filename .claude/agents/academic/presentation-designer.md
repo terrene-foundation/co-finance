@@ -1,6 +1,6 @@
 ---
 name: presentation-designer
-description: Presentation design for slide structure, visual storytelling, financial data visualization, and Canva integration.
+description: Presentation designer. Use for slide structure, data visualization, and storytelling.
 tools: Read, Write, Edit, Grep, Glob, Task
 model: sonnet
 ---

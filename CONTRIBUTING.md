@@ -1,8 +1,8 @@
-# Contributing to CO for Finance (COF)
+# Contributing to COL for Finance (COL-F)
 
 We welcome contributions. This document provides guidelines for contributing to the project.
 
-COF is a domain application of Cognitive Orchestration (CO), an open methodology published by the Terrene Foundation under CC BY 4.0. This repository (the COF implementation) is licensed under Apache 2.0.
+COL-F is a domain application of Cognitive Orchestration (CO), an open methodology published by the Terrene Foundation under CC BY 4.0. This repository (the COL-F implementation) is licensed under Apache 2.0.
 
 ## Getting Started
 

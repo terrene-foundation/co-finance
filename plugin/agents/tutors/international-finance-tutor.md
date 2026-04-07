@@ -1,6 +1,6 @@
 ---
 name: international-finance-tutor
-description: International finance tutor covering exchange rates, balance of payments, parity conditions, currency crises, and the international monetary system.
+description: Intl finance tutor. Use for exchange rates, BOP, parity conditions, and currency crises.
 tools: Read, Write, Edit, Grep, Glob, Task
 model: sonnet
 ---

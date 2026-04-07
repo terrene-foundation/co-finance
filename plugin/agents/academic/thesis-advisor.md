@@ -1,6 +1,6 @@
 ---
 name: thesis-advisor
-description: Thesis advisor for structure, methodology selection, research design, and defense preparation.
+description: Thesis advisor. Use for structure, methodology, research design, and defense prep.
 tools: Read, Write, Edit, Grep, Glob, Task
 model: opus
 ---

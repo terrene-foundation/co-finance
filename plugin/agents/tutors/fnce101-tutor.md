@@ -1,6 +1,6 @@
 ---
 name: fnce101-tutor
-description: Introductory finance tutor covering time value of money, NPV, IRR, stock and bond valuation, and financial statement analysis.
+description: FNCE101 tutor. Use for TVM, NPV, IRR, stock/bond valuation, and financial statements.
 tools: Read, Write, Edit, Grep, Glob, Task
 model: sonnet
 ---

@@ -2,11 +2,11 @@
 /**
  * Hook: user-prompt-rules-reminder
  * Event: UserPromptSubmit
- * Purpose: Inject critical academic rules into conversation on EVERY user message.
+ * Purpose: Inject critical rules into conversation on EVERY user message.
  *          This is the PRIMARY mechanism that survives context compression,
  *          because it runs fresh on every turn (independent of memory).
  *
- * Framework-agnostic — works with any academic finance project.
+ * Framework-agnostic — works with any Kailash project.
  *
  * Exit Codes:
  *   0 = success (continue)
@@ -16,11 +16,17 @@ const fs = require("fs");
 const path = require("path");
 const {
   parseEnvFile,
-  checkApiKeys,
+  discoverModelsAndKeys,
   buildCompactSummary,
   ensureEnvFile,
 } = require("./lib/env-utils");
-const { buildWorkspaceSummary } = require("./lib/workspace-utils");
+const {
+  buildWorkspaceSummary,
+  findAllSessionNotes,
+} = require("./lib/workspace-utils");
+const {
+  logObservation: logLearningObservation,
+} = require("./lib/learning-utils");
 
 const TIMEOUT_MS = 3000;
 const timeout = setTimeout(() => {
@@ -51,18 +57,13 @@ function buildReminder(data) {
   // ── Always inject env summary (brief, 1-2 lines) ─────────────────
   const envPath = path.join(cwd, ".env");
   let envSummary = "No .env found";
+  let failures = [];
 
   if (fs.existsSync(envPath)) {
     const env = parseEnvFile(envPath);
-    const apiKeyStatus = checkApiKeys(env);
-    const discovery = { validations: [] };
-    for (const entry of apiKeyStatus.configured) {
-      discovery.validations.push({ ...entry, status: "ok" });
-    }
-    for (const entry of apiKeyStatus.missing) {
-      discovery.validations.push({ ...entry, status: "MISSING_KEY" });
-    }
+    const discovery = discoverModelsAndKeys(env);
     envSummary = buildCompactSummary(env, discovery);
+    failures = discovery.validations.filter((v) => v.status === "MISSING_KEY");
   } else {
     // Try to create .env
     ensureEnvFile(cwd);
@@ -71,18 +72,29 @@ function buildReminder(data) {
   // ── Build the reminder lines ──────────────────────────────────────
   const lines = [];
 
-  // Line 1: Always show data API key status (compressed, 1 line)
-  lines.push(`[DATA] ${envSummary}`);
+  // Line 1: Always show model/key status (compressed, 1 line)
+  lines.push(`[ENV] ${envSummary}`);
 
-  // Line 2: COF identity + core academic rules (always present, survives compression)
-  lines.push("[COF] CO for Finance — academic integrity mode active.");
+  // Line 2: If there are failures, highlight them
+  if (failures.length > 0) {
+    lines.push(
+      `[ENV] CRITICAL: ${failures.length} model(s) missing API keys — LLM calls will fail!`,
+    );
+  }
+
+  // Line 3: Zero-tolerance behavioral rules (always present, survives compression)
   lines.push(
-    "[RULES] Cite all sources. Complete all analysis (no placeholders). " +
-      "Verify data accuracy. Follow assignment formatting requirements. " +
-      "Disclose AI assistance per institutional policy.",
+    "[ZERO-TOLERANCE] " +
+      "Pre-existing failures MUST be FIXED, not reported. " +
+      "Stubs/TODOs/placeholders are BLOCKED — implement fully or remove. " +
+      "No naive fallbacks hiding errors. " +
+      "No workarounds for SDK bugs — deep dive, reproduce, file GitHub issue. " +
+      "Never hardcode models/keys. " +
+      "Create missing records (god-mode). " +
+      "Implement gaps, don't document them.",
   );
 
-  // Line 3: Workspace context (survives compaction — primary anti-amnesia mechanism)
+  // Line 4: Workspace context (survives compaction — primary anti-amnesia mechanism)
   try {
     const wsSummary = buildWorkspaceSummary(cwd);
     if (wsSummary) {
@@ -90,64 +102,75 @@ function buildReminder(data) {
     }
   } catch {}
 
+  // ── Session notes (critical for continuity across sessions) ───────
+  try {
+    const allNotes = findAllSessionNotes(cwd);
+    if (allNotes.length === 1) {
+      const note = allNotes[0];
+      const staleTag = note.stale ? " (STALE — verify before acting)" : "";
+      const label = note.workspace ? `[${note.workspace}]` : "[root]";
+      lines.push(
+        `[SESSION-NOTES] ${label} Read ${note.relativePath} before starting work${staleTag} — updated ${note.age}`,
+      );
+    } else if (allNotes.length > 1) {
+      const parts = allNotes.map((note) => {
+        const label = note.workspace || "root";
+        const staleTag = note.stale ? " STALE" : "";
+        return `${label} (${note.age}${staleTag})`;
+      });
+      lines.push(
+        `[SESSION-NOTES] ${allNotes.length} workspaces with notes — pick one to continue: ${parts.join(" | ")}`,
+      );
+    }
+  } catch {}
+
   // ── Contextual reminders based on user message content ────────────
-  const citationKeywords = [
-    "cite",
-    "citation",
-    "reference",
-    "bibliography",
-    "apa",
-    "chicago",
-    "harvard",
-    "source",
+  const llmKeywords = [
+    "model",
+    "llm",
+    "agent",
+    "gpt",
+    "claude",
+    "gemini",
+    "openai",
+    "anthropic",
+    "api key",
+    "shadow agent",
+    "objective",
   ];
-  const writingKeywords = [
-    "thesis",
-    "paper",
-    "essay",
-    "draft",
-    "write",
-    "argument",
-    "evidence",
-  ];
-  const examKeywords = [
-    "exam",
+  const e2eKeywords = [
+    "e2e",
     "test",
-    "quiz",
-    "study",
-    "practice",
-    "formula",
+    "playwright",
+    "validate",
+    "red-team",
+    "persona",
+    "rbac",
+    "login",
   ];
 
-  const mentionsCitation = citationKeywords.some((kw) =>
-    userMessage.includes(kw),
-  );
-  const mentionsWriting = writingKeywords.some((kw) =>
-    userMessage.includes(kw),
-  );
-  const mentionsExam = examKeywords.some((kw) => userMessage.includes(kw));
+  const mentionsLLM = llmKeywords.some((kw) => userMessage.includes(kw));
+  const mentionsE2E = e2eKeywords.some((kw) => userMessage.includes(kw));
 
-  if (mentionsCitation) {
+  if (mentionsLLM) {
     lines.push(
-      "[REMINDER] Use proper citation format (APA 7th, Chicago, or as specified). " +
-        "Include all required fields: author, year, title, source. Verify DOIs and URLs.",
+      "[REMINDER] Read model name from .env (OPENAI_PROD_MODEL or equivalent). " +
+        "Read API key from .env. NEVER hardcode.",
     );
   }
 
-  if (mentionsWriting) {
+  if (mentionsE2E) {
     lines.push(
-      "[REMINDER] Follow academic writing standards: clear thesis statement, " +
-        "evidence-based arguments, proper structure (intro, body, conclusion). " +
-        "Cite all claims. Disclose AI assistance.",
+      "[REMINDER] God-mode E2E: Create ALL missing records. " +
+        "Adapt to data changes. Assume correct role. " +
+        "If endpoint missing, implement it.",
     );
   }
 
-  if (mentionsExam) {
-    lines.push(
-      "[REMINDER] Focus on understanding concepts, not memorizing answers. " +
-        "Show work for calculations. Use proper financial notation and units.",
-    );
-  }
+  // --- User correction detection for learning system ---
+  try {
+    logUserCorrection(data.tool_input?.user_message, cwd, data.session_id);
+  } catch {}
 
   return {
     continue: true,
@@ -157,4 +180,40 @@ function buildReminder(data) {
       message: lines.join("\n"),
     },
   };
+}
+
+/**
+ * Detect user corrections and log as learning observations.
+ * A correction is when the user pushes back on an approach or redirects.
+ * Pure string matching — no LLM. /codify does semantic analysis later.
+ */
+function logUserCorrection(rawMessage, cwd, sessionId) {
+  if (!rawMessage || rawMessage.length < 10) return;
+
+  // Patterns that indicate the user is correcting the agent's approach.
+  // We check sentence-start positions to avoid false positives like "no problem".
+  const correctionPatterns = [
+    /^no[,.]?\s/im, // "No, use X instead"
+    /^don'?t\s/im, // "Don't do that"
+    /^stop\s/im, // "Stop doing X"
+    /^wrong/im, // "Wrong approach"
+    /^that'?s\s+(not|wrong|incorrect)/im, // "That's not right"
+    /\binstead\s+use\b/i, // "instead use X"
+    /\bnot\s+like\s+that\b/i, // "not like that"
+    /\bwhy\s+did\s+you\b/i, // "why did you do X"
+    /\byou\s+should(n'?t|\s+not)\b/i, // "you shouldn't" / "you should not"
+    /\bthat'?s\s+completely\b/i, // "that's completely wrong"
+    /\bi\s+don'?t\s+understand\b/i, // "I don't understand" (signals confusion with output)
+  ];
+
+  const matched = correctionPatterns.some((p) => p.test(rawMessage));
+  if (!matched) return;
+
+  // Log the correction — /codify will analyze semantically
+  logLearningObservation(
+    cwd,
+    "user_correction",
+    { message: rawMessage.substring(0, 500) },
+    { session_id: sessionId || "unknown" },
+  );
 }

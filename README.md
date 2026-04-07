@@ -1,8 +1,8 @@
-# CO for Finance (COF)
+# COL for Finance (COL-F)
 
 <p align="center">
   <img src="https://img.shields.io/badge/platform-Claude%20Code-7C3AED.svg" alt="Claude Code">
-  <img src="https://img.shields.io/badge/CO-Finance%20(COF)-green.svg" alt="COF">
+  <img src="https://img.shields.io/badge/CO-Finance%20(COL-F)-green.svg" alt="COL-F">
   <img src="https://img.shields.io/badge/audience-UG%2FPG%20Students-blue.svg" alt="UG/PG Students">
   <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="Apache 2.0">
 </p>
@@ -16,7 +16,7 @@
 
 > "The AI handles execution -- finding sources, formatting citations, structuring arguments. Your judgment remains visible -- choosing a thesis, evaluating evidence, making analytical conclusions."
 
-COF gives Claude deep finance domain knowledge -- market theory, valuation methods, financial instruments, academic writing conventions, and citation standards -- so it can be a genuinely helpful academic partner for finance students.
+COL-F gives Claude deep finance domain knowledge -- market theory, valuation methods, financial instruments, academic writing conventions, and citation standards -- so it can be a genuinely helpful academic partner for finance students.
 
 **CO Specification**: v1.1 (CC BY 4.0, [Terrene Foundation](https://terrene.foundation))
 
@@ -32,7 +32,7 @@ CO identifies three universal failure modes in human-AI collaboration. Here is h
 
 **Safety Blindness**: AI presents historical returns without disclaimers. AI fabricates citations. AI provides investment-like recommendations without qualification. AI presents AI-generated analysis as the student's own work.
 
-COF addresses all three through its five-layer architecture. See `docs/three-failure-modes.md` for detailed mitigations.
+COL-F addresses all three through its five-layer architecture. See `docs/three-failure-modes.md` for detailed mitigations.
 
 ## Authentic Voice (CO Principle 8)
 
@@ -128,7 +128,7 @@ cd co-finance
 claude
 ```
 
-Then type `/start`. COF introduces itself, explains the workflow, and asks about your course.
+Then type `/start`. COL-F introduces itself, explains the workflow, and asks about your course.
 
 ### Option B: Claude Desktop Cowork (Plugin)
 
@@ -143,7 +143,7 @@ For students who prefer a desktop interface. No coding experience needed.
 
 **Step 1: Download the workspace files**
 
-You need a copy of the COF workspace on your computer. Choose one method:
+You need a copy of the COL-F workspace on your computer. Choose one method:
 
 **Method A (recommended for most students):** Go to [github.com/terrene-foundation/co-finance](https://github.com/terrene-foundation/co-finance). Click the green **"Code"** button, then click **"Download ZIP"**. Unzip the downloaded file and move the folder to your Documents.
 
@@ -152,7 +152,7 @@ You need a copy of the COF workspace on your computer. Choose one method:
 git clone https://github.com/terrene-foundation/co-finance.git
 ```
 
-**Step 2: Install the COF plugin in Claude Desktop**
+**Step 2: Install the COL-F plugin in Claude Desktop**
 
 1. Open Claude Desktop
 2. Switch to the **"Cowork"** tab (at the top of the window)
@@ -166,7 +166,7 @@ If `co-finance` does not appear in the plugin browser, install it manually: clic
 
 1. In the Cowork tab, click **"Open folder"** (or drag the downloaded folder into the Cowork window)
 2. Type `/co-finance:start` in the chat
-3. COF will introduce itself, ask about your course, and suggest what to do first
+3. COL-F will introduce itself, ask about your course, and suggest what to do first
 
 **Quick entry points** (type these after setup):
 - Have an assignment due? `/co-finance:assignment`
@@ -184,12 +184,12 @@ The Cowork plugin provides the same methodology and agents as the CLI version, w
 
 | Feature | CLI (Claude Code) | Cowork Plugin |
 |---------|-------------------|---------------|
-| **Guardrail enforcement** | Hooks automatically enforce citation verification, disclaimer requirements, and academic integrity checks | Rules are advisory. COF follows them but cannot programmatically enforce them. Run `/co-finance:review` and `/co-finance:cite` manually before submitting work. |
-| **Session memory** | `.session-notes` is read automatically on the next session start | Run `/co-finance:wrapup` before ending a session. The next session does not auto-read notes; tell COF to "read .session-notes" or run `/co-finance:start` which checks for them. |
+| **Guardrail enforcement** | Hooks automatically enforce citation verification, disclaimer requirements, and academic integrity checks | Rules are advisory. COL-F follows them but cannot programmatically enforce them. Run `/co-finance:review` and `/co-finance:cite` manually before submitting work. |
+| **Session memory** | `.session-notes` is read automatically on the next session start | Run `/co-finance:wrapup` before ending a session. The next session does not auto-read notes; tell COL-F to "read .session-notes" or run `/co-finance:start` which checks for them. |
 | **Skill names** | `/study`, `/explain`, `/case`, etc. | `/co-finance:study`, `/co-finance:explain`, `/co-finance:case`, etc. (plugin prefix required) |
 | **Agent permissions** | Agents can enforce permission modes and use hooks | Plugin agents cannot use hooks or override permission settings (Cowork security restriction). |
 | **File system access** | Full access | Access limited to the folder you opened in Cowork. |
-| **Course-specific tutors** | Pre-configured for specific courses (FNCE101, FNCE102, etc.) | Same tutors are available. If your course is not listed, COF still works using the general finance specialists. |
+| **Course-specific tutors** | Pre-configured for specific courses (FNCE101, FNCE102, etc.) | Same tutors are available. If your course is not listed, COL-F still works using the general finance specialists. |
 
 These limitations do not affect the core methodology. Study guides, practice problems, case analysis, research support, and academic writing assistance all work identically.
 
@@ -214,7 +214,7 @@ scripts/
   learning/        Learning system scripts
 
 docs/
-  co-for-finance.md       COF domain application specification
+  co-for-finance.md       COL-F domain application specification
   three-failure-modes.md  Three failure modes in finance education
   eatp-constraint-mapping.md  EATP constraint dimension mapping
   co-conformance.md       CO conformance checklist

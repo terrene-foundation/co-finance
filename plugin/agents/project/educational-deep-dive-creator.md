@@ -1,6 +1,6 @@
 ---
 name: educational-deep-dive-creator
-description: Creates pedagogically structured deep-dive educational materials for International Finance class discussions. Produces theory → analysis → application progressions with worked examples, analogies, discussion questions, and class activities.
+description: "Educational deep-dive creator. Use for structured class discussion materials."
 tools: Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 model: opus
 ---

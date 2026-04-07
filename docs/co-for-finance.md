@@ -1,4 +1,4 @@
-# CO for Finance (COF) — Domain Application
+# COL for Finance (COL-F) — Domain Application
 
 **Specification**: Cognitive Orchestration v1.1 — Domain Application
 **Status**: Production
@@ -11,8 +11,8 @@
 ## Application Identity
 
 ```
-Application Name:    CO for Finance
-Short Name:          COF
+Application Name:    COL for Finance
+Short Name:          COL-F
 Target Domain:       Finance education, financial analysis, academic research in finance
 Target Practitioners: Finance students, instructors, researchers, analysts
 Status:              Production (first deployment: undergraduate/graduate finance education)
@@ -55,7 +55,7 @@ AI presents historical returns without required disclaimers ("past performance d
 
 ### Agent Definitions
 
-COF implements 24 specialized agents across five categories:
+COL-F implements 24 specialized agents across five categories:
 
 **Course Tutors** (4 agents):
 
@@ -146,7 +146,7 @@ Model Tier: Balanced (Sonnet-class)
 
 ### Reference: COC Example
 
-COC defines 29 agents across seven development phases. COF defines 24 agents across five categories. The key difference: COF agents must _teach_ as they work (like COR), not just execute. Every interaction follows progressive difficulty: intuition first, then formula, then worked example.
+COC defines 29 agents across seven development phases. COL-F defines 24 agents across five categories. The key difference: COL-F agents must _teach_ as they work (like COR), not just execute. Every interaction follows progressive difficulty: intuition first, then formula, then worked example.
 
 ---
 
@@ -200,7 +200,7 @@ CLAUDE.md (loaded every session)
 
 ### Reference: COC Example
 
-COC structures knowledge in 25 skill directories with 100+ files. COF structures knowledge in 20 skill directories covering 19 finance topics plus project-specific context. Both use progressive disclosure: CLAUDE.md → skill index → topic files → full reference.
+COC structures knowledge in 25 skill directories with 100+ files. COL-F structures knowledge in 20 skill directories covering 19 finance topics plus project-specific context. Both use progressive disclosure: CLAUDE.md → skill index → topic files → full reference.
 
 ---
 
@@ -264,7 +264,7 @@ Enforcement layers:
 
 ### Reference: COC Example
 
-COC classifies 9 rule files (soft) and 9 hook scripts (hard). COF classifies 13 rule files with 5 hard enforcement hooks. The anti-amnesia hook fires on every user message, re-injecting financial accuracy and disclaimer rules. Defense in depth follows the COC pattern: critical rules have 5+ independent enforcement layers.
+COC classifies 9 rule files (soft) and 9 hook scripts (hard). COL-F classifies 13 rule files with 5 hard enforcement hooks. The anti-amnesia hook fires on every user message, re-injecting financial accuracy and disclaimer rules. Defense in depth follows the COC pattern: critical rules have 5+ independent enforcement layers.
 
 ---
 
@@ -300,16 +300,17 @@ COC classifies 9 rule files (soft) and 9 hook scripts (hard). COF classifies 13 
 
 ### Approval Gates
 
-| Gate   | Between Phases       | Human Judges                    | Criteria                        |
-| ------ | -------------------- | ------------------------------- | ------------------------------- |
-| Gate 1 | Analysis → Planning  | Is the research scope correct?  | Student reviews analysis        |
-| Gate 2 | Planning → Execution | Is the task plan appropriate?   | **Student explicitly approves** |
-| Gate 3 | Execution → Review   | Is the deliverable substantive? | Completeness check              |
-| Gate 4 | Review → Submission  | Are review findings addressed?  | Student decides on each finding |
+| Gate   | Between Phases       | Human Judges                      | Criteria                        |
+| ------ | -------------------- | --------------------------------- | ------------------------------- |
+| Gate 1 | Analysis → Planning  | Is the research scope correct?    | Student reviews analysis        |
+| Gate 2 | Planning → Execution | Is the task plan appropriate?     | **Student explicitly approves** |
+| Gate 3 | Execution → Review   | Is the deliverable substantive?   | Completeness check              |
+| Gate 4 | Review → Learn       | Are review findings addressed?    | Student decides on each finding |
+| Gate 5 | Learn → Deliver      | Are knowledge artifacts approved? | Student approves what to keep   |
 
 ### Reference: COC Example
 
-COC defines a 7-phase workflow with 4 quality gates and 20 slash commands. COF defines a 6-phase workflow with 4 gates and 21 commands (12 specialty). The principles are identical: evidence-based completion, mandatory review before submission, structured approval.
+COC defines a 7-phase workflow with 4 quality gates and 20 slash commands. COL-F defines a 6-phase workflow (analyze, plan, execute, review, learn, deliver) with 5 gates and 22 commands (12 specialty). The principles are identical: evidence-based completion, mandatory review before submission, structured approval.
 
 ---
 
@@ -346,13 +347,13 @@ COC defines a 7-phase workflow with 4 quality gates and 20 slash commands. COF d
 
 ### Reference: COC Example
 
-COC observes tool usage, workflow patterns, error-fix pairs, and framework selection. COF observes concept difficulty, citation errors, data source selection, and study effectiveness. Both require human approval before pattern formalization.
+COC observes tool usage, workflow patterns, error-fix pairs, and framework selection. COL-F observes concept difficulty, citation errors, data source selection, and study effectiveness. Both require human approval before pattern formalization.
 
 ---
 
 ## Principle 8 (Authentic Voice)
 
-COF implements Principle 8 with a focus on academic integrity:
+COL-F implements Principle 8 with a focus on academic integrity:
 
 **Disclosure**: Students MUST disclose AI assistance according to institutional academic integrity policies. The `academic-integrity.md` rule enforces this. AI-generated analysis must be properly attributed.
 
@@ -382,20 +383,20 @@ COF implements Principle 8 with a focus on academic integrity:
 
 ## What This Application Proves
 
-The structural mapping from COC to COF is complete:
+The structural mapping from COC to COL-F is complete:
 
-| CO Concept           | COC (Codegen)                 | COF (Finance)                         |
-| -------------------- | ----------------------------- | ------------------------------------- |
-| Amnesia              | AI forgets coding conventions | AI forgets course/assignment context  |
-| Convention Drift     | Follows internet patterns     | Follows generic finance conventions   |
-| Safety Blindness     | Skips security checks         | Skips disclaimers, fabricates sources |
-| Layer 1 Agents       | 29 development specialists    | 24 finance/academic specialists       |
-| Layer 2 Context      | CLAUDE.md + 25 skill dirs     | CLAUDE.md + 20 skill dirs             |
-| Layer 3 Guardrails   | 8 rules + 8 hooks             | 13 rules + 5 hooks                    |
-| Layer 4 Instructions | 7-phase dev workflow          | 6-phase academic workflow + 12 cmds   |
-| Layer 5 Learning     | Code pattern evolution        | Concept difficulty + study evolution  |
+| CO Concept           | COC (Codegen)                 | COL-F (Finance)                                                                        |
+| -------------------- | ----------------------------- | ------------------------------------------------------------------------------------ |
+| Amnesia              | AI forgets coding conventions | AI forgets course/assignment context                                                 |
+| Convention Drift     | Follows internet patterns     | Follows generic finance conventions                                                  |
+| Safety Blindness     | Skips security checks         | Skips disclaimers, fabricates sources                                                |
+| Layer 1 Agents       | 29 development specialists    | 24 finance/academic specialists                                                      |
+| Layer 2 Context      | CLAUDE.md + 25 skill dirs     | CLAUDE.md + 20 skill dirs                                                            |
+| Layer 3 Guardrails   | 8 rules + 8 hooks             | 13 rules + 5 hooks                                                                   |
+| Layer 4 Instructions | 7-phase dev workflow          | 6-phase academic workflow (analyze, plan, execute, review, learn, deliver) + 12 cmds |
+| Layer 5 Learning     | Code pattern evolution        | Concept difficulty + study evolution                                                 |
 
-Unlike CO for Compliance (a structural sketch), COF is a running implementation with 24 agents, 20 skill directories, 13 rules, 5 hooks, and 21 commands deployed for active use in finance education.
+Unlike CO for Compliance (a structural sketch), COL-F is a running implementation with 24 agents, 20 skill directories, 13 rules, 5 hooks, and 21 commands deployed for active use in finance education.
 
 ---
 

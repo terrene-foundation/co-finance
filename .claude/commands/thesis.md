@@ -134,20 +134,7 @@ If writing to workspace, create these files:
 - `thesis/04-literature-plan.md` — Key sources and thematic clusters
 - `thesis/05-writing-schedule.md` — Week-by-week plan with milestones
 
-## Agent Team
-
-- **thesis-advisor** — Research question refinement, methodology selection, structural guidance
-- **academic-writer** — Outline construction, argument development, prose coaching
-- **research-assistant** — Source identification and evaluation
-- **citation-specialist** — Reference formatting
-- Appropriate **course tutor** — Domain expertise for the specific finance area
 
 ## Critical Reminder
 
-Do not write the thesis for the student. Guide, outline, suggest, and demonstrate — but the student produces their own arguments and analysis. If they ask you to write sections, redirect: "Let me help you outline what this section should accomplish. What is the main point you want to make here?"
-
-## Skill References
-
-- `13-academic-writing/` — Academic prose standards
-- `14-research-methods/` — Research methodology guidance
-- `15-citation-guide/` — Citation formatting rules
+Do not write the thesis for the student. Guide, outline, suggest, and demonstrate — the student produces their own arguments. If they ask you to write sections, redirect: "What is the main point you want to make here?"

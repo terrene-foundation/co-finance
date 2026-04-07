@@ -19,6 +19,13 @@ const {
   countObservations,
 } = require("./lib/learning-utils");
 
+// Timeout fallback — prevents hanging the Claude Code session
+const TIMEOUT_MS = 15000;
+const _timeout = setTimeout(() => {
+  console.log(JSON.stringify({ continue: true }));
+  process.exit(1);
+}, TIMEOUT_MS);
+
 let input = "";
 process.stdin.setEncoding("utf8");
 process.stdin.on("data", (chunk) => (input += chunk));
@@ -75,23 +82,27 @@ function saveSession(data) {
       "session_summary",
       {
         file_counts: sessionData.stats,
-        projectType: detectProjectType(cwd),
+        framework: detectFramework(cwd),
         duration_estimate: estimateSessionDuration(session_id, sessionDir),
-        identity: "co-finance",
       },
       {
         session_id,
       },
     );
 
-    // --- Auto-processing pipeline (Phase 3) ---
+    // --- Log session accomplishments from .session-notes ---
     try {
-      autoProcessLearning(learningDir);
+      logSessionAccomplishments(cwd, session_id);
     } catch {}
 
-    // --- Feedback loop: render instincts to rules file (Phase 4) ---
+    // --- Log journal decisions created this session ---
     try {
-      writeInstinctsRule(cwd, learningDir);
+      logDecisionReferences(cwd, session_id, sessionDir);
+    } catch {}
+
+    // --- Build learning digest (replaces instinct pipeline) ---
+    try {
+      buildLearningDigest(cwd, learningDir);
     } catch {}
 
     // Clean up old sessions (keep last 20)
@@ -107,29 +118,25 @@ function saveSession(data) {
 function collectSessionStats(cwd) {
   try {
     const stats = {
-      markdownFiles: 0,
-      draftFiles: 0,
-      sourceFiles: 0,
+      pythonFiles: 0,
+      testFiles: 0,
+      workflowFiles: 0,
     };
 
-    // Count .md files
-    const files = fs.readdirSync(cwd);
-    const mdFiles = files.filter((f) => f.endsWith(".md"));
-    stats.markdownFiles = mdFiles.length;
+    const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".py"));
+    stats.pythonFiles = files.length;
 
-    // Count files with "draft" in the name
-    for (const file of mdFiles) {
-      if (file.toLowerCase().includes("draft")) {
-        stats.draftFiles++;
+    for (const file of files) {
+      if (/_test\.py$|test_.*\.py$/.test(file)) {
+        stats.testFiles++;
       }
+      try {
+        const content = fs.readFileSync(path.join(cwd, file), "utf8");
+        if (/WorkflowBuilder/.test(content)) {
+          stats.workflowFiles++;
+        }
+      } catch {}
     }
-
-    // Count files in sources/ directory
-    const sourcesDir = path.join(cwd, "sources");
-    try {
-      const sourceEntries = fs.readdirSync(sourcesDir);
-      stats.sourceFiles = sourceEntries.filter((e) => !e.startsWith(".")).length;
-    } catch {}
 
     return stats;
   } catch {
@@ -137,31 +144,23 @@ function collectSessionStats(cwd) {
   }
 }
 
-/**
- * Detect the academic project type by checking for characteristic files.
- *
- * @param {string} cwd - Project root directory
- * @returns {string} Project type identifier
- */
-function detectProjectType(cwd) {
+// Scans top-level cwd only (not subdirectories) for performance in hooks.
+function detectFramework(cwd) {
   try {
-    const files = fs.readdirSync(cwd).map((f) => f.toLowerCase());
-
-    for (const file of files) {
-      if (file.includes("thesis")) return "thesis";
-      if (file.includes("paper") && file.endsWith(".md")) return "paper";
-      if (file.includes("assignment")) return "assignment";
-      if (file.includes("case-study") || file.includes("casestudy"))
-        return "case-study";
-      if (file.includes("presentation") || file.endsWith(".pptx"))
-        return "presentation";
+    const files = fs.readdirSync(cwd).filter((f) => f.endsWith(".py"));
+    for (const file of files.slice(0, 10)) {
+      try {
+        const content = fs.readFileSync(path.join(cwd, file), "utf8");
+        if (/@db\.model/.test(content) || /from dataflow/.test(content))
+          return "dataflow";
+        if (/from nexus/.test(content) || /Nexus\(/.test(content))
+          return "nexus";
+        if (/from kaizen/.test(content) || /BaseAgent/.test(content))
+          return "kaizen";
+        if (/WorkflowBuilder/.test(content)) return "core-sdk";
+      } catch {}
     }
-
-    const hasSourcesDir = fs.existsSync(path.join(cwd, "sources"));
-    const hasResearchDir = fs.existsSync(path.join(cwd, "01-research"));
-    if (hasSourcesDir || hasResearchDir) return "research";
-
-    return "academic";
+    return "core-sdk";
   } catch {
     return "unknown";
   }
@@ -186,60 +185,140 @@ function estimateSessionDuration(sessionId, sessionDir) {
 }
 
 /**
- * Auto-process instincts and auto-evolve at session end.
- * Only runs when enough observations have accumulated (>= 10).
- * Pure file I/O, ~200ms for 1000 observations.
+ * Log session accomplishments from .session-notes file.
+ * Parses the "Accomplished" or "Completed" section if it exists.
  */
-function autoProcessLearning(learningDir) {
-  const observationCount = countObservations(learningDir);
-  if (observationCount < 10) return;
+function logSessionAccomplishments(cwd, sessionId) {
+  // Check multiple possible locations for session notes
+  const candidates = [
+    path.join(cwd, ".session-notes"),
+    path.join(cwd, "workspaces"),
+  ];
 
-  // Auto-process: analyze observations and generate instincts
-  const processor = require("../learning/instinct-processor");
-  const obs = processor.loadObservations(learningDir);
+  // Direct .session-notes file
+  const notesPath = candidates[0];
+  if (fs.existsSync(notesPath)) {
+    const stat = fs.statSync(notesPath);
+    const ageHours = (Date.now() - stat.mtimeMs) / (1000 * 60 * 60);
+    // Only log if modified recently (within last 4 hours = likely this session)
+    if (ageHours > 4) return;
 
-  const wp = processor.analyzeWorkflowPatterns(obs);
-  if (wp.length > 0) {
-    const wpInstincts = processor.generateInstincts(wp);
-    processor.saveInstincts(wpInstincts, "workflow-patterns", learningDir);
+    const content = fs.readFileSync(notesPath, "utf8");
+    const accomplishments = extractAccomplishments(content);
+    if (accomplishments) {
+      logLearningObservation(
+        cwd,
+        "session_accomplishment",
+        { accomplishments: accomplishments.substring(0, 1000) },
+        { session_id: sessionId },
+      );
+    }
+    return;
   }
 
-  const efp = processor.analyzeErrorFixPatterns(obs);
-  if (efp.length > 0) {
-    const efpInstincts = processor.generateInstincts(efp);
-    processor.saveInstincts(efpInstincts, "error-fixes", learningDir);
-  }
+  // Check workspace session notes
+  const wsDir = candidates[1];
+  if (!fs.existsSync(wsDir)) return;
 
-  const fp = processor.analyzeFrameworkPatterns(obs);
-  if (fp.length > 0) {
-    const fpInstincts = processor.generateInstincts(fp);
-    processor.saveInstincts(fpInstincts, "framework-selection", learningDir);
-  }
+  try {
+    const workspaces = fs.readdirSync(wsDir);
+    for (const ws of workspaces) {
+      const wsNotes = path.join(wsDir, ws, ".session-notes");
+      if (!fs.existsSync(wsNotes)) continue;
 
-  // Auto-evolve: promote high-confidence instincts to skills/commands
-  const evolver = require("../learning/instinct-evolver");
-  const candidates = evolver.getCandidates(learningDir);
-  if (candidates.skill.length > 0 || candidates.command.length > 0) {
-    evolver.autoEvolve(learningDir);
-  }
+      const stat = fs.statSync(wsNotes);
+      const ageHours = (Date.now() - stat.mtimeMs) / (1000 * 60 * 60);
+      if (ageHours > 4) continue;
+
+      const content = fs.readFileSync(wsNotes, "utf8");
+      const accomplishments = extractAccomplishments(content);
+      if (accomplishments) {
+        logLearningObservation(
+          cwd,
+          "session_accomplishment",
+          {
+            workspace: ws,
+            accomplishments: accomplishments.substring(0, 1000),
+          },
+          { session_id: sessionId },
+        );
+      }
+    }
+  } catch {}
 }
 
 /**
- * Render learned instincts to .claude/rules/learned-instincts.md
- * so Claude Code auto-loads them on the next session.
+ * Extract the "Accomplished" section from session notes markdown.
  */
-function writeInstinctsRule(cwd, learningDir) {
-  const { renderInstincts } = require("./lib/instinct-renderer");
-  const markdown = renderInstincts(learningDir);
-  if (!markdown) return;
+function extractAccomplishments(content) {
+  // Match ## Accomplished, ### Accomplished, or similar headings
+  const match = content.match(
+    /^#{1,4}\s*(?:Accomplished|Completed|Done|What was done)\s*\n([\s\S]*?)(?=\n#{1,4}\s|\n---|\Z)/im,
+  );
+  if (match && match[1].trim().length > 0) {
+    return match[1].trim();
+  }
+  return null;
+}
 
-  const rulesDir = path.join(cwd, ".claude", "rules");
+/**
+ * Log journal entries created during this session as decision references.
+ */
+function logDecisionReferences(cwd, sessionId, sessionDir) {
+  const journalDir = path.join(cwd, "journal");
+  if (!fs.existsSync(journalDir)) return;
+
+  // Determine session start time
+  let sessionStartMs = Date.now() - 4 * 60 * 60 * 1000; // default: 4 hours ago
   try {
-    fs.mkdirSync(rulesDir, { recursive: true });
+    const sessionFile = path.join(sessionDir, `${sessionId}.json`);
+    if (fs.existsSync(sessionFile)) {
+      const data = JSON.parse(fs.readFileSync(sessionFile, "utf8"));
+      if (data.startedAt) {
+        sessionStartMs = new Date(data.startedAt).getTime();
+      }
+    }
   } catch {}
 
-  const rulePath = path.join(rulesDir, "learned-instincts.md");
-  fs.writeFileSync(rulePath, markdown);
+  try {
+    const entries = fs.readdirSync(journalDir).filter((f) => f.endsWith(".md"));
+    for (const entry of entries) {
+      const entryPath = path.join(journalDir, entry);
+      const stat = fs.statSync(entryPath);
+      // Only log entries created/modified during this session
+      if (stat.mtimeMs < sessionStartMs) continue;
+
+      // Parse type from filename: NNNN-TYPE-topic.md
+      const match = entry.match(/^\d+-(\w+)-(.+)\.md$/);
+      if (!match) continue;
+
+      logLearningObservation(
+        cwd,
+        "decision_reference",
+        {
+          type: match[1], // DECISION, DISCOVERY, TRADE-OFF, etc.
+          topic: match[2].replace(/-/g, " "),
+          file: entry,
+        },
+        { session_id: sessionId },
+      );
+    }
+  } catch {}
+}
+
+/**
+ * Build learning digest from observations.
+ * Produces learning-digest.json — a structured summary consumed by /codify.
+ * Pure file I/O, no LLM calls. Semantic analysis happens in /codify.
+ */
+function buildLearningDigest(cwd, learningDir) {
+  const observationCount = countObservations(learningDir);
+  if (observationCount < 5) return;
+
+  try {
+    const digestBuilder = require("../learning/digest-builder");
+    digestBuilder.buildDigest(cwd, learningDir);
+  } catch {}
 }
 
 function cleanupOldSessions(sessionDir, keepCount) {

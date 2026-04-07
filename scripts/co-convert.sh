@@ -225,7 +225,8 @@ get_phase() {
         plan)     echo "02" ;;
         execute)  echo "03" ;;
         review)   echo "04" ;;
-        finalize) echo "05" ;;
+        learn)    echo "05" ;;
+        deliver)  echo "06" ;;
         *)        echo "--" ;;
     esac
 }
@@ -515,7 +516,7 @@ generate_plugin_claude_md() {
     # Sort names in a sensible order: start first, then by phase, then utility
     local ordered=()
     # Phase commands in order
-    for n in start analyze plan execute review finalize; do
+    for n in start analyze plan execute review learn deliver; do
         for name in "${names[@]}"; do
             [[ "$name" == "$n" ]] && ordered+=("$name")
         done

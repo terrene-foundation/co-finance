@@ -1,102 +1,104 @@
 ---
 name: learn
-description: "View learning status, analyze patterns, and generate instincts."
+description: "Phase 05 — Extract knowledge from completed work into .claude/ artifacts"
 ---
 
-# /learn - Continuous Learning Command
+# /learn - Knowledge Extraction (Phase 05)
 
 ## Purpose
 
-Interact with the Continuous Learning System to view, analyze, and evolve learned patterns.
+After Phase 04 (Review) has produced finalized output, extract reusable knowledge — patterns, insights, techniques, and preferences — into `.claude/` artifacts so future sessions benefit from what was learned. This is the bridge between "work done" and "knowledge retained."
+
+**Key principle**: Knowledge extraction output goes INTO `.claude/` artifacts (rules, skills, instincts), not into the workspace. Human approval is required before any artifact is created or modified.
 
 ## Arguments
 
 `$ARGUMENTS` is parsed as the subcommand:
-- No arguments → show learning status and statistics
+
+- No arguments → show learning status and suggest extraction candidates
 - `stats` → show detailed observation statistics
-- `analyze` → analyze observations for patterns
-- `generate` → generate instincts from patterns
-- `list` → list all learned instincts
+- `analyze` → analyze the current workspace for extractable patterns
+- `extract` → propose knowledge artifacts from the completed work (requires approval)
+- `list` → list all learned artifacts from this project
 
 ## Quick Reference
 
-| Command           | Action                               |
-| ----------------- | ------------------------------------ |
-| `/learn`          | Show learning status and statistics  |
-| `/learn stats`    | Show detailed observation statistics |
-| `/learn analyze`  | Analyze observations for patterns    |
-| `/learn generate` | Generate instincts from patterns     |
-| `/learn list`     | List all learned instincts           |
+| Command          | Action                                              |
+| ---------------- | --------------------------------------------------- |
+| `/learn`         | Show learning status and extraction candidates      |
+| `/learn stats`   | Show detailed observation statistics                |
+| `/learn analyze` | Analyze workspace for extractable patterns          |
+| `/learn extract` | Propose knowledge artifacts (human approval needed) |
+| `/learn list`    | List all learned artifacts from this project        |
 
-## Usage Examples
+## Workflow
 
-### Check Learning Status
+### Step 1 — Review Completed Work
 
-```bash
-# Show current learning statistics
-node scripts/learning/observation-logger.js --stats
-```
+Read all finalized output from the workspace (drafts, analyses, feedback addressed). Identify:
 
-### Analyze Patterns
+- **Recurring patterns**: Research approaches, analytical frameworks, or citation styles that worked well
+- **Error-fix pairs**: Mistakes caught during review and how they were corrected
+- **Student preferences**: Formatting choices, argument styles, source preferences
+- **Domain insights**: Finance concepts, formulas, or frameworks that were central to the work
+- **Process improvements**: Workflow adjustments that made the project more efficient
 
-```bash
-# Analyze observations for patterns
-node scripts/learning/instinct-processor.js --analyze
-```
+### Step 2 — Propose Artifacts
 
-### Generate Instincts
+For each extractable insight, propose a specific `.claude/` artifact:
 
-```bash
-# Generate instincts from detected patterns
-node scripts/learning/instinct-processor.js --generate
-```
+- **Rule addition**: A new rule or rule refinement (e.g., "always include risk disclosures with portfolio analysis")
+- **Skill enhancement**: Additional reference material for an existing skill directory
+- **Command improvement**: Suggestions for improving existing commands based on how they were used
 
-## How It Works
+Present each proposal clearly:
 
-1. **Observation Capture**: Hooks automatically capture tool usage, errors, and patterns during every session
-2. **Pattern Detection**: At session end, the analyzer identifies recurring patterns in observations
-3. **Instinct Generation**: Patterns with sufficient occurrences (>= 10) are automatically processed into instincts
-4. **Evolution**: High-confidence instincts are auto-evolved into skills or commands at session end
-5. **Feedback Loop**: Learned instincts are written to `.claude/rules/learned-instincts.md` and auto-loaded by Claude Code on next session
+- What was learned
+- Where it would go (which file or directory)
+- Why it matters for future work
+- The specific content to add
 
-**Note**: Steps 2-5 happen automatically at session end. Manual invocation via `/learn` is still available for on-demand processing or status checks.
+### Step 3 — Human Approval Gate
 
-## Learning Focus Areas
+**This step is mandatory.** Present all proposals to the student and ask:
 
-The system learns project-specific patterns:
+- "Do you want to keep this insight for future sessions?"
+- "Does this accurately reflect what you learned?"
+- "Should anything be changed before saving?"
 
-| Area                   | What It Learns                                  |
-| ---------------------- | ----------------------------------------------- |
-| **Code Patterns**      | Common sequences, idioms, architectural choices |
-| **Error-Fix Pairs**    | Which errors occur and how they're fixed        |
-| **Framework Patterns** | Framework-specific usage patterns               |
-| **Tool Selection**     | Project type → tool/framework mapping           |
-| **Testing Patterns**   | Test structure preferences                      |
+Only create or modify `.claude/` artifacts after explicit approval.
 
-## File Locations
+### Step 4 — Write Approved Artifacts
 
-Learning data is stored **per-project** (not globally):
+For each approved proposal:
 
-```
-<project>/.claude/learning/
-├── identity.json           # System identity
-├── observations.jsonl      # Raw observations
-├── observations.archive/   # Archived observations
-├── instincts/
-│   ├── personal/          # Auto-learned instincts
-│   └── inherited/         # Shared from team
-├── evolved/               # Generated skills/commands
-└── checkpoints/           # Learning state snapshots
+1. Write the artifact to the appropriate `.claude/` location
+2. Confirm what was created and where
+3. Explain how it will help in future sessions
 
-<project>/.claude/rules/
-└── learned-instincts.md   # Auto-generated, loaded by CC
-```
+## What Gets Extracted (and Where)
+
+| Learning Type       | Destination                           | Example                                |
+| ------------------- | ------------------------------------- | -------------------------------------- |
+| Research pattern    | `.claude/rules/research-style.md` (new or existing) | "Student prefers FRED for macro data" |
+| Writing preference  | `.claude/rules/citation-style.md` (new or existing) | "Use APA 7th with specific formatting" |
+| Error pattern       | New rule or skill section             | "Always verify formula citations"      |
+| Domain knowledge    | `.claude/skills/` (relevant module)   | New formula reference or concept note  |
+| Process improvement | `.claude/commands/` (suggestion only) | Workflow adjustment recommendation     |
+
+## Critical Rules
+
+1. **Human approval required** — Never write to `.claude/` without explicit student approval
+2. **Output goes to .claude/, not workspace** — The learn phase produces artifacts, not deliverables
+3. **Phase 04 must be complete** — Do not run `/learn` before review is finished
+4. **Additive only** — Never delete existing artifacts; add to or refine them
+5. **Explain in plain language** — The student decides what to keep based on understanding, not technical detail
 
 ## Related Commands
 
-- `/evolve` - Evolve instincts into skills
-- `/checkpoint` - Save current learning state
+- `/challenge` / `/review` / `/redteam` — Phase 04 (Review) — must complete before Learn
+- `/deliver` — Phase 06 (Deliver) — package and ship after learning is captured
 
 ## Skill Reference
 
-This command uses: `scripts/learning/observation-logger.js`, `scripts/learning/instinct-processor.js`
+This command uses: `scripts/learning/observation-logger.js`, `scripts/learning/digest-builder.js`

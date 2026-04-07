@@ -1,6 +1,6 @@
 ---
 name: valuation-specialist
-description: "Financial modeling and valuation for coursework — DCF, comparables, LBO, derivatives pricing. Use for valuation assignments and case studies."
+description: "Valuation specialist. Use for DCF, comparables, LBO, and derivatives pricing in coursework."
 tools: Read, Write, Edit, Grep, Glob, Task
 model: sonnet
 ---

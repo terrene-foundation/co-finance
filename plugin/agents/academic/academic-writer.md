@@ -1,6 +1,6 @@
 ---
 name: academic-writer
-description: Academic writing assistant for thesis, papers, and assignments — argument construction, evidence integration, and structured academic prose.
+description: Academic writer. Use for thesis, papers, and assignments with proper argument structure.
 tools: Read, Write, Edit, Grep, Glob, Task
 model: opus
 ---

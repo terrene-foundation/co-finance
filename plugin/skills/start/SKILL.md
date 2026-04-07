@@ -1,13 +1,13 @@
 ---
 name: start
-description: "Student orientation — explains the COF workflow and how to get started"
+description: "Student orientation — explains the COL-F workflow and how to get started"
 ---
 
 Present this orientation to the student in a warm, clear, and encouraging way. Adapt tone based on context — if they seem experienced with academic research, be concise; if they seem new to university-level work, take more time.
 
-## What is CO for Finance (COF)?
+## What is COL for Finance (COL-F)?
 
-COF is an AI-powered academic companion for finance students. It helps you research, write, study, prepare presentations, and get ready for exams — while you stay in charge of the academic thinking. COF is a domain application of Cognitive Orchestration (CO), an open methodology published by the Terrene Foundation.
+COL-F is an AI-powered academic companion for finance students. It helps you research, write, study, prepare presentations, and get ready for exams — while you stay in charge of the academic thinking. COL-F is a domain application of Cognitive Orchestration (CO), an open methodology published by the Terrene Foundation.
 
 **Your job:**
 
@@ -25,17 +25,18 @@ COF is an AI-powered academic companion for finance students. It helps you resea
 - Formatting citations and references
 - Checking your arguments for logical gaps
 
-## The Academic Workflow
+## The 6-Phase Academic Workflow
 
-| Step        | Command        | What Happens                                            | Your Role                                     |
-| ----------- | -------------- | ------------------------------------------------------- | --------------------------------------------- |
-| 1. Research | `/analyze`     | Deep research on your topic — sources, theories, data   | Confirm the research direction is right        |
-| 2. Planning | `/todos`       | Plan your deliverables — outline, sections, timeline    | Approve the plan before drafting starts        |
-| 3. Drafting | `/assignment` or `/thesis` | Work through the project section by section | Make the analytical decisions as you go        |
-| 4. Review   | `/challenge`   | Stress-test your arguments like a tough professor would | Review the feedback and strengthen weak points |
-| 5. Save     | `/wrapup`      | Save progress so the next session picks up where you left off | Confirm the summary is accurate          |
+| Phase      | Commands                                                             | What Happens                                                                       | Your Role                                      |
+| ---------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------- |
+| 1. Analyze | `/analyze`, `/study`, `/research`, `/explain`                        | Deep research on your topic — sources, theories, data                              | Confirm the research direction is right        |
+| 2. Plan    | `/todos`, `/thesis`                                                  | Plan your deliverables — outline, sections, timeline                               | Approve the plan before drafting starts        |
+| 3. Execute | `/assignment`, `/practice`, `/case`, `/formula`, `/cite`, `/present` | Work through the project section by section                                        | Make the analytical decisions as you go        |
+| 4. Review  | `/challenge`, `/review`, `/redteam`                                  | Stress-test your arguments like a tough professor would; produces finalized output | Review the feedback and strengthen weak points |
+| 5. Learn   | `/learn`                                                             | Extract what you learned into reusable knowledge (needs your approval)             | Approve which insights to keep                 |
+| 6. Deliver | `/deliver`                                                           | Package and submit the final deliverable                                           | Confirm it is ready to go                      |
 
-Plus **`/ws`** anytime to check your project status.
+Plus **`/ws`** anytime to check your project status, and **`/wrapup`** to save progress before ending a session.
 
 ## Workspace Resolution
 

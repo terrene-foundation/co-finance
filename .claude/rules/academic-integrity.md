@@ -214,7 +214,7 @@ MUST NOT list authors who did not contribute to the work, and MUST NOT omit auth
 
 ## AI Assistance Disclosure (CO Principle 8)
 
-Students MUST disclose AI assistance according to their institution's academic integrity policy. CO for Finance is designed for responsible human-AI collaboration where:
+Students MUST disclose AI assistance according to their institution's academic integrity policy. COL for Finance is designed for responsible human-AI collaboration where:
 
 - The student makes all analytical decisions (thesis positions, evidence evaluation, conclusions)
 - The AI assists with research, structure, and explanation

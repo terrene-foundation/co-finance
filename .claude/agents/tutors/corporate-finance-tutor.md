@@ -1,6 +1,6 @@
 ---
 name: corporate-finance-tutor
-description: Corporate finance tutor covering capital structure, WACC, M&A, capital budgeting, dividends, and working capital management.
+description: "Corporate finance tutor. Use for capital structure, WACC, and capital budgeting."
 tools: Read, Write, Edit, Grep, Glob, Task
 model: sonnet
 ---

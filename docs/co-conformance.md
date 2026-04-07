@@ -1,4 +1,4 @@
-# COF CO Conformance Status
+# COL-F CO Conformance Status
 
 ## Layer 1 (Intent)
 
@@ -22,7 +22,7 @@
 
 ## Layer 4 (Instructions)
 
-- [x] 6-phase workflow (start -> analyze -> todos -> assignment -> review -> wrapup)
+- [x] 6-phase workflow (analyze -> plan -> execute -> review -> learn -> deliver)
 - [x] 4 approval gates requiring human judgment
 - [x] 12 specialty commands
 - [x] Evidence requirements for completion
@@ -39,4 +39,4 @@
 - [x] Student judgment stays visible (absolute directive)
 - [x] Auditable trail (workspace progression, session notes)
 
-**COF achieves full CO conformance (all 5 layers + Principle 8).**
+**COL-F achieves full CO conformance (all 5 layers + Principle 8).**

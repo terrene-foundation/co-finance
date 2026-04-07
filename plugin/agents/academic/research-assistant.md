@@ -1,6 +1,6 @@
 ---
 name: research-assistant
-description: Research assistant for literature search, source evaluation, synthesis, and annotated bibliography creation.
+description: Research assistant. Use for literature search, source evaluation, and synthesis.
 tools: Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, Task
 model: opus
 ---

@@ -1,6 +1,6 @@
 ---
 name: regulatory-context
-description: "Regulatory framework context for finance coursework. Use when assignments require understanding SEC, FINRA, or international regulations."
+description: "Regulatory context. Use when assignments involve SEC, FINRA, or international regulations."
 tools: Read, Grep, Glob, Task
 model: sonnet
 ---

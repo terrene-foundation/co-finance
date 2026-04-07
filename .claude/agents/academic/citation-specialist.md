@@ -1,6 +1,6 @@
 ---
 name: citation-specialist
-description: Citation formatting and bibliography management for APA, Chicago, and Harvard styles.
+description: Citation specialist. Use for APA, Chicago, and Harvard formatting and bibliography.
 tools: Read, Write, Edit, Grep, Glob, Task
 model: sonnet
 ---

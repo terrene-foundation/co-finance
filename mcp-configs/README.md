@@ -1,4 +1,4 @@
-# MCP Configurations for COF Projects
+# MCP Configurations for COL-F Projects
 
 ## Context Impact Warning
 

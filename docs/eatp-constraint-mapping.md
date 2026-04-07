@@ -1,6 +1,6 @@
 # EATP Constraint Mapping for Finance Education
 
-EATP's five constraint dimensions map to COF guardrails:
+EATP's five constraint dimensions map to COL-F guardrails:
 
 | EATP Dimension | Finance Education Guardrails | Enforcement |
 |---------------|------------------------------|-------------|
@@ -10,4 +10,4 @@ EATP's five constraint dimensions map to COF guardrails:
 | Data Access | Authoritative sources only; FRED/Bloomberg preferred over web scraping | `data-sourcing.md` rule (soft) |
 | Communication | Academic integrity disclosure; no presenting AI analysis as student's own | `academic-integrity.md` rule (soft+) |
 
-EATP is NOT required for COF. This mapping shows how COF guardrails align with the formal constraint taxonomy for organizations that want to integrate EATP trust lineage.
+EATP is NOT required for COL-F. This mapping shows how COL-F guardrails align with the formal constraint taxonomy for organizations that want to integrate EATP trust lineage.

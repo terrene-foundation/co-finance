@@ -1,6 +1,6 @@
 ---
 name: fmi-tutor
-description: Financial Markets and Institutions tutor covering market structure, instruments, trading mechanics, settlement, efficiency, and behavioral anomalies.
+description: Financial markets tutor. Use for market structure, instruments, trading, and efficiency.
 tools: Read, Write, Edit, Grep, Glob, Task
 model: sonnet
 ---

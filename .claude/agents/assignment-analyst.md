@@ -1,6 +1,6 @@
 ---
 name: assignment-analyst
-description: "Assignment analysis for understanding requirements, identifying deliverables, and planning approach. Use when starting complex assignments."
+description: "Assignment analyst. Use when starting assignments or planning deliverables."
 tools: Read, Write, Edit, Grep, Glob, Task
 model: opus
 ---

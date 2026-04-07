@@ -1,6 +1,6 @@
 ---
 name: finance-navigator
-description: "Finance skill module navigator. Use when searching for the right skill module, framework, or reference for academic finance work."
+description: "Skill navigator. Use when searching for the right finance skill module or reference."
 tools: Read, Grep, Glob, WebFetch, WebSearch
 model: sonnet
 ---

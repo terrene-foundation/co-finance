@@ -1,6 +1,6 @@
 ---
 name: concept-explainer
-description: "Plain-language finance concept explanation with analogies and examples. Use when students need help understanding a concept."
+description: "Finance concept explainer. Use when students need plain-language explanations with analogies."
 tools: Read, Write, Edit, Grep, Glob, Task
 model: sonnet
 ---

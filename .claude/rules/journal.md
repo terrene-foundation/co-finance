@@ -8,7 +8,7 @@ These rules apply to ALL workspace operations. The journal is the primary knowle
 
 ### 1. Journal Every Insight
 
-Every COF command that produces insights, decisions, or discoveries MUST create corresponding journal entries in the workspace's `journal/` directory. No insight should be lost between sessions. This includes analytical choices (which valuation method, which data source), research findings (correlations, anomalies, key literature), and identified risks (data quality issues, methodological concerns).
+Every COL-F command that produces insights, decisions, or discoveries MUST create corresponding journal entries in the workspace's `journal/` directory. No insight should be lost between sessions. This includes analytical choices (which valuation method, which data source), research findings (correlations, anomalies, key literature), and identified risks (data quality issues, methodological concerns).
 
 ### 2. Sequential Naming
 
@@ -28,7 +28,7 @@ session_id: [session ID if available]
 session_turn: [conversation turn number]
 project: [project name]
 topic: [brief description]
-phase: analyze | todos | assignment | review | wrapup
+phase: analyze | plan | execute | review | learn | deliver
 tags: [list of relevant tags]
 ---
 ```

@@ -1,6 +1,6 @@
 ---
 name: coursework-analyst
-description: "Quantitative analysis for finance coursework — portfolio theory, risk metrics, and statistical methods. Use for problem sets and research."
+description: "Quantitative finance analyst. Use for problem sets, portfolio theory, and risk metrics."
 tools: Read, Write, Edit, Grep, Glob, Task
 model: sonnet
 ---

@@ -1,4 +1,4 @@
-# CO for Finance (COF)
+# COL-F — COL for Finance
 
 This repository is the **CO (Cognitive Orchestration) setup for finance education** -- providing agents, skills, rules, and hooks that make Claude Code an academic companion for undergraduate and graduate finance students.
 
@@ -6,37 +6,35 @@ The AI handles execution (finding sources, formatting citations, structuring arg
 
 ## CO Identity
 
-This repository is **CO for Finance (COF)** -- a domain application of Cognitive Orchestration (CO) for finance education and analysis.
+This repository is **COL for Finance (COL-F)** -- a domain application of Cognitive Orchestration (CO) for finance education and analysis.
 
 - **CO Specification**: v1.1 (CC BY 4.0, Terrene Foundation)
-- **Short Name**: COF
+- **Short Name**: COL-F (formerly COF)
 - **Status**: Production
-- **CO Conformance**: Full five-layer implementation
+- **CO Conformance**: Full five-layer, six-phase implementation
 
-COF implements all 8 CO first principles and all 5 layers for the finance education domain. The CO specification is published at [terrene.foundation](https://terrene.foundation).
+COL-F implements all 8 CO first principles and all 5 layers for the finance education domain. The CO specification is published at [terrene.foundation](https://terrene.foundation).
 
 ## CO Architecture
 
-COF is one of several CO domain applications:
+COL-F sits within the COL (CO for Learners) family:
 
-| Application | Short Name | Domain |
-|-------------|-----------|--------|
-| CO for Codegen | COC | Software development |
-| CO for Research | COR | Academic research co-authorship |
-| CO for Education | COE | University GenAI assessment |
-| CO for Governance | COG | Standards and governance |
-| **CO for Finance** | **COF** | **Finance education and analysis** |
-| CO for Compliance | COComp | Regulatory compliance |
+| Application        | Short Name | Domain                             |
+| ------------------ | ---------- | ---------------------------------- |
+| CO for Learners    | COL        | Subject-agnostic student base      |
+| **COL for Finance** | **COL-F**  | **Finance education and analysis** |
+| COL for History    | COL-H      | History education (future)         |
+| COL for Biology    | COL-B      | Biology education (future)         |
 
 ### Five-Layer Implementation
 
-| Layer | CO Definition | COF Implementation |
-|-------|--------------|-------------------|
-| L1 Intent | Specialized agents with routing | 24 agents across 5 categories |
-| L2 Context | Institutional knowledge hierarchy | CLAUDE.md -> 13 rules -> 20 skill dirs -> workspace context |
-| L3 Guardrails | Deterministic enforcement | 5 hooks (citations, disclaimers, anti-amnesia) |
-| L4 Instructions | Structured workflows with gates | 6-phase workflow + 12 specialty commands |
-| L5 Learning | Observe-capture-evolve pipeline | session-end.js observation logging, /checkpoint review |
+| Layer           | CO Definition                     | COL-F Implementation                                                                        |
+| --------------- | --------------------------------- | ----------------------------------------------------------------------------------------- |
+| L1 Intent       | Specialized agents with routing   | 24 agents across 5 categories                                                             |
+| L2 Context      | Institutional knowledge hierarchy | CLAUDE.md -> 13 rules -> 20 skill dirs -> workspace context                               |
+| L3 Guardrails   | Deterministic enforcement         | 5 hooks (citations, disclaimers, anti-amnesia)                                            |
+| L4 Instructions | Structured workflows with gates   | 6-phase workflow (analyze, plan, execute, review, learn, deliver) + 12 specialty commands |
+| L5 Learning     | Observe-capture-evolve pipeline   | session-end.js observation logging, /checkpoint review                                    |
 
 ## Absolute Directives
 
@@ -81,31 +79,25 @@ See `rules/academic-integrity.md` for disclosure requirements.
 
 ## Workspace Commands
 
-| Command      | Purpose                                              |
-| ------------ | ---------------------------------------------------- |
-| `/start`     | Student orientation; explains the workflow            |
-| `/analyze`   | Research a topic deeply                               |
-| `/todos`     | Plan deliverables; stops for your approval            |
-| `/assignment`| Work through a course assignment                      |
-| `/challenge` | Stress-test your arguments                            |
-| `/ws`        | Check project status anytime                          |
-| `/wrapup`    | Save progress before ending a session                 |
+### 6-Phase Workflow
 
-**Academic Quick Commands:**
+| Phase          | Commands                                                             | Purpose                                                             |
+| -------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **01 Analyze** | `/analyze`, `/study`, `/research`, `/explain`                        | Research and understand the topic                                   |
+| **02 Plan**    | `/todos`, `/thesis`                                                  | Plan structure and deliverables                                     |
+| **03 Execute** | `/assignment`, `/practice`, `/case`, `/formula`, `/cite`, `/present` | Do the work                                                         |
+| **04 Review**  | `/challenge`, `/review`, `/redteam`                                  | Adversarial check; produces finalized output                        |
+| **05 Learn**   | `/learn`                                                             | Extract knowledge into .claude/ artifacts (human approval required) |
+| **06 Deliver** | `/deliver`                                                           | Package and ship the final deliverable                              |
 
-| Command       | Purpose                                |
-| ------------- | -------------------------------------- |
-| `/study`      | Study guide for a finance topic        |
-| `/research`   | Structured literature search           |
-| `/thesis`     | Thesis/paper planning                  |
-| `/present`    | Create a presentation                  |
-| `/explain`    | Concept explanation at your level      |
-| `/practice`   | Practice problems with solutions       |
-| `/cite`       | Citation formatting                    |
-| `/exam-prep`  | Exam preparation plan                  |
-| `/case`       | Case study analysis                    |
-| `/formula`    | Formula quick reference                |
-| `/review`     | Peer review of your writing            |
+### Core Commands
+
+| Command      | Purpose                                    |
+| ------------ | ------------------------------------------ |
+| `/start`     | Student orientation; explains the workflow |
+| `/ws`        | Check project status anytime               |
+| `/wrapup`    | Save progress before ending a session      |
+| `/exam-prep` | Exam preparation plan                      |
 
 **Workspace detection**: Hooks automatically detect the active workspace and inject context. `session-start.js` shows workspace status on session start. `user-prompt-rules-reminder.js` injects academic rules into Claude's context every turn (survives context compression).
 
@@ -113,21 +105,21 @@ See `rules/academic-integrity.md` for disclosure requirements.
 
 ## Rules Index
 
-| Concern                        | Rule File                        | Scope    |
-| ------------------------------ | -------------------------------- | -------- |
-| Academic integrity & citations | `rules/academic-integrity.md`    | Global   |
-| Academic writing standards     | `rules/academic-writing.md`      | Global   |
-| Research standards             | `rules/research-standards.md`    | Global   |
-| Citation formatting            | `rules/citation-standards.md`    | Global   |
-| Agent orchestration            | `rules/agents.md`                | Global   |
-| Plain-language communication   | `rules/communication.md`         | Global   |
-| Financial accuracy             | `rules/financial-accuracy.md`    | Global   |
-| Disclaimer compliance          | `rules/disclaimer-compliance.md` | Global   |
-| Data sourcing for research     | `rules/data-sourcing.md`         | Global   |
-| Data privacy & ethics          | `rules/security.md`              | Global   |
-| Version control                | `rules/git.md`                   | Global   |
-| Complete your analysis         | `rules/no-stubs.md`              | Global   |
-| Learning pedagogy              | `rules/learning-pedagogy.md`     | Global   |
+| Concern                        | Rule File                        | Scope  |
+| ------------------------------ | -------------------------------- | ------ |
+| Academic integrity & citations | `rules/academic-integrity.md`    | Global |
+| Academic writing standards     | `rules/academic-writing.md`      | Global |
+| Research standards             | `rules/research-standards.md`    | Global |
+| Citation formatting            | `rules/citation-standards.md`    | Global |
+| Agent orchestration            | `rules/agents.md`                | Global |
+| Plain-language communication   | `rules/communication.md`         | Global |
+| Financial accuracy             | `rules/financial-accuracy.md`    | Global |
+| Disclaimer compliance          | `rules/disclaimer-compliance.md` | Global |
+| Data sourcing for research     | `rules/data-sourcing.md`         | Global |
+| Data privacy & ethics          | `rules/security.md`              | Global |
+| Version control                | `rules/git.md`                   | Global |
+| Complete your analysis         | `rules/no-stubs.md`              | Global |
+| Learning pedagogy              | `rules/learning-pedagogy.md`     | Global |
 
 ## Agents
 
@@ -189,8 +181,8 @@ For finance domain knowledge, see `.claude/skills/` -- organized by topic:
 | `11-international-finance` | Exchange rates, BOP, parity conditions, currency crises             |
 | `12-fnce101-foundations`   | TVM, stock valuation, bond valuation, financial statements          |
 | `13-academic-writing`      | Thesis structure, argument construction, literature review          |
-| `14-research-methods`      | Source evaluation, data collection, econometrics basics              |
-| `15-citation-guide`        | APA 7th, Chicago, Harvard, common mistakes                         |
+| `14-research-methods`      | Source evaluation, data collection, econometrics basics             |
+| `15-citation-guide`        | APA 7th, Chicago, Harvard, common mistakes                          |
 | `16-presentation-skills`   | Slide design, data visualization, storytelling, delivery            |
 | `17-exam-preparation`      | Study strategies, problem types, formula sheets                     |
 | `18-case-study-framework`  | Case analysis method, frameworks, DCF walkthrough                   |

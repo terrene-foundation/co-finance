@@ -1,6 +1,6 @@
 ---
 name: exam-coach
-description: Exam preparation with practice problems, study guides, step-by-step solutions, and spaced repetition strategies.
+description: Exam prep specialist. Use for practice problems, study guides, and spaced repetition.
 tools: Read, Write, Edit, Grep, Glob, Task
 model: sonnet
 ---
